@@ -1,26 +1,32 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PERGUNTAS_FREQUENTES } from "../constants";
 
-// O Vite exige 'import.meta.env' para ler a chave configurada no Vercel
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+// Pega a chave do ambiente configurada no Vercel
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+const genAI = new GoogleGenerativeAI(API_KEY);
 
 export const createDexcoChat = async () => {
+  if (!API_KEY) {
+    console.error("Chave API (VITE_GEMINI_API_KEY) não encontrada!");
+    return null;
+  }
+
   try {
-    // Usamos o modelo 'gemini-1.5-flash' que é o mais rápido e compatível
+    // Definimos o modelo e a instrução de sistema de forma explícita
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-      systemInstruction: "Você é o Dexco Assist. Responda formalmente com base nisto: " + JSON.stringify(PERGUNTAS_FREQUENTES)
+      model: "gemini-1.5-flash", // Nome estável do modelo
     });
 
-    // Iniciamos o chat sem histórico para evitar erros de iteração
+    // Iniciamos o chat com a instrução de sistema separada para maior estabilidade
     return model.startChat({
       history: [],
-      generationConfig: {
-        maxOutputTokens: 1000,
-      },
+      systemInstruction: {
+        role: "system",
+        parts: [{ text: "Você é o Dexco Assist. Responda formalmente com base nisto: " + JSON.stringify(PERGUNTAS_FREQUENTES) }]
+      }
     });
   } catch (error) {
-    console.error("Erro ao criar chat:", error);
+    console.error("Erro ao inicializar o chat Gemini:", error);
     return null;
   }
 };
