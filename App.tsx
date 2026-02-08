@@ -35,38 +35,14 @@ const App: React.FC = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAiLoading]);
 
-  // FUNÇÃO DE CÓPIA ROBUSTA
+  // FUNÇÃO DE CÓPIA
   const handleCopy = (textToCopy?: string) => {
     const text = textToCopy || selected?.body;
     if (!text) return;
-
-    const performCopy = (txt: string) => {
-      const textArea = document.createElement("textarea");
-      textArea.value = txt;
-      textArea.style.position = "fixed";
-      textArea.style.left = "-9999px";
-      textArea.style.top = "0";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-      } catch (err) {
-        console.error('Erro ao copiar:', err);
-      }
-      document.body.removeChild(textArea);
-    };
-
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text).then(() => {
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-      }).catch(() => performCopy(text));
-    } else {
-      performCopy(text);
-    }
+    navigator.clipboard.writeText(text).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
   };
 
   const selectItem = (origin: Origin, index: number) => {
@@ -126,7 +102,7 @@ const App: React.FC = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8F9FA]">
       {/* Sidebar Esquerda */}
-      <aside className="w-[380px] bg-[#1A1A1A] text-white flex flex-col shadow-2xl z-10">
+      <aside className="w-[380px] bg-[#1A1A1A] text-white flex flex-col shadow-2xl z-20">
         <div className="p-6 border-b border-gray-800 bg-black text-center">
           <button onClick={() => {setChatMode(true); setSelected(null);}} className="w-full mb-6 p-3 bg-[#D4A373]/10 border border-[#D4A373]/30 rounded-lg text-[#D4A373] text-xs font-black uppercase tracking-widest hover:bg-[#D4A373]/20 transition-all">Novo Chat IA</button>
           <h1 className="text-lg font-black uppercase italic">Principais <span className="text-[#D4A373]">Duvidas</span></h1>
@@ -149,11 +125,6 @@ const App: React.FC = () => {
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] p-6 rounded-2xl bg-white border shadow-sm ${msg.role === 'model' ? 'border-l-8 border-[#D4A373]' : ''}`}>
                     <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
-                    {msg.role === 'model' && (
-                       <button onClick={() => handleCopy(msg.text)} className="mt-4 text-[10px] font-bold text-[#D4A373] uppercase flex items-center gap-1 hover:text-black">
-                         <i className="fas fa-copy"></i> Copiar
-                       </button>
-                    )}
                   </div>
                 </div>
               ))}
@@ -171,21 +142,23 @@ const App: React.FC = () => {
                       </span>
                       <h2 className="text-4xl font-black text-gray-900 mt-4 uppercase tracking-tighter leading-none">{selected.title}</h2>
                     </div>
-                    {/* BOTÕES DO TOPO RESTAURADOS */}
-                    <div className="flex gap-2">
-                      <button onClick={() => handleAskAI(null, `Me explique: ${selected.title}`)} className="px-4 py-2 bg-amber-50 text-[#D4A373] rounded-xl font-black uppercase text-[10px] flex items-center gap-2 hover:bg-[#D4A373] hover:text-white transition-all shadow-sm">
-                        <i className="fas fa-magic"></i> Refinar com IA
+                    {/* BOTÕES DO TOPO COM VISIBILIDADE REFORÇADA */}
+                    <div className="flex gap-3">
+                      <button onClick={() => handleAskAI(null, `Explique melhor: ${selected.title}`)} className="px-4 py-2 bg-amber-50 text-[#D4A373] border border-[#D4A373]/20 rounded-xl font-black uppercase text-[10px] shadow-sm">
+                        <i className="fas fa-magic mr-1"></i> Refinar com IA
                       </button>
                       <button 
                         onClick={() => handleCopy()} 
-                        className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center text-gray-400 hover:text-black transition-all shadow-sm"
-                        title="Copiar Conteúdo"
+                        className={`w-12 h-10 rounded-xl border flex items-center justify-center shadow-md transition-all ${isCopied ? 'bg-green-50 border-green-500 text-green-600' : 'bg-white border-gray-300 text-gray-700 hover:border-black'}`}
+                        title="Copiar Texto"
                       >
-                        <i className={`fas ${isCopied ? 'fa-check text-green-500' : 'fa-copy'} text-lg`}></i>
+                        {/* Se o ícone falhar, o texto "Copiar" ou o check aparecerá */}
+                        <i className={`fas ${isCopied ? 'fa-check' : 'fa-copy'} text-lg`}></i>
+                        {isCopied && <span className="ml-1 text-[8px] font-bold">OK</span>}
                       </button>
                     </div>
                   </div>
-                  <div className="bg-[#F8F9FA] p-10 rounded-3xl border shadow-inner">
+                  <div className="bg-[#F8F9FA] p-10 rounded-3xl border border-gray-200 shadow-inner">
                     <div className="text-gray-800 text-xl leading-relaxed whitespace-pre-wrap">{selected.body}</div>
                   </div>
                 </div>
@@ -194,7 +167,7 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
-          ) : <div className="h-full flex items-center justify-center text-gray-300 font-black uppercase tracking-widest">Selecione uma instrução</div>}
+          ) : <div className="h-full flex items-center justify-center text-gray-300 font-black uppercase">Selecione uma instrução</div>}
         </div>
         <div className="p-8 bg-white border-t">
           <form onSubmit={(e) => handleAskAI(e)} className="max-w-4xl mx-auto flex gap-4">
@@ -209,7 +182,7 @@ const App: React.FC = () => {
         <div className="p-6 bg-black border-b border-gray-800 text-center">
           <h1 className="text-lg font-black uppercase italic">Atendimento <span className="text-[#D4A373]">Cervello</span></h1>
           <p className="text-[9px] text-gray-500 uppercase mt-1 font-bold">Comandos Internos e Templates</p>
-          <input className="w-full mt-4 bg-[#262626] border border-gray-700 rounded-lg p-2 text-xs outline-none" placeholder="Buscar comando..." value={searchCommands} onChange={e => setSearchCommands(e.target.value)} />
+          <input type="text" placeholder="Buscar comando..." className="w-full mt-4 bg-[#262626] border border-gray-700 rounded-lg p-2 text-xs outline-none" value={searchCommands} onChange={(e) => setSearchCommands(e.target.value)} />
         </div>
         <div className="flex-1 overflow-y-auto">
           {COMANDOS_GEMS.filter(c => c.t.toLowerCase().includes(searchCommands.toLowerCase())).map((c, i) => (
