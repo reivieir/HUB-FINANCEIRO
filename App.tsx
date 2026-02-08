@@ -12,7 +12,7 @@ const App: React.FC = () => {
   const [searchCommands, setSearchCommands] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   
-  // Chat & AI State
+  // Chat & IA State
   const [chatMode, setChatMode] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [aiQuery, setAiQuery] = useState('');
@@ -74,7 +74,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Lógica de substituição de texto com a correção solicitada
   const handleModalSubmit = (values: Record<string, string>) => {
     if (!pendingCommand) return;
     
@@ -82,11 +81,11 @@ const App: React.FC = () => {
     const item = COMANDOS_GEMS[pendingCommand.index];
 
     if (item.t === "Recuperar Acesso") {
-      // AJUSTE SOLICITADO: Removemos "informado" e inserimos o valor do pop-up
-      // Esta linha procura o padrão antigo e substitui pelo novo formato
+      // AJUSTE: Remove "informado" e insere o usuário
       processedBody = processedBody
         .replace("usuário informado XXXXX", `usuário ${values["Usuário"]}`)
-        .replace("usuário informado 123", `usuário ${values["Usuário"]}`); 
+        .replace("usuário informado 123", `usuário ${values["Usuário"]}`)
+        .replace("usuário informado", `usuário ${values["Usuário"]}`);
     } else if (item.t === "Alterar Email Cadastrado") {
       processedBody = processedBody
         .replace("[EMAIL_ANTIGO]", values["Email Antigo"])
@@ -104,10 +103,10 @@ const App: React.FC = () => {
     setPendingCommand(null);
   };
 
-  const handleAskAI = async (e: React.FormEvent | null) => {
+  const handleAskAI = async (e: React.FormEvent | null, directPrompt?: string) => {
     if (e) e.preventDefault();
-    if (!aiQuery.trim() || !chatSession) return;
-    const query = aiQuery;
+    const query = directPrompt || aiQuery;
+    if (!query.trim() || !chatSession) return;
     setAiQuery(''); setChatMode(true);
     setMessages(prev => [...prev, { role: 'user', text: query }]);
     setIsAiLoading(true);
@@ -122,6 +121,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8F9FA]">
+      {/* Sidebar Esquerda */}
       <aside className="w-[380px] bg-[#1A1A1A] text-white flex flex-col shadow-2xl z-10">
         <div className="p-6 border-b border-gray-800 bg-black">
           <button onClick={() => {setChatMode(true); setSelected(null);}} className="w-full mb-6 p-3 bg-[#D4A373]/10 border border-[#D4A373]/30 rounded-lg text-[#D4A373] text-xs font-black uppercase tracking-widest hover:bg-[#D4A373]/20 transition-all">Novo Chat IA</button>
@@ -133,13 +133,14 @@ const App: React.FC = () => {
             <input type="text" placeholder="Buscar dúvida..." className="w-full bg-[#262626] border border-gray-700 rounded-lg py-2 px-3 text-xs text-gray-300 outline-none" value={searchFAQ} onChange={(e) => setSearchFAQ(e.target.value)} />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           {PERGUNTAS_FREQUENTES.filter(f => f.p.toLowerCase().includes(searchFAQ.toLowerCase())).map((f, i) => (
             <ListItem key={i} text={f.p} isActive={!chatMode && selected?.title === f.p} onClick={() => selectItem('faq', PERGUNTAS_FREQUENTES.indexOf(f))} showIndex />
           ))}
         </div>
       </aside>
 
+      {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden relative">
         <div className="p-8 flex-1 overflow-y-auto custom-scrollbar">
           {chatMode ? (
@@ -160,13 +161,26 @@ const App: React.FC = () => {
                 <div className="p-10">
                   <div className="flex justify-between items-start mb-10">
                     <div>
-                      <span className="text-[11px] font-black uppercase text-[#D4A373] bg-[#D4A373]/10 px-3 py-1.5 rounded-full">Fluxo Interno Cervello</span>
+                      <span className="text-[11px] font-black uppercase text-[#D4A373] bg-[#D4A373]/10 px-3 py-1.5 rounded-full">
+                        {selected.origin === 'faq' ? 'FAQ - Suporte Fornecedor' : 'Fluxo Interno Cervello'}
+                      </span>
                       <h2 className="text-4xl font-black text-gray-900 mt-4 uppercase tracking-tighter leading-none">{selected.title}</h2>
                     </div>
+                    {/* Botões do Topo com o Botão de Copiar Restaurado */}
                     <div className="flex gap-2">
-                      <button onClick={() => handleAskAI(null, `Me explique: ${selected.title}`)} className="p-3 bg-amber-50 text-[#D4A373] rounded-xl font-black uppercase text-[10px]">Refinar com IA</button>
-                      <button onClick={() => handleCopy()} className="p-3 bg-gray-50 text-gray-400 rounded-xl hover:bg-gray-100 hover:text-black transition-all">
-                        <i className={`fas ${isCopied ? 'fa-check text-green-500' : 'fa-copy'}`}></i>
+                      <button 
+                        onClick={() => handleAskAI(null, `Me explique: ${selected.title}`)} 
+                        className="px-4 py-2 bg-amber-50 text-[#D4A373] rounded-xl font-black uppercase text-[10px] flex items-center gap-2 hover:bg-[#D4A373] hover:text-white transition-all shadow-sm group"
+                      >
+                        <i className="fas fa-magic group-hover:rotate-12 transition-transform"></i>
+                        Refinar com IA
+                      </button>
+                      <button 
+                        onClick={() => handleCopy()} 
+                        className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center text-gray-400 hover:text-black transition-all shadow-sm"
+                        title="Copiar Texto"
+                      >
+                        <i className={`fas ${isCopied ? 'fa-check text-green-500' : 'fa-copy'} text-lg`}></i>
                       </button>
                     </div>
                   </div>
@@ -182,20 +196,21 @@ const App: React.FC = () => {
           ) : <div className="h-full flex items-center justify-center text-gray-300 font-black uppercase">Selecione uma instrução</div>}
         </div>
         <div className="p-8 bg-white border-t">
-          <form onSubmit={handleAskAI} className="max-w-4xl mx-auto flex gap-4">
+          <form onSubmit={(e) => handleAskAI(e)} className="max-w-4xl mx-auto flex gap-4">
             <input className="flex-1 p-5 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-[#D4A373]" placeholder="Dúvida rápida? Digite aqui para falar com a IA..." value={aiQuery} onChange={e => setAiQuery(e.target.value)} />
             <button type="submit" className="bg-black text-[#D4A373] px-10 rounded-2xl font-black uppercase text-xs">Enviar</button>
           </form>
         </div>
       </main>
 
+      {/* Sidebar Direita */}
       <aside className="w-[380px] bg-[#1A1A1A] text-white flex flex-col shadow-2xl">
         <div className="p-6 bg-black border-b border-gray-800 text-center">
           <h1 className="text-lg font-black uppercase italic">Atendimento <span className="text-[#D4A373]">Cervello</span></h1>
           <p className="text-[9px] text-gray-500 uppercase mt-1 font-bold">Comandos Internos e Templates</p>
           <input className="w-full mt-4 bg-[#262626] border border-gray-700 rounded-lg p-2 text-xs outline-none" placeholder="Buscar comando..." value={searchCommands} onChange={e => setSearchCommands(e.target.value)} />
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           {COMANDOS_GEMS.filter(c => c.t.toLowerCase().includes(searchCommands.toLowerCase())).map((c, i) => (
             <ListItem key={i} text={c.t} isActive={!chatMode && selected?.title === c.t} onClick={() => selectItem('command', COMANDOS_GEMS.indexOf(c))} />
           ))}
