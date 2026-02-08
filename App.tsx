@@ -12,14 +12,12 @@ const App: React.FC = () => {
   const [searchCommands, setSearchCommands] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   
-  // Chat & AI State
   const [chatMode, setChatMode] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [aiQuery, setAiQuery] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [chatSession, setChatSession] = useState<any>(null);
 
-  // Modal States
   const [modalOpen, setModalOpen] = useState(false);
   const [modalFields, setModalFields] = useState<string[]>([]);
   const [modalTitle, setModalTitle] = useState('');
@@ -37,42 +35,38 @@ const App: React.FC = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAiLoading]);
 
-  // FUNÇÃO DE CÓPIA ROBUSTA COM FEEDBACK VISUAL
+  // FUNÇÃO DE CÓPIA ROBUSTA
   const handleCopy = (textToCopy?: string) => {
     const text = textToCopy || selected?.body;
     if (!text) return;
 
-    // Tenta o método moderno primeiro
+    const performCopy = (txt: string) => {
+      const textArea = document.createElement("textarea");
+      textArea.value = txt;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      } catch (err) {
+        console.error('Erro ao copiar:', err);
+      }
+      document.body.removeChild(textArea);
+    };
+
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text).then(() => {
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
-      }).catch(() => fallbackCopy(text));
+      }).catch(() => performCopy(text));
     } else {
-      fallbackCopy(text);
+      performCopy(text);
     }
-  };
-
-  // Método de reserva (Fallback) caso o navegador bloqueie a API
-  const fallbackCopy = (text: string) => {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    textArea.style.position = "fixed";
-    textArea.style.left = "-9999px";
-    textArea.style.top = "0";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    try {
-      const successful = document.execCommand('copy');
-      if (successful) {
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-      }
-    } catch (err) {
-      console.error('Erro ao copiar:', err);
-    }
-    document.body.removeChild(textArea);
   };
 
   const selectItem = (origin: Origin, index: number) => {
@@ -82,20 +76,13 @@ const App: React.FC = () => {
       setSelected({ title: item.p, body: item.r, origin: 'faq', index });
     } else {
       const item = COMANDOS_GEMS[index];
-      if (item.t === "Extrair") {
-        setIsImageModalOpen(true);
-        return;
-      }
+      if (item.t === "Extrair") { setIsImageModalOpen(true); return; }
       if (item.t === "Recuperar Acesso") {
-        setModalTitle("INFORMAÇÕES DO USUÁRIO");
-        setModalFields(["Usuário"]);
-        setPendingCommand({ index, content: item.c });
-        setModalOpen(true);
+        setModalTitle("INFORMAÇÕES DO USUÁRIO"); setModalFields(["Usuário"]);
+        setPendingCommand({ index, content: item.c }); setModalOpen(true);
       } else if (item.t === "Alterar Email Cadastrado") {
-        setModalTitle("DADOS DA ALTERAÇÃO");
-        setModalFields(["Email Antigo", "Novo Email", "Usuário"]);
-        setPendingCommand({ index, content: item.c });
-        setModalOpen(true);
+        setModalTitle("DADOS DA ALTERAÇÃO"); setModalFields(["Email Antigo", "Novo Email", "Usuário"]);
+        setPendingCommand({ index, content: item.c }); setModalOpen(true);
       } else {
         setSelected({ title: item.t, body: item.c, origin: 'command', index });
       }
@@ -108,22 +95,17 @@ const App: React.FC = () => {
     const item = COMANDOS_GEMS[pendingCommand.index];
 
     if (item.t === "Recuperar Acesso") {
-      // AJUSTE SOLICITADO: Remove "informado" e insere o valor do pop-up
+      // AJUSTE: Remove "informado" e insere o usuário
       processedBody = processedBody
         .replace(/usuário informado XXXXX/g, `usuário ${values["Usuário"]}`)
         .replace(/usuário informado 123/g, `usuário ${values["Usuário"]}`)
-        .replace(/usuário informado/g, `usuário ${values["Usuário"]}`)
-        .replace(/informado/g, ""); // Remove qualquer outra ocorrência de "informado"
+        .replace(/usuário informado/g, `usuário ${values["Usuário"]}`);
     } else if (item.t === "Alterar Email Cadastrado") {
-      processedBody = processedBody
-        .replace("[EMAIL_ANTIGO]", values["Email Antigo"])
-        .replace("[EMAIL_NOVO]", values["Novo Email"])
-        .replace("[USUARIO]", values["Usuário"]);
+      processedBody = processedBody.replace("[EMAIL_ANTIGO]", values["Email Antigo"]).replace("[EMAIL_NOVO]", values["Novo Email"]).replace("[USUARIO]", values["Usuário"]);
     }
 
     setSelected({ title: item.t, body: processedBody, origin: 'command', index: pendingCommand.index });
-    setModalOpen(false);
-    setPendingCommand(null);
+    setModalOpen(false); setPendingCommand(null);
   };
 
   const handleAskAI = async (e: React.FormEvent | null, directPrompt?: string) => {
@@ -137,26 +119,21 @@ const App: React.FC = () => {
       const result = await chatSession.sendMessage(query);
       const response = await result.response;
       setMessages(prev => [...prev, { role: 'model', text: response.text() }]);
-    } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', text: "Erro na conexão." }]);
-    } finally { setIsAiLoading(false); }
+    } catch (error) { setMessages(prev => [...prev, { role: 'model', text: "Erro na conexão." }]); }
+    finally { setIsAiLoading(false); }
   };
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8F9FA]">
-      {/* Sidebar Esquerda: FAQ */}
+      {/* Sidebar Esquerda */}
       <aside className="w-[380px] bg-[#1A1A1A] text-white flex flex-col shadow-2xl z-10">
-        <div className="p-6 border-b border-gray-800 bg-black">
+        <div className="p-6 border-b border-gray-800 bg-black text-center">
           <button onClick={() => {setChatMode(true); setSelected(null);}} className="w-full mb-6 p-3 bg-[#D4A373]/10 border border-[#D4A373]/30 rounded-lg text-[#D4A373] text-xs font-black uppercase tracking-widest hover:bg-[#D4A373]/20 transition-all">Novo Chat IA</button>
-          <div className="text-center">
-            <h1 className="text-lg font-black tracking-tighter uppercase italic">Principais <span className="text-[#D4A373]">Duvidas</span></h1>
-            <p className="text-[9px] text-gray-500 uppercase mt-1 font-bold">Perguntas Frequentes</p>
-          </div>
-          <div className="mt-4 w-full relative">
-            <input type="text" placeholder="Buscar dúvida..." className="w-full bg-[#262626] border border-gray-700 rounded-lg py-2 px-3 text-xs text-gray-300 outline-none" value={searchFAQ} onChange={(e) => setSearchFAQ(e.target.value)} />
-          </div>
+          <h1 className="text-lg font-black uppercase italic">Principais <span className="text-[#D4A373]">Duvidas</span></h1>
+          <p className="text-[9px] text-gray-500 uppercase mt-1 font-bold">Perguntas Frequentes</p>
+          <input type="text" placeholder="Buscar dúvida..." className="w-full mt-4 bg-[#262626] border border-gray-700 rounded-lg p-2 text-xs outline-none" value={searchFAQ} onChange={(e) => setSearchFAQ(e.target.value)} />
         </div>
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 overflow-y-auto">
           {PERGUNTAS_FREQUENTES.filter(f => f.p.toLowerCase().includes(searchFAQ.toLowerCase())).map((f, i) => (
             <ListItem key={i} text={f.p} isActive={!chatMode && selected?.title === f.p} onClick={() => selectItem('faq', PERGUNTAS_FREQUENTES.indexOf(f))} showIndex />
           ))}
@@ -173,9 +150,9 @@ const App: React.FC = () => {
                   <div className={`max-w-[85%] p-6 rounded-2xl bg-white border shadow-sm ${msg.role === 'model' ? 'border-l-8 border-[#D4A373]' : ''}`}>
                     <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
                     {msg.role === 'model' && (
-                      <button onClick={() => handleCopy(msg.text)} className="mt-4 text-[10px] font-bold text-[#D4A373] uppercase flex items-center gap-1 hover:text-black">
-                        <i className="fas fa-copy"></i> Copiar
-                      </button>
+                       <button onClick={() => handleCopy(msg.text)} className="mt-4 text-[10px] font-bold text-[#D4A373] uppercase flex items-center gap-1 hover:text-black">
+                         <i className="fas fa-copy"></i> Copiar
+                       </button>
                     )}
                   </div>
                 </div>
@@ -201,9 +178,8 @@ const App: React.FC = () => {
                       </button>
                       <button 
                         onClick={() => handleCopy()} 
-                        className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center text-gray-400 hover:text-black transition-all shadow-sm cursor-pointer"
+                        className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center text-gray-400 hover:text-black transition-all shadow-sm"
                         title="Copiar Conteúdo"
-                        type="button"
                       >
                         <i className={`fas ${isCopied ? 'fa-check text-green-500' : 'fa-copy'} text-lg`}></i>
                       </button>
@@ -218,7 +194,7 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
-          ) : <div className="h-full flex items-center justify-center text-gray-300 font-black uppercase">Selecione uma instrução</div>}
+          ) : <div className="h-full flex items-center justify-center text-gray-300 font-black uppercase tracking-widest">Selecione uma instrução</div>}
         </div>
         <div className="p-8 bg-white border-t">
           <form onSubmit={(e) => handleAskAI(e)} className="max-w-4xl mx-auto flex gap-4">
@@ -228,14 +204,14 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      {/* Sidebar Direita: Comandos */}
+      {/* Sidebar Direita */}
       <aside className="w-[380px] bg-[#1A1A1A] text-white flex flex-col shadow-2xl">
         <div className="p-6 bg-black border-b border-gray-800 text-center">
           <h1 className="text-lg font-black uppercase italic">Atendimento <span className="text-[#D4A373]">Cervello</span></h1>
           <p className="text-[9px] text-gray-500 uppercase mt-1 font-bold">Comandos Internos e Templates</p>
           <input className="w-full mt-4 bg-[#262626] border border-gray-700 rounded-lg p-2 text-xs outline-none" placeholder="Buscar comando..." value={searchCommands} onChange={e => setSearchCommands(e.target.value)} />
         </div>
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 overflow-y-auto">
           {COMANDOS_GEMS.filter(c => c.t.toLowerCase().includes(searchCommands.toLowerCase())).map((c, i) => (
             <ListItem key={i} text={c.t} isActive={!chatMode && selected?.title === c.t} onClick={() => selectItem('command', COMANDOS_GEMS.indexOf(c))} />
           ))}
