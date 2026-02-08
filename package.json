@@ -1,7 +1,7 @@
 {
-  "name": "dexco-assist---central-triple-view",
+  "name": "dexco-assist",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
