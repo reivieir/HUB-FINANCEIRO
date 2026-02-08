@@ -169,7 +169,7 @@ const App: React.FC = () => {
     setIsAiLoading(true);
 
     try {
-      const result: GenerateContentResponse = await chatSession.sendMessage({ message: query });
+      const result = await chatSession.sendMessage(query);
       const modelText = result.text || "Não consegui processar sua dúvida.";
       setMessages(prev => [...prev, { role: 'model', text: modelText }]);
     } catch (error) {
