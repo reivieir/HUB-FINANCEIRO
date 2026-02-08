@@ -12,7 +12,7 @@ const App: React.FC = () => {
   const [searchCommands, setSearchCommands] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   
-  // Chat & IA State
+  // Chat & AI State
   const [chatMode, setChatMode] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [aiQuery, setAiQuery] = useState('');
@@ -37,14 +37,32 @@ const App: React.FC = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAiLoading]);
 
-  const handleCopy = useCallback((textToCopy?: string) => {
+  // Função de cópia robusta com feedback visual
+  const handleCopy = async (textToCopy?: string) => {
     const text = textToCopy || selected?.body;
     if (!text) return;
-    navigator.clipboard.writeText(text).then(() => {
+
+    try {
+      // Tenta usar a API moderna primeiro
+      await navigator.clipboard.writeText(text);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
-    });
-  }, [selected]);
+    } catch (err) {
+      // Fallback para métodos antigos se a API falhar
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      } catch (err2) {
+        console.error('Falha ao copiar texto: ', err2);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
 
   const selectItem = (origin: Origin, index: number) => {
     setChatMode(false);
@@ -57,7 +75,6 @@ const App: React.FC = () => {
         setIsImageModalOpen(true);
         return;
       }
-
       if (item.t === "Recuperar Acesso") {
         setModalTitle("INFORMAÇÕES DO USUÁRIO");
         setModalFields(["Usuário"]);
@@ -76,16 +93,15 @@ const App: React.FC = () => {
 
   const handleModalSubmit = (values: Record<string, string>) => {
     if (!pendingCommand) return;
-    
     let processedBody = pendingCommand.content;
     const item = COMANDOS_GEMS[pendingCommand.index];
 
     if (item.t === "Recuperar Acesso") {
-      // AJUSTE: Remove "informado" e insere o usuário
+      // Ajuste solicitado: remove "informado" e insere o usuário
       processedBody = processedBody
-        .replace("usuário informado XXXXX", `usuário ${values["Usuário"]}`)
-        .replace("usuário informado 123", `usuário ${values["Usuário"]}`)
-        .replace("usuário informado", `usuário ${values["Usuário"]}`);
+        .replace(/usuário informado XXXXX/g, `usuário ${values["Usuário"]}`)
+        .replace(/usuário informado 123/g, `usuário ${values["Usuário"]}`)
+        .replace(/usuário informado/g, `usuário ${values["Usuário"]}`);
     } else if (item.t === "Alterar Email Cadastrado") {
       processedBody = processedBody
         .replace("[EMAIL_ANTIGO]", values["Email Antigo"])
@@ -93,12 +109,7 @@ const App: React.FC = () => {
         .replace("[USUARIO]", values["Usuário"]);
     }
 
-    setSelected({
-      title: item.t,
-      body: processedBody,
-      origin: 'command',
-      index: pendingCommand.index
-    });
+    setSelected({ title: item.t, body: processedBody, origin: 'command', index: pendingCommand.index });
     setModalOpen(false);
     setPendingCommand(null);
   };
@@ -140,7 +151,7 @@ const App: React.FC = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden relative">
         <div className="p-8 flex-1 overflow-y-auto custom-scrollbar">
           {chatMode ? (
@@ -148,7 +159,13 @@ const App: React.FC = () => {
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] p-6 rounded-2xl bg-white border shadow-sm ${msg.role === 'model' ? 'border-l-8 border-[#D4A373]' : ''}`}>
+                    <p className="text-[10px] font-black uppercase mb-3 tracking-widest opacity-40">{msg.role === 'user' ? 'Você' : 'Assistente Dexco'}</p>
                     <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+                    {msg.role === 'model' && (
+                      <button onClick={() => handleCopy(msg.text)} className="mt-4 text-[10px] font-bold text-[#D4A373] uppercase flex items-center gap-1 hover:text-black">
+                        <i className="fas fa-copy"></i> Copiar Resposta
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -156,29 +173,25 @@ const App: React.FC = () => {
               <div ref={chatEndRef} />
             </div>
           ) : selected ? (
-            <div className="max-w-5xl mx-auto">
+            <div className="animate-fade-in max-w-5xl mx-auto">
               <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-t-[12px] border-[#D4A373] relative min-h-[550px]">
                 <div className="p-10">
                   <div className="flex justify-between items-start mb-10">
                     <div>
-                      <span className="text-[11px] font-black uppercase text-[#D4A373] bg-[#D4A373]/10 px-3 py-1.5 rounded-full">
+                      <span className="text-[11px] font-black uppercase text-[#D4A373] bg-[#D4A373]/10 px-3 py-1.5 rounded-full tracking-tighter">
                         {selected.origin === 'faq' ? 'FAQ - Suporte Fornecedor' : 'Fluxo Interno Cervello'}
                       </span>
                       <h2 className="text-4xl font-black text-gray-900 mt-4 uppercase tracking-tighter leading-none">{selected.title}</h2>
                     </div>
-                    {/* Botões do Topo com o Botão de Copiar Restaurado */}
+                    {/* Botões do Topo Restaurados */}
                     <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleAskAI(null, `Me explique: ${selected.title}`)} 
-                        className="px-4 py-2 bg-amber-50 text-[#D4A373] rounded-xl font-black uppercase text-[10px] flex items-center gap-2 hover:bg-[#D4A373] hover:text-white transition-all shadow-sm group"
-                      >
-                        <i className="fas fa-magic group-hover:rotate-12 transition-transform"></i>
-                        Refinar com IA
+                      <button onClick={() => handleAskAI(null, `Me explique: ${selected.title}`)} className="px-4 py-2 bg-amber-50 text-[#D4A373] rounded-xl font-black uppercase text-[10px] flex items-center gap-2 hover:bg-[#D4A373] hover:text-white transition-all shadow-sm">
+                        <i className="fas fa-magic"></i> Refinar com IA
                       </button>
                       <button 
                         onClick={() => handleCopy()} 
                         className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center text-gray-400 hover:text-black transition-all shadow-sm"
-                        title="Copiar Texto"
+                        title="Copiar Conteúdo"
                       >
                         <i className={`fas ${isCopied ? 'fa-check text-green-500' : 'fa-copy'} text-lg`}></i>
                       </button>
