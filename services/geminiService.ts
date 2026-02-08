@@ -1,23 +1,14 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PERGUNTAS_FREQUENTES } from "../constants";
 
-// O Vite exige 'import.meta.env' para ler a chave configurada no Vercel
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const genAI = new GoogleGenerativeAI(API_KEY);
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
 
 export const createDexcoChat = async () => {
-  if (!API_KEY) {
-    console.error("ERRO: Chave API VITE_GEMINI_API_KEY não encontrada no ambiente.");
-    return null;
-  }
-
   try {
-    // Definimos o modelo de forma explícita
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash", // Modelo estável
+      model: "gemini-1.5-flash" 
     });
 
-    // Iniciamos o chat passando as instruções de sistema de forma separada
     return model.startChat({
       history: [],
       systemInstruction: {
@@ -26,7 +17,7 @@ export const createDexcoChat = async () => {
       }
     });
   } catch (error) {
-    console.error("Erro ao inicializar o chat Gemini:", error);
+    console.error("Erro ao carregar Gemini:", error);
     return null;
   }
 };
