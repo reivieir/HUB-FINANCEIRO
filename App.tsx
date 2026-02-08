@@ -12,7 +12,7 @@ const App: React.FC = () => {
   const [searchCommands, setSearchCommands] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   
-  // Chat & AI State
+  // Chat & IA State
   const [chatMode, setChatMode] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [aiQuery, setAiQuery] = useState('');
@@ -37,31 +37,43 @@ const App: React.FC = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAiLoading]);
 
-  // Função de cópia robusta com feedback visual
-  const handleCopy = async (textToCopy?: string) => {
+  // FUNÇÃO DE CÓPIA BLINDADA
+  const handleCopy = (textToCopy?: string) => {
     const text = textToCopy || selected?.body;
     if (!text) return;
 
+    // Método 1: API Moderna
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      }).catch(() => {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  };
+
+  // Método 2: Fallback para navegadores que bloqueiam a API moderna
+  const fallbackCopy = (text: string) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    // Garante que o elemento não apareça na tela mas seja selecionável
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    textArea.style.top = "0";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
     try {
-      // Tenta usar a API moderna primeiro
-      await navigator.clipboard.writeText(text);
+      document.execCommand('copy');
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
-      // Fallback para métodos antigos se a API falhar
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
-      } catch (err2) {
-        console.error('Falha ao copiar texto: ', err2);
-      }
-      document.body.removeChild(textArea);
+      console.error('Erro ao copiar:', err);
     }
+    document.body.removeChild(textArea);
   };
 
   const selectItem = (origin: Origin, index: number) => {
@@ -97,7 +109,7 @@ const App: React.FC = () => {
     const item = COMANDOS_GEMS[pendingCommand.index];
 
     if (item.t === "Recuperar Acesso") {
-      // Ajuste solicitado: remove "informado" e insere o usuário
+      // AJUSTE SOLICITADO: Remove "informado" e insere o usuário
       processedBody = processedBody
         .replace(/usuário informado XXXXX/g, `usuário ${values["Usuário"]}`)
         .replace(/usuário informado 123/g, `usuário ${values["Usuário"]}`)
@@ -151,7 +163,7 @@ const App: React.FC = () => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden relative">
         <div className="p-8 flex-1 overflow-y-auto custom-scrollbar">
           {chatMode ? (
@@ -159,17 +171,16 @@ const App: React.FC = () => {
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] p-6 rounded-2xl bg-white border shadow-sm ${msg.role === 'model' ? 'border-l-8 border-[#D4A373]' : ''}`}>
-                    <p className="text-[10px] font-black uppercase mb-3 tracking-widest opacity-40">{msg.role === 'user' ? 'Você' : 'Assistente Dexco'}</p>
                     <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
                     {msg.role === 'model' && (
                       <button onClick={() => handleCopy(msg.text)} className="mt-4 text-[10px] font-bold text-[#D4A373] uppercase flex items-center gap-1 hover:text-black">
-                        <i className="fas fa-copy"></i> Copiar Resposta
+                        <i className="fas fa-copy"></i> Copiar
                       </button>
                     )}
                   </div>
                 </div>
               ))}
-              {isAiLoading && <div className="text-gray-400 animate-pulse">Pensando...</div>}
+              {isAiLoading && <div className="text-gray-400 animate-pulse">Digitando...</div>}
               <div ref={chatEndRef} />
             </div>
           ) : selected ? (
@@ -191,7 +202,7 @@ const App: React.FC = () => {
                       <button 
                         onClick={() => handleCopy()} 
                         className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center text-gray-400 hover:text-black transition-all shadow-sm"
-                        title="Copiar Conteúdo"
+                        title="Copiar Tudo"
                       >
                         <i className={`fas ${isCopied ? 'fa-check text-green-500' : 'fa-copy'} text-lg`}></i>
                       </button>
@@ -208,9 +219,10 @@ const App: React.FC = () => {
             </div>
           ) : <div className="h-full flex items-center justify-center text-gray-300 font-black uppercase">Selecione uma instrução</div>}
         </div>
+        {/* Barra de Input fixa no rodapé */}
         <div className="p-8 bg-white border-t">
           <form onSubmit={(e) => handleAskAI(e)} className="max-w-4xl mx-auto flex gap-4">
-            <input className="flex-1 p-5 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-[#D4A373]" placeholder="Dúvida rápida? Digite aqui para falar com a IA..." value={aiQuery} onChange={e => setAiQuery(e.target.value)} />
+            <input className="flex-1 p-5 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-[#D4A373]" placeholder="Dúvida rápida? Digite aqui..." value={aiQuery} onChange={e => setAiQuery(e.target.value)} />
             <button type="submit" className="bg-black text-[#D4A373] px-10 rounded-2xl font-black uppercase text-xs">Enviar</button>
           </form>
         </div>
