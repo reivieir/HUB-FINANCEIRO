@@ -12,7 +12,7 @@ const App: React.FC = () => {
   const [searchCommands, setSearchCommands] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   
-  // Chat & IA State
+  // Chat & AI State
   const [chatMode, setChatMode] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [aiQuery, setAiQuery] = useState('');
@@ -37,29 +37,26 @@ const App: React.FC = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAiLoading]);
 
-  // FUNÇÃO DE CÓPIA BLINDADA
+  // FUNÇÃO DE CÓPIA ROBUSTA COM FEEDBACK VISUAL
   const handleCopy = (textToCopy?: string) => {
     const text = textToCopy || selected?.body;
     if (!text) return;
 
-    // Método 1: API Moderna
+    // Tenta o método moderno primeiro
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text).then(() => {
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2000);
-      }).catch(() => {
-        fallbackCopy(text);
-      });
+      }).catch(() => fallbackCopy(text));
     } else {
       fallbackCopy(text);
     }
   };
 
-  // Método 2: Fallback para navegadores que bloqueiam a API moderna
+  // Método de reserva (Fallback) caso o navegador bloqueie a API
   const fallbackCopy = (text: string) => {
     const textArea = document.createElement("textarea");
     textArea.value = text;
-    // Garante que o elemento não apareça na tela mas seja selecionável
     textArea.style.position = "fixed";
     textArea.style.left = "-9999px";
     textArea.style.top = "0";
@@ -67,9 +64,11 @@ const App: React.FC = () => {
     textArea.focus();
     textArea.select();
     try {
-      document.execCommand('copy');
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      const successful = document.execCommand('copy');
+      if (successful) {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      }
     } catch (err) {
       console.error('Erro ao copiar:', err);
     }
@@ -109,11 +108,12 @@ const App: React.FC = () => {
     const item = COMANDOS_GEMS[pendingCommand.index];
 
     if (item.t === "Recuperar Acesso") {
-      // AJUSTE SOLICITADO: Remove "informado" e insere o usuário
+      // AJUSTE SOLICITADO: Remove "informado" e insere o valor do pop-up
       processedBody = processedBody
         .replace(/usuário informado XXXXX/g, `usuário ${values["Usuário"]}`)
         .replace(/usuário informado 123/g, `usuário ${values["Usuário"]}`)
-        .replace(/usuário informado/g, `usuário ${values["Usuário"]}`);
+        .replace(/usuário informado/g, `usuário ${values["Usuário"]}`)
+        .replace(/informado/g, ""); // Remove qualquer outra ocorrência de "informado"
     } else if (item.t === "Alterar Email Cadastrado") {
       processedBody = processedBody
         .replace("[EMAIL_ANTIGO]", values["Email Antigo"])
@@ -144,7 +144,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8F9FA]">
-      {/* Sidebar Esquerda */}
+      {/* Sidebar Esquerda: FAQ */}
       <aside className="w-[380px] bg-[#1A1A1A] text-white flex flex-col shadow-2xl z-10">
         <div className="p-6 border-b border-gray-800 bg-black">
           <button onClick={() => {setChatMode(true); setSelected(null);}} className="w-full mb-6 p-3 bg-[#D4A373]/10 border border-[#D4A373]/30 rounded-lg text-[#D4A373] text-xs font-black uppercase tracking-widest hover:bg-[#D4A373]/20 transition-all">Novo Chat IA</button>
@@ -163,7 +163,7 @@ const App: React.FC = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden relative">
         <div className="p-8 flex-1 overflow-y-auto custom-scrollbar">
           {chatMode ? (
@@ -194,15 +194,16 @@ const App: React.FC = () => {
                       </span>
                       <h2 className="text-4xl font-black text-gray-900 mt-4 uppercase tracking-tighter leading-none">{selected.title}</h2>
                     </div>
-                    {/* Botões do Topo Restaurados */}
+                    {/* BOTÕES DO TOPO RESTAURADOS */}
                     <div className="flex gap-2">
                       <button onClick={() => handleAskAI(null, `Me explique: ${selected.title}`)} className="px-4 py-2 bg-amber-50 text-[#D4A373] rounded-xl font-black uppercase text-[10px] flex items-center gap-2 hover:bg-[#D4A373] hover:text-white transition-all shadow-sm">
                         <i className="fas fa-magic"></i> Refinar com IA
                       </button>
                       <button 
                         onClick={() => handleCopy()} 
-                        className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center text-gray-400 hover:text-black transition-all shadow-sm"
-                        title="Copiar Tudo"
+                        className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center text-gray-400 hover:text-black transition-all shadow-sm cursor-pointer"
+                        title="Copiar Conteúdo"
+                        type="button"
                       >
                         <i className={`fas ${isCopied ? 'fa-check text-green-500' : 'fa-copy'} text-lg`}></i>
                       </button>
@@ -219,16 +220,15 @@ const App: React.FC = () => {
             </div>
           ) : <div className="h-full flex items-center justify-center text-gray-300 font-black uppercase">Selecione uma instrução</div>}
         </div>
-        {/* Barra de Input fixa no rodapé */}
         <div className="p-8 bg-white border-t">
           <form onSubmit={(e) => handleAskAI(e)} className="max-w-4xl mx-auto flex gap-4">
-            <input className="flex-1 p-5 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-[#D4A373]" placeholder="Dúvida rápida? Digite aqui..." value={aiQuery} onChange={e => setAiQuery(e.target.value)} />
+            <input className="flex-1 p-5 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-[#D4A373]" placeholder="Dúvida rápida? Digite aqui para falar com a IA..." value={aiQuery} onChange={e => setAiQuery(e.target.value)} />
             <button type="submit" className="bg-black text-[#D4A373] px-10 rounded-2xl font-black uppercase text-xs">Enviar</button>
           </form>
         </div>
       </main>
 
-      {/* Sidebar Direita */}
+      {/* Sidebar Direita: Comandos */}
       <aside className="w-[380px] bg-[#1A1A1A] text-white flex flex-col shadow-2xl">
         <div className="p-6 bg-black border-b border-gray-800 text-center">
           <h1 className="text-lg font-black uppercase italic">Atendimento <span className="text-[#D4A373]">Cervello</span></h1>
