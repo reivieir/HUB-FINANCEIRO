@@ -12,19 +12,18 @@ const App: React.FC = () => {
   const [searchCommands, setSearchCommands] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   
-  // Chat State
+  // Chat & AI State
   const [chatMode, setChatMode] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [aiQuery, setAiQuery] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [chatSession, setChatSession] = useState<any>(null);
 
-  // Modal States para Comandos Dinâmicos
+  // Modal States
   const [modalOpen, setModalOpen] = useState(false);
   const [modalFields, setModalFields] = useState<string[]>([]);
   const [modalTitle, setModalTitle] = useState('');
   const [pendingCommand, setPendingCommand] = useState<{index: number, content: string} | null>(null);
-  
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
   
@@ -47,7 +46,6 @@ const App: React.FC = () => {
     });
   }, [selected]);
 
-  // Função que detecta se o comando precisa de um pop-up
   const selectItem = (origin: Origin, index: number) => {
     setChatMode(false);
     if (origin === 'faq') {
@@ -55,44 +53,40 @@ const App: React.FC = () => {
       setSelected({ title: item.p, body: item.r, origin: 'faq', index });
     } else {
       const item = COMANDOS_GEMS[index];
-      
-      // Lógica para o comando de Extração por IA
       if (item.t === "Extrair") {
         setIsImageModalOpen(true);
         return;
       }
 
-      // Lógica para o pop-up de "Recuperar Acesso"
       if (item.t === "Recuperar Acesso") {
         setModalTitle("INFORMAÇÕES DO USUÁRIO");
         setModalFields(["Usuário"]);
         setPendingCommand({ index, content: item.c });
         setModalOpen(true);
-      } 
-      // Lógica para o pop-up de "Alterar Email Cadastrado"
-      else if (item.t === "Alterar Email Cadastrado") {
+      } else if (item.t === "Alterar Email Cadastrado") {
         setModalTitle("DADOS DA ALTERAÇÃO");
         setModalFields(["Email Antigo", "Novo Email", "Usuário"]);
         setPendingCommand({ index, content: item.c });
         setModalOpen(true);
-      } 
-      // Comandos simples sem pop-up
-      else {
+      } else {
         setSelected({ title: item.t, body: item.c, origin: 'command', index });
       }
     }
   };
 
-  // Função que processa os dados do pop-up e gera o texto final
+  // Lógica de substituição de texto com a correção solicitada
   const handleModalSubmit = (values: Record<string, string>) => {
     if (!pendingCommand) return;
     
     let processedBody = pendingCommand.content;
     const item = COMANDOS_GEMS[pendingCommand.index];
 
-    // Substitui o espaço reservado pelo usuário digitado no pop-up
     if (item.t === "Recuperar Acesso") {
-      processedBody = processedBody.replace("XXXXX", values["Usuário"]);
+      // AJUSTE SOLICITADO: Removemos "informado" e inserimos o valor do pop-up
+      // Esta linha procura o padrão antigo e substitui pelo novo formato
+      processedBody = processedBody
+        .replace("usuário informado XXXXX", `usuário ${values["Usuário"]}`)
+        .replace("usuário informado 123", `usuário ${values["Usuário"]}`); 
     } else if (item.t === "Alterar Email Cadastrado") {
       processedBody = processedBody
         .replace("[EMAIL_ANTIGO]", values["Email Antigo"])
@@ -110,10 +104,10 @@ const App: React.FC = () => {
     setPendingCommand(null);
   };
 
-  const handleAskAI = async (e: React.FormEvent | null, directPrompt?: string) => {
+  const handleAskAI = async (e: React.FormEvent | null) => {
     if (e) e.preventDefault();
-    const query = directPrompt || aiQuery;
-    if (!query.trim() || !chatSession) return;
+    if (!aiQuery.trim() || !chatSession) return;
+    const query = aiQuery;
     setAiQuery(''); setChatMode(true);
     setMessages(prev => [...prev, { role: 'user', text: query }]);
     setIsAiLoading(true);
@@ -122,18 +116,15 @@ const App: React.FC = () => {
       const response = await result.response;
       setMessages(prev => [...prev, { role: 'model', text: response.text() }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', text: "Erro na conexão com a IA." }]);
+      setMessages(prev => [...prev, { role: 'model', text: "Erro na conexão." }]);
     } finally { setIsAiLoading(false); }
   };
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8F9FA]">
-      {/* Sidebar Esquerda: FAQ */}
       <aside className="w-[380px] bg-[#1A1A1A] text-white flex flex-col shadow-2xl z-10">
         <div className="p-6 border-b border-gray-800 bg-black">
-          <button onClick={() => {setChatMode(true); setSelected(null);}} className="w-full mb-6 p-3 bg-[#D4A373]/10 border border-[#D4A373]/30 rounded-lg text-[#D4A373] text-xs font-black uppercase tracking-widest hover:bg-[#D4A373]/20 transition-all">
-            Novo Chat IA
-          </button>
+          <button onClick={() => {setChatMode(true); setSelected(null);}} className="w-full mb-6 p-3 bg-[#D4A373]/10 border border-[#D4A373]/30 rounded-lg text-[#D4A373] text-xs font-black uppercase tracking-widest hover:bg-[#D4A373]/20 transition-all">Novo Chat IA</button>
           <div className="text-center">
             <h1 className="text-lg font-black tracking-tighter uppercase italic">Principais <span className="text-[#D4A373]">Duvidas</span></h1>
             <p className="text-[9px] text-gray-500 uppercase mt-1 font-bold">Perguntas Frequentes</p>
@@ -149,7 +140,6 @@ const App: React.FC = () => {
         </div>
       </aside>
 
-      {/* Main Content: Onde o texto final aparece formatado */}
       <main className="flex-1 flex flex-col overflow-hidden relative">
         <div className="p-8 flex-1 overflow-y-auto custom-scrollbar">
           {chatMode ? (
@@ -170,20 +160,17 @@ const App: React.FC = () => {
                 <div className="p-10">
                   <div className="flex justify-between items-start mb-10">
                     <div>
-                      <span className="text-[11px] font-black uppercase text-[#D4A373] bg-[#D4A373]/10 px-3 py-1.5 rounded-full">
-                        {selected.origin === 'faq' ? 'FAQ - Suporte Fornecedor' : 'Fluxo Interno Cervello'}
-                      </span>
+                      <span className="text-[11px] font-black uppercase text-[#D4A373] bg-[#D4A373]/10 px-3 py-1.5 rounded-full">Fluxo Interno Cervello</span>
                       <h2 className="text-4xl font-black text-gray-900 mt-4 uppercase tracking-tighter leading-none">{selected.title}</h2>
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => handleAskAI(null, `Me explique: ${selected.title}`)} className="p-3 bg-amber-50 text-[#D4A373] rounded-xl font-black uppercase text-[10px]">Refinar com IA</button>
-                      <button onClick={() => handleCopy()} className="p-3 bg-gray-50 text-gray-400 rounded-xl hover:text-black transition-all">
+                      <button onClick={() => handleCopy()} className="p-3 bg-gray-50 text-gray-400 rounded-xl hover:bg-gray-100 hover:text-black transition-all">
                         <i className={`fas ${isCopied ? 'fa-check text-green-500' : 'fa-copy'}`}></i>
                       </button>
                     </div>
                   </div>
                   <div className="bg-[#F8F9FA] p-10 rounded-3xl border shadow-inner">
-                    {/* Mantendo os parágrafos e variáveis inseridas via pop-up */}
                     <div className="text-gray-800 text-xl leading-relaxed whitespace-pre-wrap">{selected.body}</div>
                   </div>
                 </div>
@@ -195,14 +182,13 @@ const App: React.FC = () => {
           ) : <div className="h-full flex items-center justify-center text-gray-300 font-black uppercase">Selecione uma instrução</div>}
         </div>
         <div className="p-8 bg-white border-t">
-          <form onSubmit={(e) => handleAskAI(e)} className="max-w-4xl mx-auto flex gap-4">
+          <form onSubmit={handleAskAI} className="max-w-4xl mx-auto flex gap-4">
             <input className="flex-1 p-5 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-[#D4A373]" placeholder="Dúvida rápida? Digite aqui para falar com a IA..." value={aiQuery} onChange={e => setAiQuery(e.target.value)} />
             <button type="submit" className="bg-black text-[#D4A373] px-10 rounded-2xl font-black uppercase text-xs">Enviar</button>
           </form>
         </div>
       </main>
 
-      {/* Sidebar Direita: Comandos Gems */}
       <aside className="w-[380px] bg-[#1A1A1A] text-white flex flex-col shadow-2xl">
         <div className="p-6 bg-black border-b border-gray-800 text-center">
           <h1 className="text-lg font-black uppercase italic">Atendimento <span className="text-[#D4A373]">Cervello</span></h1>
@@ -216,15 +202,7 @@ const App: React.FC = () => {
         </div>
       </aside>
 
-      {/* O Componente que abre o Pop-up de Usuário */}
-      <PromptModal 
-        isOpen={modalOpen} 
-        onClose={() => {setModalOpen(false); setPendingCommand(null);}} 
-        title={modalTitle} 
-        fields={modalFields} 
-        onSubmit={handleModalSubmit} 
-      />
-      
+      <PromptModal isOpen={modalOpen} onClose={() => {setModalOpen(false); setPendingCommand(null);}} title={modalTitle} fields={modalFields} onSubmit={handleModalSubmit} />
       <ImageUploadModal isOpen={isImageModalOpen} onClose={() => setIsImageModalOpen(false)} isLoading={isExtracting} onConfirm={async (b) => { setIsExtracting(true); setSelected({title: "Extração", body: await extractDataFromImage(b), origin: 'ai'}); setIsExtracting(false); setIsImageModalOpen(false); }} />
     </div>
   );
