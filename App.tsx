@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PERGUNTAS_FREQUENTES, COMANDOS_GEMS } from './constants';
 import { SelectedContent, Origin } from './types';
@@ -6,8 +5,8 @@ import ListItem from './components/ListItem';
 import PromptModal from './components/PromptModal';
 import ImageUploadModal from './components/ImageUploadModal';
 import { createDexcoChat, extractDataFromImage } from './services/geminiService';
-import { Chat, GenerateContentResponse } from '@google/genai';
 
+// Ajustado para a biblioteca correta que configuramos no package.json
 interface Message {
   role: 'user' | 'model';
   text: string;
@@ -24,7 +23,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [aiQuery, setAiQuery] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [chatSession, setChatSession] = useState<Chat | null>(null);
+  const [chatSession, setChatSession] = useState<any>(null);
 
   // Modal States
   const [modalOpen, setModalOpen] = useState(false);
@@ -38,9 +37,13 @@ const App: React.FC = () => {
   
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Initialize chat session once
+  // Inicializa a sessão de chat
   useEffect(() => {
-    setChatSession(createDexcoChat());
+    const initChat = async () => {
+      const session = await createDexcoChat();
+      setChatSession(session);
+    };
+    initChat();
   }, []);
 
   // Auto-scroll chat
@@ -79,41 +82,7 @@ const App: React.FC = () => {
 
   const selectItem = (origin: Origin, index: number) => {
     setChatMode(false);
-    if (origin === 'faq') {
-      const item = PERGUNTAS_FREQUENTES[index];
-      setSelected({
-        title: item.p,
-        body: item.r,
-        origin: 'faq',
-        index
-      });
-    } else {
-      const item = COMANDOS_GEMS[index];
-      
-      if (item.t === "Extrair") {
-        setIsImageModalOpen(true);
-        return;
-      }
-
-      if (item.t === "Recuperar Acesso") {
-        setModalTitle("Informações do Usuário");
-        setModalFields(["Usuário"]);
-        setPendingCommand({ index, content: item.c });
-        setModalOpen(true);
-      } else if (item.t === "Alterar Email Cadastrado") {
-        setModalTitle("Dados da Alteração");
-        setModalFields(["Email Antigo", "Novo Email", "Usuário"]);
-        setPendingCommand({ index, content: item.c });
-        setModalOpen(true);
-      } else {
-        setSelected({
-          title: item.t,
-          body: item.c,
-          origin: 'command',
-          index
-        });
-      }
-    }
+    if (origin === 'faq') {<br>      const item = PERGUNTAS_FREQUENTES[index];<br>      setSelected({<br>        title: item.p,<br>        body: item.r,<br>        origin: 'faq',<br>        index<br>      });<br>    } else {<br>      const item = COMANDOS_GEMS[index];<br>      <br>      if (item.t === "Extrair") {<br>        setIsImageModalOpen(true);<br>        return;<br>      }<br><br>      if (item.t === "Recuperar Acesso") {<br>        setModalTitle("Informações do Usuário");<br>        setModalFields(["Usuário"]);<br>        setPendingCommand({ index, content: item.c });<br>        setModalOpen(true);<br>      } else if (item.t === "Alterar Email Cadastrado") {<br>        setModalTitle("Dados da Alteração");<br>        setModalFields(["Email Antigo", "Novo Email", "Usuário"]);<br>        setPendingCommand({ index, content: item.c });<br>        setModalOpen(true);<br>      } else {<br>        setSelected({<br>          title: item.t,<br>          body: item.c,<br>          origin: 'command',<br>          index<br>        });<br>      }<br>    }
   };
 
   const handleImageConfirm = async (base64: string) => {
@@ -169,12 +138,15 @@ const App: React.FC = () => {
     setIsAiLoading(true);
 
     try {
+      // AJUSTE CRUCIAL: Passando apenas a string para evitar erro "t is not iterable"
       const result = await chatSession.sendMessage(query);
-      const modelText = result.text || "Não consegui processar sua dúvida.";
+      const response = await result.response;
+      const modelText = response.text() || "Não consegui processar sua dúvida.";
+      
       setMessages(prev => [...prev, { role: 'model', text: modelText }]);
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'model', text: "Erro na conexão. Verifique sua chave API." }]);
+      setMessages(prev => [...prev, { role: 'model', text: "Erro na conexão. Verifique sua chave API no Vercel." }]);
     } finally {
       setIsAiLoading(false);
     }
@@ -410,7 +382,6 @@ const App: React.FC = () => {
         </div>
       </aside>
 
-      {/* Modals */}
       <PromptModal 
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); setPendingCommand(null); }}
