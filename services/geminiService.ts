@@ -1,8 +1,9 @@
-
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import { PERGUNTAS_FREQUENTES, COMANDOS_GEMS } from "../constants";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// O Vite exige 'import.meta.env' e o prefixo 'VITE_' para ler a chave no Vercel
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const knowledgeBase = `
 INFORMAÇÕES DE SUPORTE DEXCO:
@@ -15,7 +16,8 @@ ${COMANDOS_GEMS.map(c => `Título: ${c.t}\nConteúdo: ${c.c}`).join('\n---\n')}
 
 export const createDexcoChat = (): Chat => {
   return ai.chats.create({
-    model: 'gemini-3-flash-preview',
+    // Alterado para um modelo estável para evitar erros de versão
+    model: 'gemini-1.5-flash', 
     config: {
       systemInstruction: `Você é o Dexco Assist, um assistente especializado do Grupo Dexco. 
       Use a seguinte base de conhecimento para responder dúvidas:
@@ -45,7 +47,7 @@ export const extractDataFromImage = async (base64Image: string): Promise<string>
   5. Retorne apenas as 3 linhas de texto limpo, sem introduções ou conclusões.`;
   
   const response: GenerateContentResponse = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: 'gemini-1.5-flash',
     contents: [
       {
         parts: [
@@ -61,12 +63,11 @@ export const extractDataFromImage = async (base64Image: string): Promise<string>
     ],
   });
 
-  // Limpeza extra para garantir que nenhum asterisco ou formatação residual permaneça
   const rawText = response.text || "";
   const cleanText = rawText
-    .replace(/\*/g, "") // Remove asteriscos
-    .replace(/#/g, "")  // Remove hashes de Markdown
-    .replace(/`/g, "")  // Remove crases
+    .replace(/\*/g, "") 
+    .replace(/#/g, "")  
+    .replace(/`/g, "")  
     .trim();
   
   return cleanText || "Não foi possível extrair os dados da imagem.";
