@@ -67,7 +67,7 @@ No primeiro contato entre você e o comprador parceiro, serão tratadas as condi
 Acessar o endereço: https://www.cervelloesm.com.br/Dexco/Portal/Home
 Navegar por: Home > Catálogo de serviços > CSC > CoE CSC > Atendimento ao Cervello > Solicitação de acesso ao Cervello CSC
 Qual tipo de solicitação: Solicitante
-Area: Tesouraria
+Área: Tesouraria
 Fila: Liberação Perfil de Antecipação de Recebíveis.
 
 Após essa solicitação, o chamado seguirá para aprovação dos administradores internos.
