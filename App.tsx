@@ -190,7 +190,7 @@ const App: React.FC = () => {
           
           {/* Nova Seção: Ranking Bancos */}
           <div className="mt-8 px-6 py-4 bg-black/50 border-y border-gray-800">
-            <h2 className="text-[11px] font-black uppercase text-[#D4A373] tracking-widest">Ranking Bancos</h2>
+            <h2 className="text-[11px] font-black uppercase text-[#D4A373] tracking-widest">Ranking Semanal Bancos</h2>
           </div>
           <ListItem text="E-mail Bancos" isActive={!chatMode && selected?.title === "E-mail Bancos"} onClick={() => selectItem('ranking', 0)} />
         </div>
