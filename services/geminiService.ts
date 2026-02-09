@@ -1,5 +1,4 @@
-/// <reference types="vite/client" />
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_API_KEY = "AIzaSyCbNHAT5tsSU3gmkX7hAv8FXh6gxIoV2VA";
 
 export async function gerarResposta(pergunta: string): Promise<string> {
   const response = await fetch(
