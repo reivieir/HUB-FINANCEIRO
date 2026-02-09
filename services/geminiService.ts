@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 export async function gerarResposta(pergunta: string): Promise<string> {
