@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PERGUNTAS_FREQUENTES } from "../constants";
-
+console.log("API KEY:", import.meta.env.VITE_GEMINI_API_KEY);
 /**
  * Validação explícita da API KEY
  */
