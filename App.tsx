@@ -1,96 +1,168 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
-// IMPORTANTE: Verifique se o caminho abaixo está EXATAMENTE igual ao seu arquivo
-import { gerarResposta } from './services/geminiService';
+import React, { useState, useEffect, useRef } from 'react';
+import { PERGUNTAS_FREQUENTES, COMANDOS_GEMS } from './constants';
+import { SelectedContent, Origin } from './types';
+import ListItem from './components/ListItem';
+import PromptModal from './components/PromptModal';
+import ImageUploadModal from './components/ImageUploadModal';
+import { createDexcoChat, extractDataFromImage } from './services/geminiService';
 
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
-}
+const App: React.FC = () => {
+  const [selected, setSelected] = useState<SelectedContent | null>(null);
+  const [searchFAQ, setSearchFAQ] = useState('');
+  const [searchCommands, setSearchCommands] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
 
-export default function App() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Olá! Sou o Dexco Assist. Como posso ajudar?',
-      sender: 'ai',
-      timestamp: new Date(),
-    },
-  ]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Chat & AI State
+  const [chatMode, setChatMode] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [aiQuery, setAiQuery] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [chatSession, setChatSession] = useState<any>(null);
+
+  // Modal States
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalFields, setModalFields] = useState<string[]>([]);
+  const [modalTitle, setModalTitle] = useState('');
+  const [pendingCommand, setPendingCommand] =
+    useState<{ index: number; content: string; type: string } | null>(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
+
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    createDexcoChat().then(session => setChatSession(session));
+  }, []);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isAiLoading]);
 
-    const userText = input;
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: userText,
-      sender: 'user',
-      timestamp: new Date(),
-    };
+  /* ======================================================
+     🔹 ADIÇÃO ÚNICA E NECESSÁRIA – CHAT COM GEMINI
+     ====================================================== */
+  const handleAskAI = async (
+    e?: React.FormEvent | null,
+    predefinedQuestion?: string
+  ) => {
+    if (e) e.preventDefault();
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
+    const question = predefinedQuestion || aiQuery;
+    if (!question || !chatSession) return;
+
+    setMessages(prev => [...prev, { role: 'user', text: question }]);
+    setAiQuery('');
+    setIsAiLoading(true);
 
     try {
-      const response = await gerarResposta(userText);
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: response,
-        sender: 'ai',
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
+      const result = await chatSession.sendMessage(question);
+      const responseText = result.response.text();
+
+      setMessages(prev => [...prev, { role: 'model', text: responseText }]);
     } catch (error) {
-      console.error(error);
+      setMessages(prev => [
+        ...prev,
+        { role: 'model', text: 'Erro ao consultar a IA.' },
+      ]);
     } finally {
-      setIsLoading(false);
+      setIsAiLoading(false);
+    }
+  };
+  /* ====================================================== */
+
+  const handleCopy = (textToCopy?: string) => {
+    const text = textToCopy || selected?.body;
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const selectItem = (origin: Origin | 'ranking', index: number) => {
+    setChatMode(false);
+    if (origin === 'faq') {
+      const item = PERGUNTAS_FREQUENTES[index];
+      setSelected({ title: item.p, body: item.r, origin: 'faq', index });
+    } else if (origin === 'ranking') {
+      setModalTitle('DADOS DO RANKING');
+      setModalFields(['Periodo', 'Banco', 'Posição', 'Volume']);
+      setPendingCommand({ index: -1, content: '', type: 'ranking' });
+      setModalOpen(true);
+    } else {
+      const item = COMANDOS_GEMS[index];
+      if (item.t === 'Extrair') {
+        setIsImageModalOpen(true);
+        return;
+      }
+      setSelected({ title: item.t, body: item.c, origin: 'command', index });
     }
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <header className="bg-white border-b p-4 flex items-center gap-3">
-        <div className="bg-blue-600 p-2 rounded-lg"><Bot className="text-white" size={24} /></div>
-        <h1 className="text-xl font-bold">Dexco Assist</h1>
-      </header>
-
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((m) => (
-          <div key={m.id} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] p-3 rounded-xl ${m.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>
-              {m.text}
+    <div className="flex h-screen overflow-hidden bg-[#F8F9FA]">
+      <main className="flex-1 flex flex-col overflow-hidden relative">
+        <div className="p-8 flex-1 overflow-y-auto">
+          {chatMode ? (
+            <div className="max-w-4xl mx-auto space-y-6 pb-12">
+              {messages.map((msg, i) => (
+                <div
+                  key={i}
+                  className={`flex ${
+                    msg.role === 'user' ? 'justify-end' : 'justify-start'
+                  }`}
+                >
+                  <div className="max-w-[85%] p-6 rounded-2xl bg-white border">
+                    <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+                  </div>
+                </div>
+              ))}
+              {isAiLoading && (
+                <div className="text-xs text-gray-400">IA pensando...</div>
+              )}
+              <div ref={chatEndRef} />
             </div>
-          </div>
-        ))}
-        {isLoading && <div className="text-gray-400 text-sm animate-pulse">Dexco está pensando...</div>}
-        <div ref={messagesEndRef} />
+          ) : null}
+        </div>
+
+        <div className="p-8 bg-white border-t">
+          <form
+            onSubmit={e => handleAskAI(e)}
+            className="max-w-4xl mx-auto flex gap-4"
+          >
+            <input
+              className="flex-1 p-5 bg-gray-50 rounded-2xl border"
+              placeholder="Digite sua pergunta para a IA..."
+              value={aiQuery}
+              onChange={e => setAiQuery(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="bg-black text-[#D4A373] px-10 rounded-2xl font-black uppercase text-xs"
+            >
+              Enviar
+            </button>
+          </form>
+        </div>
       </main>
 
-      <footer className="p-4 bg-white border-t">
-        <form onSubmit={handleSendMessage} className="flex gap-2">
-          <input
-            className="flex-1 bg-gray-100 p-3 rounded-lg outline-none"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Digite algo..."
-          />
-          <button type="submit" className="bg-blue-600 text-white p-3 rounded-lg">
-            <Send size={20} />
-          </button>
-        </form>
-      </footer>
+      <ImageUploadModal
+        isOpen={isImageModalOpen}
+        onClose={() => setIsImageModalOpen(false)}
+        isLoading={isExtracting}
+        onConfirm={async b => {
+          setIsExtracting(true);
+          setSelected({
+            title: 'Extração',
+            body: await extractDataFromImage(b),
+            origin: 'ai',
+            index: 0,
+          });
+          setIsExtracting(false);
+          setIsImageModalOpen(false);
+        }}
+      />
     </div>
   );
-}
+};
+
+export default App;
