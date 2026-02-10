@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
 import { gerarResposta } from './services/geminiService';
 
 interface Message {
@@ -8,6 +7,20 @@ interface Message {
   sender: 'user' | 'ai';
   timestamp: Date;
 }
+
+// Ícones em SVG para evitar erro de build da lucide-react
+const BotIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+ );
+const UserIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+ );
+const SendIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+ );
+const LoaderIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+ );
 
 function App() {
   const [messages, setMessages] = useState<Message[]>([
@@ -22,12 +35,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -35,26 +44,13 @@ function App() {
     if (!input.trim() || isLoading) return;
 
     const userText = input;
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: userText,
-      sender: 'user',
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [...prev, { id: Date.now().toString(), text: userText, sender: 'user', timestamp: new Date() }]);
     setInput('');
     setIsLoading(true);
 
     try {
-      const aiResponseText = await gerarResposta(userText);
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: aiResponseText,
-        sender: 'ai',
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
+      const response = await gerarResposta(userText);
+      setMessages((prev) => [...prev, { id: (Date.now() + 1).toString(), text: response, sender: 'ai', timestamp: new Date() }]);
     } catch (error) {
       console.error(error);
     } finally {
@@ -65,8 +61,8 @@ function App() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-3">
-        <div className="bg-blue-600 p-2 rounded-lg">
-          <Bot className="text-white" size={24} />
+        <div className="bg-blue-600 p-2 rounded-lg text-white">
+          <BotIcon />
         </div>
         <div>
           <h1 className="text-xl font-bold text-gray-900">Dexco Assist</h1>
@@ -81,8 +77,8 @@ function App() {
         {messages.map((message) => (
           <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[80%] flex gap-3 ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${message.sender === 'user' ? 'bg-blue-100' : 'bg-gray-200'}`}>
-                {message.sender === 'user' ? <User size={18} className="text-blue-600" /> : <Bot size={18} className="text-gray-600" />}
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${message.sender === 'user' ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-600'}`}>
+                {message.sender === 'user' ? <UserIcon /> : <BotIcon />}
               </div>
               <div className={`p-4 rounded-2xl ${message.sender === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white text-gray-800 border border-gray-200 rounded-tl-none shadow-sm'}`}>
                 <p className="whitespace-pre-wrap">{message.text}</p>
@@ -96,7 +92,7 @@ function App() {
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
-              <Loader2 className="animate-spin text-blue-600" size={18} />
+              <span className="text-blue-600"><LoaderIcon /></span>
               <span className="text-sm text-gray-500">Dexco está pensando...</span>
             </div>
           </div>
@@ -114,8 +110,8 @@ function App() {
             className="flex-1 bg-gray-100 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-600 outline-none transition-all"
             disabled={isLoading}
           />
-          <button type="submit" disabled={!input.trim() || isLoading} className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white p-3 rounded-xl transition-colors">
-            {isLoading ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
+          <button type="submit" disabled={!input.trim() || isLoading} className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white p-3 rounded-xl transition-colors flex items-center justify-center">
+            {isLoading ? <LoaderIcon /> : <SendIcon />}
           </button>
         </form>
       </footer>
