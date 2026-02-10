@@ -1,6 +1,6 @@
 import { PERGUNTAS_FREQUENTES } from "../constants";
 
-// Configurações extraídas do seu código funcional [cite: 1, 2]
+// Configurações validadas por você
 const KEY = "AIzaSyCbNHAT5tsSU3gmkX7hAv8FXh6gxIoV2VA";
 const MODEL = "gemini-2.5-flash";
 const URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${KEY}`;
@@ -28,15 +28,18 @@ export const createDexcoChat = async () => {
   };
 };
 
-// FUNÇÃO DE EXTRAÇÃO REVISADA 
+// FUNÇÃO DE EXTRAÇÃO FLEXÍVEL
 export const extractDataFromImage = async (base64: string) => {
   try {
-    // Garante a extração limpa do Base64 e do MimeType 
-    const parts = base64.split(',');
-    if (parts.length < 2) return "Erro: Arquivo de imagem corrompido.";
-    
-    const mimeType = parts[0].split(':')[1].split(';')[0];
-    const base64Data = parts[1];
+    let mimeType = "image/png"; // Padrão caso não seja detectado
+    let base64Data = base64;
+
+    // Verifica se a string contém o cabeçalho "data:image/...;base64,"
+    if (base64.includes(',')) {
+      const parts = base64.split(',');
+      mimeType = parts[0].split(':')[1].split(';')[0];
+      base64Data = parts[1];
+    }
 
     const response = await fetch(URL, {
       method: "POST",
@@ -46,7 +49,6 @@ export const extractDataFromImage = async (base64: string) => {
           {
             parts: [
               {
-                // Inverti a ordem: Primeiro a imagem, depois a instrução (melhora a leitura da IA)
                 inline_data: {
                   mime_type: mimeType,
                   data: base64Data
@@ -61,15 +63,14 @@ export const extractDataFromImage = async (base64: string) => {
 
     const result: any = await response.json();
     
-    // Tratamento de erro detalhado vindo do Google [cite: 4, 7]
     if (result.error) {
       console.error("Erro Google API:", result.error);
-      return `Erro na extração: ${result.error.message}. Tente uma imagem mais nítida ou em formato JPG/PNG.`;
+      return `Erro na extração: ${result.error.message}`;
     }
 
     return result.candidates?.[0]?.content?.parts?.[0]?.text || "Dados não encontrados no documento.";
-  } catch (err) {
+  } catch (err: any) {
     console.error("Erro interno:", err);
-    return "Erro de conexão ao processar imagem.";
+    return "Erro de conexão ao processar imagem: " + err.message;
   }
 };
