@@ -240,7 +240,7 @@ const App: React.FC = () => {
                   </div>
                   <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
                     <h3 className="font-black text-[10px] uppercase mb-1 text-[#D4A373]">Resultados</h3>
-                    <p className="text-[11px] text-gray-500 leading-tight">Acesso direto à apresentação semanal de resultados em PPT.</p>
+                    <p className="text-[11px] text-gray-500 leading-tight">Acesso direto ao resultados semanais.</p>
                   </div>
                 </div>
                 <p className="mt-12 text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">Selecione uma opção lateral para iniciar</p>
@@ -269,9 +269,9 @@ const App: React.FC = () => {
             <ListItem key={i} text={c.t} isActive={!chatMode && selected?.title === c.t} onClick={() => selectItem('command', COMANDOS_GEMS.indexOf(c))} />
           ))}
           <div className="mt-8 px-6 py-4 bg-black/50 border-y border-gray-800">
-            <h2 className="text-[11px] font-black uppercase text-[#D4A373] tracking-widest">Apresentação</h2>
+            <h2 className="text-[11px] font-black uppercase text-[#D4A373] tracking-widest">Painel de Desempenho</h2>
           </div>
-          <ListItem text="PPT Semanal" isActive={selected?.title === "Apresentação Semanal"} onClick={() => selectItem('ppt', 0)} />
+          <ListItem text="Report Semanal Dexco" isActive={selected?.title === "Apresentação Semanal"} onClick={() => selectItem('ppt', 0)} />
           <div className="mt-8 px-6 py-4 bg-black/50 border-y border-gray-800">
             <h2 className="text-[11px] font-black uppercase text-[#D4A373] tracking-widest">Ranking Bancos</h2>
           </div>
