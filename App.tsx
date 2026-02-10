@@ -10,7 +10,8 @@ const App: React.FC = () => {
   // --- ESTADOS DE AUTENTICAÇÃO ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
-  const SENHA_ACESSO = "Dexco2026";
+  const SENHA_ACESSO = "221293";
+  const SENHA_ACESSO = "2026";
 
   // --- ESTADOS DO DASHBOARD ---
   const [selected, setSelected] = useState<SelectedContent | null>(null);
