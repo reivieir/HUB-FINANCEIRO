@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
-// IMPORTANTE: Verifique se o caminho abaixo está EXATAMENTE igual ao seu arquivo
+// Removi o import da lucide-react que estava causando o erro
 import { gerarResposta } from './services/geminiService';
 
 interface Message {
@@ -14,7 +13,7 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Olá! Sou o Dexco Assist. Como posso ajudar?',
+      text: 'Olá! Sou o Dexco Assist. Como posso ajudar você hoje?',
       sender: 'ai',
       timestamp: new Date(),
     },
@@ -60,37 +59,61 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <header className="bg-white border-b p-4 flex items-center gap-3">
-        <div className="bg-blue-600 p-2 rounded-lg"><Bot className="text-white" size={24} /></div>
-        <h1 className="text-xl font-bold">Dexco Assist</h1>
+    <div className="flex flex-col h-screen bg-gray-50 font-sans">
+      {/* Header */}
+      <header className="bg-blue-700 text-white p-4 shadow-md flex items-center gap-3">
+        <div className="bg-white text-blue-700 p-2 rounded-lg font-bold">DX</div>
+        <div>
+          <h1 className="text-lg font-bold leading-none">Dexco Assist</h1>
+          <span className="text-xs text-blue-200">● Online</span>
+        </div>
       </header>
 
+      {/* Chat Area */}
       <main className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((m) => (
           <div key={m.id} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] p-3 rounded-xl ${m.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>
-              {m.text}
+            <div className={`max-w-[85%] p-3 rounded-2xl shadow-sm ${
+              m.sender === 'user' 
+                ? 'bg-blue-600 text-white rounded-tr-none' 
+                : 'bg-white text-gray-800 border border-gray-200 rounded-tl-none'
+            }`}>
+              <p className="text-sm whitespace-pre-wrap">{m.text}</p>
+              <span className="text-[10px] opacity-70 mt-1 block">
+                {m.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
             </div>
           </div>
         ))}
-        {isLoading && <div className="text-gray-400 text-sm animate-pulse">Dexco está pensando...</div>}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-gray-200 text-gray-600 p-3 rounded-2xl rounded-tl-none text-xs animate-pulse">
+              Dexco está digitando...
+            </div>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </main>
 
+      {/* Input Area */}
       <footer className="p-4 bg-white border-t">
-        <form onSubmit={handleSendMessage} className="flex gap-2">
+        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-2">
           <input
-            className="flex-1 bg-gray-100 p-3 rounded-lg outline-none"
+            className="flex-1 bg-gray-100 p-3 rounded-xl outline-none text-sm focus:ring-2 focus:ring-blue-500"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Digite algo..."
+            placeholder="Escreva sua dúvida aqui..."
+            disabled={isLoading}
           />
-          <button type="submit" className="bg-blue-600 text-white p-3 rounded-lg">
-            <Send size={20} />
+          <button 
+            type="submit" 
+            disabled={isLoading || !input.trim()}
+            className="bg-blue-600 text-white px-5 py-2 rounded-xl font-bold disabled:bg-gray-300 transition-colors"
+          >
+            {isLoading ? "..." : "Enviar"}
           </button>
         </form>
-      </footer>
+      </footer defiance>
     </div>
   );
 }
