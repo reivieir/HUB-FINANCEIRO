@@ -1,14 +1,28 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { PERGUNTAS_FREQUENTES } from "../constants";
+export async function gerarResposta(pergunta: string): Promise<string> {
+  // Use VITE_ para variáveis de ambiente ou a string direta para teste
+  const KEY = "AIzaSyCbNHAT5tsSU3gmkX7hAv8FXh6gxIoV2VA"; 
+  
+  // A URL correta para a versão v1beta com o modelo gemini-pro
+  const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${KEY}`;
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+  try {
+    const response = await fetch(URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: pergunta }] }]
+      } ),
+    });
 
-export const createDexcoChat = async () => {
-  const model = genAI.getGenerativeModel({ 
-    model: "gemini-1.5-flash",
-    systemInstruction: "Você é o Dexco Assist. Responda formalmente com base nisto: " + JSON.stringify(PERGUNTAS_FREQUENTES)
-  });
-  return model.startChat({ history: [] });
-};
+    const data = await response.json();
+    
+    if (data.error) {
+      return `Erro da Google: ${data.error.message}`;
+    }
 
-export const extractDataFromImage = async (base64: string) => "Extração em manutenção.";
+    // Retorna o texto da resposta
+    return data.candidates[0].content.parts[0].text;
+  } catch (err) {
+    return "Erro de conexão: Verifique sua internet ou se a API Key é válida.";
+  }
+}
