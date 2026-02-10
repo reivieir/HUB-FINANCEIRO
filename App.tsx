@@ -83,7 +83,7 @@ const App: React.FC = () => {
       const item = PERGUNTAS_FREQUENTES[index];
       setSelected({ title: item.p, body: item.r, origin: 'faq', index });
     } else if (origin === 'ppt') {
-      setSelected({ title: "Apresentação Semanal", body: "VIEW_PPT_FRAME", origin: 'command', index: 999 });
+      setSelected({ title: "Painel Desempenho", body: "VIEW_PPT_FRAME", origin: 'command', index: 999 });
     } else if (origin === 'ranking') {
       setModalTitle("DADOS DO RANKING");
       setModalFields(["Periodo", "Banco", "Posição", "Volume"]);
@@ -209,7 +209,7 @@ const App: React.FC = () => {
                   </div>
                   
                   {selected.body === "VIEW_PPT_FRAME" ? (
-                    <iframe src="/apresentacao_semanal.pdf" className="w-full h-[650px] rounded-2xl border-4 border-gray-100" title="PPT Semanal" />
+                    <iframe src="/apresentacao_semanal.pdf" className="w-full h-[650px] rounded-2xl border-4 border-gray-100" title="Report Semanal Dexco" />
                   ) : (
                     <div className="bg-[#F8F9FA] p-10 rounded-3xl border border-gray-100 shadow-inner text-gray-800 text-xl leading-relaxed whitespace-pre-wrap">{selected.body}</div>
                   )}
