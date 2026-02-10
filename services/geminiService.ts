@@ -2,7 +2,7 @@ import { PERGUNTAS_FREQUENTES } from "../constants";
 
 // Configurações validadas por você
 const KEY = "AIzaSyCbNHAT5tsSU3gmkX7hAv8FXh6gxIoV2VA";
-const MODEL = "gemini-2.5-flash";
+const MODEL = "gemini-3-flash-preview"; // "gemini-2.5-flash";
 const URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${KEY}`;
 
 const systemInstruction = "Você é o Dexco Assist. Responda formalmente com base nisto: " + JSON.stringify(PERGUNTAS_FREQUENTES);
