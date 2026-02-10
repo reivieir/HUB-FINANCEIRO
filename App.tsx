@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-// Removi o import da lucide-react que estava causando o erro
 import { gerarResposta } from './services/geminiService';
 
 interface Message {
@@ -62,7 +61,7 @@ export default function App() {
     <div className="flex flex-col h-screen bg-gray-50 font-sans">
       {/* Header */}
       <header className="bg-blue-700 text-white p-4 shadow-md flex items-center gap-3">
-        <div className="bg-white text-blue-700 p-2 rounded-lg font-bold">DX</div>
+        <div className="bg-white text-blue-700 px-2 py-1 rounded font-bold">DX</div>
         <div>
           <h1 className="text-lg font-bold leading-none">Dexco Assist</h1>
           <span className="text-xs text-blue-200">● Online</span>
@@ -113,7 +112,7 @@ export default function App() {
             {isLoading ? "..." : "Enviar"}
           </button>
         </form>
-      </footer defiance>
+      </footer>
     </div>
   );
 }
