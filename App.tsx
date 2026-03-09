@@ -3,13 +3,14 @@ import { PERGUNTAS_FREQUENTES, COMANDOS_GEMS } from './constants';
 import { SelectedContent, Origin } from './types';
 import ListItem from './components/ListItem';
 import PromptModal from './components/PromptModal';
+// Certifique-se que o arquivo de serviço está no singular: geminiService.ts
 import { createDexcoChat } from './services/geminiService';
 
 const App: React.FC = () => {
   // --- 1. ESTADOS DE ACESSO E HUB ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
-  const [currentView, setCurrentView] = useState<'home' | 'risco-sacado' | 'bancos'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'bancos'>('home');
   const SENHA_ACESSO = "Dexco2026";
 
   const [selected, setSelected] = useState<SelectedContent | null>(null);
@@ -19,29 +20,40 @@ const App: React.FC = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [pendingCommand, setPendingCommand] = useState<{index: number, content: string, type: string} | null>(null);
 
-  // --- 2. ESTADOS DE CHAT IA (Lógica de Persistência) ---
+  // --- 2. ESTADOS DE CHAT IA (STREAMING ATIVADO) ---
   const [messages, setMessages] = useState<any[]>([]);
   const [aiQuery, setAiQuery] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [chatSession, setChatSession] = useState<any>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Inicializa a IA apenas uma vez após o login
+  // Inicialização estável conforme seu código validado
   useEffect(() => {
     if (isAuthenticated && !chatSession) {
-      createDexcoChat().then(session => setChatSession(session)).catch(e => console.error("Erro na carga inicial:", e));
+      createDexcoChat()
+        .then(session => setChatSession(session))
+        .catch(e => console.error("Falha na IA:", e));
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, chatSession]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isAiLoading]);
+  }, [messages]);
 
-  // --- 3. FUNÇÕES OPERACIONAIS ---
+  // --- 3. FUNÇÕES DE SUPORTE ---
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordInput === SENHA_ACESSO) setIsAuthenticated(true);
     else alert("Senha Incorreta!");
+  };
+
+  const handleCopy = (text?: string) => {
+    const content = text || selected?.body;
+    if (!content) return;
+    navigator.clipboard.writeText(content).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
   };
 
   const selectItem = (origin: Origin | 'ranking' | 'ppt', index: number) => {
@@ -57,8 +69,9 @@ const App: React.FC = () => {
       setModalOpen(true);
     } else {
       const item = COMANDOS_GEMS[index];
+      // Verifica se o comando exige preenchimento de dados
       if (item.t === "Recuperar Acesso" || item.t === "Alterar Email Cadastrado") {
-        setModalTitle(item.t === "Recuperar Acesso" ? "INFORMAÇÕES" : "ALTERAÇÃO");
+        setModalTitle(item.t === "Recuperar Acesso" ? "DADOS DO USUÁRIO" : "ALTERAÇÃO DE E-MAIL");
         setModalFields(item.t === "Recuperar Acesso" ? ["Usuário"] : ["Email Antigo", "Novo Email", "Usuário"]);
         setPendingCommand({ index, content: item.c, type: 'command' });
         setModalOpen(true);
@@ -71,49 +84,59 @@ const App: React.FC = () => {
   const handleModalSubmit = (values: Record<string, string>) => {
     if (!pendingCommand) return;
     let pBody = ''; let pTitle = '';
-    const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'bom dia' : 'boa tarde';
+    const greeting = new Date().getHours() < 12 ? 'bom dia' : 'boa tarde';
 
     if (pendingCommand.type === 'ranking') {
-      pTitle = "E-mail Ranking";
-      pBody = `Prezados, ${greeting}\n\nSegue sua posição no Ranking...\nBanco: ${values["Banco"]}\nPosição: ${values["Posição"]} lugar...\nVolume: ${values["Volume"]}`;
+      pTitle = "E-mail Ranking Bancos";
+      pBody = `Prezados, ${greeting}\n\nSegue sua posição no Ranking semanal do período de ${values["Periodo"]} do Portal de Fornecedores Dexco.\n\nBanco: ${values["Banco"]}\nPosição: ${values["Posição"]} lugar...\nVolume Adicional: ${values["Volume"]}\n\nAtenciosamente,\nTesouraria Dexco`;
     } else {
       const item = COMANDOS_GEMS[pendingCommand.index];
       pTitle = item.t;
-      pBody = pendingCommand.content.replace(/usuário informado XXXXX/g, `usuário ${values["Usuário"]}`).replace(/usuário informado/g, `usuário ${values["Usuário"]}`).replace("[EMAIL_ANTIGO]", values["Email Antigo"]).replace("[EMAIL_NOVO]", values["Novo Email"]).replace("[USUARIO]", values["Usuário"]);
+      pBody = pendingCommand.content
+        .replace(/usuário informado XXXXX/g, `usuário ${values["Usuário"]}`)
+        .replace(/usuário informado/g, `usuário ${values["Usuário"]}`)
+        .replace("[EMAIL_ANTIGO]", values["Email Antigo"])
+        .replace("[EMAIL_NOVO]", values["Novo Email"])
+        .replace("[USUARIO]", values["Usuário"]);
     }
     setSelected({ title: pTitle, body: pBody, origin: 'command', index: pendingCommand.index });
     setModalOpen(false); setPendingCommand(null);
   };
 
-  // --- 4. AÇÃO DA IA (Corrigida para não travar após o 1º turno) ---
+  // --- 4. IA COM RESPOSTA INSTANTÂNEA (STREAMING) ---
   const handleAskAI = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!aiQuery.trim() || isAiLoading) return;
-    
-    // Fallback caso a sessão não tenha carregado
-    if (!chatSession) {
-      setMessages(prev => [...prev, { role: 'model', text: "Conectando ao HUB... Tente em 3 segundos." }]);
-      const session = await createDexcoChat();
-      setChatSession(session);
-      return;
-    }
+    if (!aiQuery.trim() || isAiLoading || !chatSession) return;
 
-    const query = aiQuery; setAiQuery('');
-    setMessages(prev => [...prev, { role: 'user', text: query }]);
+    const query = aiQuery;
+    setAiQuery('');
+    setMessages(prev => [...prev, { role: 'user', text: query }, { role: 'model', text: '' }]);
     setIsAiLoading(true);
 
     try {
-      const result = await chatSession.sendMessage(query);
-      const response = await result.response;
-      setMessages(prev => [...prev, { role: 'model', text: response.text() }]);
+      const result = await chatSession.sendMessageStream(query);
+      let fullText = "";
+
+      for await (const chunk of result.stream) {
+        fullText += chunk.text();
+        setMessages(prev => {
+          const newMsg = [...prev];
+          newMsg[newMsg.length - 1] = { role: 'model', text: fullText };
+          return newMsg;
+        });
+      }
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'model', text: "A IA não retornou resposta. Verifique a base de dados." }]);
+      setMessages(prev => {
+        const newMsg = [...prev];
+        newMsg[newMsg.length - 1] = { role: 'model', text: "Erro ao processar consulta técnica." };
+        return newMsg;
+      });
     } finally {
       setIsAiLoading(false);
     }
   };
 
+  // --- 5. RENDERIZAÇÃO ---
   if (!isAuthenticated) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-[#0B0C10]">
@@ -129,17 +152,17 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0B0C10] p-4 md:p-8 font-sans italic">
-      <header className="flex flex-col items-center mb-8 italic">
+      <header className="flex flex-col items-center mb-10 italic">
         <h1 onClick={() => {setCurrentView('home'); setSelected(null);}} className="text-3xl font-black text-[#D4A373] uppercase tracking-tighter cursor-pointer">DEXCO ASSIST | HUB FINANCEIRO</h1>
         <p className="text-[10px] font-black text-gray-500 tracking-[0.5em] uppercase">UNIDADE DE INTELIGÊNCIA EM TESOURARIA</p>
       </header>
 
-      {/* HUB DE LINKS (Acesso às Páginas Secundárias) */}
+      {/* Navegação HUB */}
       <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 italic">
-        <button onClick={() => setCurrentView('risco-sacado')} className={`p-6 rounded-3xl border-b-4 transition-all hover:scale-105 ${currentView === 'risco-sacado' ? 'bg-[#D4A373] text-black border-white' : 'bg-[#121418] border-[#D4A373] text-white shadow-xl'}`}>
+        <button onClick={() => setCurrentView('home')} className={`p-6 rounded-3xl border-b-4 transition-all hover:scale-105 ${currentView === 'home' ? 'bg-[#D4A373] text-black border-white shadow-xl' : 'bg-[#121418] border-[#D4A373] text-white'}`}>
            <p className="text-sm font-black uppercase">Risco Sacado</p>
         </button>
-        <button onClick={() => setCurrentView('bancos')} className={`p-6 rounded-3xl border-b-4 transition-all hover:scale-105 ${currentView === 'bancos' ? 'bg-green-600 text-black border-white' : 'bg-[#121418] border-green-600 text-white shadow-xl'}`}>
+        <button onClick={() => setCurrentView('bancos')} className={`p-6 rounded-3xl border-b-4 transition-all hover:scale-105 ${currentView === 'bancos' ? 'bg-green-600 text-black border-white shadow-xl' : 'bg-[#121418] border-green-600 text-white'}`}>
            <p className="text-sm font-black uppercase">Gestão Bancos</p>
         </button>
         <div className="bg-[#121418]/40 p-6 rounded-3xl border-b-4 border-gray-800 opacity-30 cursor-default">
@@ -151,14 +174,14 @@ const App: React.FC = () => {
       </div>
 
       {currentView === 'home' ? (
-        <div className="max-w-4xl mx-auto flex flex-col gap-6 animate-fade-in italic">
-          {/* CHAT IA CENTRAL (Design idêntico ao da imagem fornecida) */}
+        <div className="max-w-6xl mx-auto flex flex-col gap-10 animate-fade-in italic">
+          {/* Chat IA Centralizado */}
           <div className="bg-[#121418] rounded-[40px] shadow-2xl border border-gray-800 flex flex-col min-h-[450px] overflow-hidden">
             <div className="p-4 bg-black text-center border-b border-[#D4A373]/20">
-               <h2 className="text-[#D4A373] font-black uppercase text-[10px] tracking-[0.3em]">IA Financeira Unificada</h2>
+               <h2 className="text-[#D4A373] font-black uppercase text-[10px] tracking-[0.3em]">IA Operacional (DOCX Base)</h2>
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#0B0C10] custom-scrollbar">
-              {messages.length === 0 && <p className="text-center text-gray-700 font-bold uppercase text-[9px] mt-20">Consulte sobre Sacado, Bancos ou Protestos...</p>}
+              {messages.length === 0 && <p className="text-center text-gray-700 font-bold uppercase text-[9px] mt-20">Consultas sobre Sacado, Bancos ou Protestos...</p>}
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] p-5 rounded-3xl text-sm ${msg.role === 'model' ? 'bg-[#1A1D23] text-gray-200 border-l-4 border-[#D4A373]' : 'bg-[#D4A373] text-black font-bold shadow-lg'}`}>
@@ -166,68 +189,64 @@ const App: React.FC = () => {
                   </div>
                 </div>
               ))}
-              {isAiLoading && <div className="text-[9px] font-black text-[#D4A373] animate-pulse uppercase italic">Processando base Dexco...</div>}
+              {isAiLoading && <div className="text-[9px] font-black text-[#D4A373] animate-pulse uppercase italic">Processando resposta...</div>}
               <div ref={chatEndRef} />
             </div>
-            <form onSubmit={handleAskAI} className="p-6 bg-black border-t border-gray-800 flex gap-3 italic">
-              <input className="flex-1 p-4 bg-[#1A1D23] border border-gray-800 rounded-2xl outline-none focus:border-[#D4A373] text-white font-bold" placeholder="Digite sua dúvida técnica..." value={aiQuery} onChange={e => setAiQuery(e.target.value)} />
+            <form onSubmit={handleAskAI} className="p-6 bg-black border-t border-gray-800 flex gap-3">
+              <input className="flex-1 p-4 bg-[#1A1D23] border border-gray-800 rounded-2xl outline-none focus:border-[#D4A373] text-white font-bold" placeholder="Dúvida técnica?" value={aiQuery} onChange={e => setAiQuery(e.target.value)} />
               <button type="submit" className="bg-[#D4A373] text-black px-10 rounded-2xl font-black uppercase text-xs">Enviar</button>
             </form>
           </div>
-        </div>
-      ) : currentView === 'risco-sacado' ? (
-        /* PÁGINA SECUNDÁRIA: RISCO SACADO (FAQ E COMANDOS) */
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 animate-slide-up italic">
-          <div className="bg-[#121418] rounded-[40px] p-8 border border-gray-800 shadow-xl">
-             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-[11px] font-black text-[#D4A373] uppercase tracking-widest italic">FAQ Risco Sacado</h3>
-                <button onClick={() => setCurrentView('home')} className="text-white text-[9px] font-black uppercase opacity-50 hover:opacity-100">← Voltar</button>
-             </div>
-             <div className="space-y-1 h-[450px] overflow-y-auto pr-2 custom-scrollbar italic">
-                {PERGUNTAS_FREQUENTES.map((f, i) => <ListItem key={i} text={f.p} onClick={() => selectItem('faq', PERGUNTAS_FREQUENTES.indexOf(f))} />)}
-             </div>
-          </div>
-          <div className="bg-[#121418] rounded-[40px] p-8 border border-gray-800 shadow-xl">
-             <h3 className="text-[11px] font-black text-green-500 uppercase mb-6 tracking-widest italic">Comandos Cervello & Report</h3>
-             <div className="space-y-1 h-[450px] overflow-y-auto pr-2 custom-scrollbar italic">
-                {COMANDOS_GEMS.map((c, i) => <ListItem key={i} text={c.t} onClick={() => selectItem('command', COMANDOS_GEMS.indexOf(c))} />)}
-                <div className="mt-4 pt-4 border-t border-gray-800 flex flex-col gap-2 italic">
-                   <ListItem text="Report Semanal Dexco" onClick={() => selectItem('ppt', 0)} />
-                   <ListItem text="E-mail Ranking Bancos" onClick={() => selectItem('ranking', 0)} />
-                </div>
-             </div>
+
+          {/* Listas do constants.ts Visíveis na Home */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 italic">
+            <div className="bg-[#121418] rounded-[40px] p-8 border border-gray-800 shadow-xl">
+               <h3 className="text-[11px] font-black text-[#D4A373] uppercase mb-6 tracking-widest border-b border-gray-800 pb-2">Suporte e Dúvidas</h3>
+               <div className="space-y-1 h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                  {PERGUNTAS_FREQUENTES.map((f, i) => <ListItem key={i} text={f.p} onClick={() => selectItem('faq', PERGUNTAS_FREQUENTES.indexOf(f))} />)}
+               </div>
+            </div>
+            <div className="bg-[#121418] rounded-[40px] p-8 border border-gray-800 shadow-xl">
+               <h3 className="text-[11px] font-black text-green-500 uppercase mb-4 tracking-widest border-b border-gray-800 pb-2">Comandos Cervello & Report</h3>
+               <div className="space-y-1 h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                  {COMANDOS_GEMS.map((c, i) => <ListItem key={i} text={c.t} onClick={() => selectItem('command', COMANDOS_GEMS.indexOf(c))} />)}
+                  <div className="mt-4 pt-4 border-t border-gray-800 space-y-2">
+                     <ListItem text="Report Semanal Dexco" onClick={() => selectItem('ppt', 0)} />
+                     <ListItem text="E-mail Ranking Bancos" onClick={() => selectItem('ranking', 0)} />
+                  </div>
+               </div>
+            </div>
           </div>
         </div>
       ) : (
-        /* PÁGINA SECUNDÁRIA: BANCOS */
         <div className="max-w-4xl mx-auto bg-[#121418] rounded-[40px] p-16 border border-gray-800 text-center animate-slide-up italic">
            <h2 className="text-3xl font-black text-white uppercase italic">Gestão de Bancos</h2>
-           <p className="text-gray-600 font-bold uppercase text-xs mt-4 mb-10 tracking-widest italic">Interface em Desenvolvimento</p>
-           <button onClick={() => setCurrentView('home')} className="bg-[#D4A373] text-black px-12 py-4 rounded-2xl font-black uppercase text-xs">Voltar ao HUB</button>
+           <p className="text-gray-600 font-bold uppercase text-xs mt-4 mb-10 tracking-widest">Interface em Desenvolvimento...</p>
+           <button onClick={() => setCurrentView('home')} className="bg-[#D4A373] text-black px-12 py-4 rounded-2xl font-black uppercase text-xs">Retornar ao Hub</button>
         </div>
       )}
 
-      {/* POP-UP DE CÓPIA (SOLUÇÃO PARA O FLUXO DE ATENDIMENTO) */}
+      {/* POP-UP DE CÓPIA (JANELA CENTRALIZADA) */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md p-4 italic">
            <div className="bg-white w-full max-w-2xl rounded-[32px] overflow-hidden shadow-2xl animate-scale-in">
               <div className="p-6 bg-black flex justify-between items-center italic">
                  <h2 className="text-[#D4A373] font-black uppercase text-[10px] tracking-widest">{selected.title}</h2>
-                 <button onClick={() => setSelected(null)} className="text-white font-black text-xl hover:text-red-500">×</button>
+                 <button onClick={() => setSelected(null)} className="text-white font-black text-xl hover:text-red-500 transition-all">×</button>
               </div>
               <div className="p-8 italic">
                  {selected.body === "VIEW_PPT_FRAME" ? (
-                   <iframe src="/apresentacao_semanal.pdf" className="w-full h-[500px] rounded-2xl border-2 border-gray-100 mb-6" title="PDF" />
+                   <iframe src="/apresentacao_semanal.pdf" className="w-full h-[500px] rounded-2xl border-2 border-gray-100 mb-6" title="Report" />
                  ) : (
-                   <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 text-gray-800 text-lg leading-relaxed whitespace-pre-wrap font-medium shadow-inner mb-8 italic">{selected.body}</div>
+                   <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 text-gray-800 text-lg leading-relaxed whitespace-pre-wrap font-medium shadow-inner mb-8">{selected.body}</div>
                  )}
-                 <div className="flex flex-col gap-3">
+                 <div className="flex flex-col gap-3 italic">
                     {selected.body !== "VIEW_PPT_FRAME" && (
-                      <button onClick={() => { navigator.clipboard.writeText(selected.body); setIsCopied(true); setTimeout(() => setIsCopied(false), 2000); }} className={`w-full py-5 rounded-2xl font-black uppercase text-sm transition-all ${isCopied ? 'bg-green-600 text-white shadow-lg' : 'bg-black text-[#D4A373]'}`}>
-                         {isCopied ? 'TEXTO COPIADO COM SUCESSO!' : 'COPIAR PARA ÁREA DE TRANSFERÊNCIA'}
+                      <button onClick={() => handleCopy()} className={`w-full py-5 rounded-2xl font-black uppercase text-sm transition-all ${isCopied ? 'bg-green-600 text-white shadow-lg' : 'bg-black text-[#D4A373]'}`}>
+                         {isCopied ? 'TEXTO COPIADO COM SUCESSO!' : 'COPIAR PARA O CERVELLO / E-MAIL'}
                       </button>
                     )}
-                    <button onClick={() => setSelected(null)} className="w-full py-3 text-gray-400 font-black uppercase text-[10px]">Fechar</button>
+                    <button onClick={() => setSelected(null)} className="w-full py-3 text-gray-400 font-black uppercase text-[10px]">Fechar Janela</button>
                  </div>
               </div>
            </div>
