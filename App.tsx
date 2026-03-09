@@ -20,25 +20,17 @@ const App: React.FC = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [pendingCommand, setPendingCommand] = useState<{index: number, content: string, type: string} | null>(null);
 
-  // --- 3. ESTADOS DE CHAT IA (CONEXÃO REFORÇADA) ---
+  // --- 3. ESTADOS DE CHAT IA (RESTAURO DA LÓGICA ORIGINAL) ---
   const [messages, setMessages] = useState<any[]>([]);
   const [aiQuery, setAiQuery] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [chatSession, setChatSession] = useState<any>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Inicialização Única da IA
+  // Inicialização idêntica ao seu código original que funcionava
   useEffect(() => {
-    if (isAuthenticated && !chatSession) {
-      const initChat = async () => {
-        try {
-          const session = await createDexcoChat();
-          setChatSession(session);
-        } catch (err) {
-          console.error("Erro ao iniciar Gemini:", err);
-        }
-      };
-      initChat();
+    if (isAuthenticated) {
+      createDexcoChat().then(session => setChatSession(session));
     }
   }, [isAuthenticated]);
 
@@ -46,7 +38,13 @@ const App: React.FC = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAiLoading]);
 
-  // --- 4. LOGICA DE ATENDIMENTO (CERVELLO / FAQ) ---
+  // --- 4. FUNÇÕES DE SUPORTE E COMANDOS ---
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === SENHA_ACESSO) setIsAuthenticated(true);
+    else alert("Senha incorreta!");
+  };
+
   const selectItem = (origin: Origin | 'ranking', index: number) => {
     if (origin === 'faq') {
       const item = PERGUNTAS_FREQUENTES[index];
@@ -58,12 +56,12 @@ const App: React.FC = () => {
       setModalOpen(true);
     } else {
       const item = COMANDOS_GEMS[index];
-      // Verifica se precisa de inputs antes de abrir o pop-up
-      if (item.t === "Recuperar Acesso" || item.t === "Alterar Email Cadastrado") {
-        setModalTitle(item.t === "Recuperar Acesso" ? "INFORMAÇÕES DO USUÁRIO" : "DADOS DA ALTERAÇÃO");
-        setModalFields(item.t === "Recuperar Acesso" ? ["Usuário"] : ["Email Antigo", "Novo Email", "Usuário"]);
-        setPendingCommand({ index, content: item.c, type: 'command' }); 
-        setModalOpen(true);
+      if (item.t === "Recuperar Acesso") {
+        setModalTitle("INFORMAÇÕES DO USUÁRIO"); setModalFields(["Usuário"]);
+        setPendingCommand({ index, content: item.c, type: 'command' }); setModalOpen(true);
+      } else if (item.t === "Alterar Email Cadastrado") {
+        setModalTitle("DADOS DA ALTERAÇÃO"); setModalFields(["Email Antigo", "Novo Email", "Usuário"]);
+        setPendingCommand({ index, content: item.c, type: 'command' }); setModalOpen(true);
       } else {
         setSelected({ title: item.t, body: item.c, origin: 'command', index });
       }
@@ -73,13 +71,16 @@ const App: React.FC = () => {
   const handleModalSubmit = (values: Record<string, string>) => {
     if (!pendingCommand) return;
     let processedBody = '';
+    let processedTitle = '';
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'bom dia' : 'boa tarde';
 
     if (pendingCommand.type === 'ranking') {
-      processedBody = `Prezados, ${greeting}\n\nSegue sua posição no Ranking semanal do período de ${values["Periodo"]}...\n\nBanco: ${values["Banco"]}\nPosição: ${values["Posição"]} lugar...`;
+      processedTitle = "E-mail Bancos";
+      processedBody = `Prezados, ${greeting}\n\nSegue sua posição no Ranking semanal do período de ${values["Periodo"]}...\n\nBanco: ${values["Banco"]}\nPosição: ${values["Posição"]} lugar...\n\nAtenciosamente,\nEquipe de Tesouraria – Dexco`;
     } else {
       const item = COMANDOS_GEMS[pendingCommand.index];
+      processedTitle = item.t;
       processedBody = pendingCommand.content;
       if (item.t === "Recuperar Acesso") {
         processedBody = processedBody.replace(/usuário informado/g, `usuário ${values["Usuário"]}`);
@@ -87,54 +88,34 @@ const App: React.FC = () => {
         processedBody = processedBody.replace("[EMAIL_ANTIGO]", values["Email Antigo"]).replace("[EMAIL_NOVO]", values["Novo Email"]).replace("[USUARIO]", values["Usuário"]);
       }
     }
-    setSelected({ title: pendingCommand.type === 'ranking' ? "E-mail Bancos" : COMANDOS_GEMS[pendingCommand.index].t, body: processedBody, origin: 'command', index: pendingCommand.index });
+    setSelected({ title: processedTitle, body: processedBody, origin: 'command', index: pendingCommand.index });
     setModalOpen(false); setPendingCommand(null);
   };
 
-  // --- 5. ACÇÕES DE IA E CÓPIA ---
   const handleAskAI = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!aiQuery.trim() || isAiLoading) return;
-    
-    if (!chatSession) {
-      alert("Aguarde a conexão com a IA ser estabelecida...");
-      return;
-    }
-
+    if (!aiQuery.trim() || isAiLoading || !chatSession) return;
     const query = aiQuery;
     setAiQuery('');
     setMessages(prev => [...prev, { role: 'user', text: query }]);
     setIsAiLoading(true);
-
     try {
       const result = await chatSession.sendMessage(query);
       const response = await result.response;
-      const text = response.text();
-      setMessages(prev => [...prev, { role: 'model', text: text }]);
+      setMessages(prev => [...prev, { role: 'model', text: response.text() }]);
     } catch (error) {
-      console.error("Erro na API Gemini:", error);
-      setMessages(prev => [...prev, { role: 'model', text: "A IA encontrou uma instabilidade. Verifique a sua chave API ou conexão." }]);
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
-
-  const handleCopy = () => {
-    if (!selected) return;
-    navigator.clipboard.writeText(selected.body).then(() => {
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    });
+      setMessages(prev => [...prev, { role: 'model', text: "Erro na conexão com a IA. Tente novamente." }]);
+    } finally { setIsAiLoading(false); }
   };
 
   if (!isAuthenticated) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-[#0B0C10]">
-        <form onSubmit={(e) => { e.preventDefault(); if(passwordInput === SENHA_ACESSO) setIsAuthenticated(true); else alert("Senha Incorreta"); }} className="bg-white p-10 rounded-[32px] shadow-2xl border-t-[10px] border-[#D4A373] w-[400px] text-center italic">
+        <form onSubmit={handleLogin} className="bg-white p-10 rounded-[32px] shadow-2xl border-t-[10px] border-[#D4A373] w-[400px] text-center italic">
           <h1 className="text-3xl font-black uppercase text-black mb-1">Dexco <span className="text-[#D4A373]">Assist</span></h1>
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-8">HUB FINANCEIRO</p>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-8 italic">Hub Financeiro</p>
           <input type="password" placeholder="SENHA" className="w-full p-4 bg-gray-50 border-2 border-gray-100 rounded-2xl mb-4 outline-none text-center font-bold" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} />
-          <button type="submit" className="w-full bg-black text-[#D4A373] py-4 rounded-2xl font-black uppercase text-xs">Acessar Hub</button>
+          <button type="submit" className="w-full bg-black text-[#D4A373] py-4 rounded-2xl font-black uppercase text-xs">Entrar no Sistema</button>
         </form>
       </div>
     );
@@ -142,29 +123,29 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0B0C10] p-4 md:p-8 font-sans">
+      {/* TÍTULO HUB */}
       <header className="flex flex-col items-center mb-10 italic">
         <h1 onClick={() => setCurrentView('home')} className="text-3xl font-black text-[#D4A373] uppercase tracking-tighter cursor-pointer">DEXCO ASSIST</h1>
-        <p className="text-[10px] font-black text-gray-500 tracking-[0.5em] uppercase italic">HUB DE INTELIGÊNCIA FINANCEIRA</p>
+        <p className="text-[10px] font-black text-gray-500 tracking-[0.5em] uppercase">HUB DE INTELIGÊNCIA FINANCEIRA</p>
       </header>
 
-      {/* VIEW: HOME (HUB) */}
       {currentView === 'home' && (
         <div className="max-w-5xl mx-auto h-full flex flex-col animate-fade-in">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 italic">
             <button onClick={() => setCurrentView('risco-sacado')} className="bg-[#121418] border-b-4 border-[#D4A373] p-6 rounded-3xl hover:scale-105 transition-all group">
-              <p className="text-[10px] font-black text-white uppercase opacity-50 italic">Atendimento</p>
+              <p className="text-[10px] font-black text-white uppercase opacity-50">Atendimento</p>
               <p className="text-sm font-black text-[#D4A373] uppercase">Risco Sacado</p>
             </button>
             <button onClick={() => setCurrentView('gestao-bancos')} className="bg-[#121418] border-b-4 border-green-500 p-6 rounded-3xl hover:scale-105 transition-all group">
-              <p className="text-[10px] font-black text-white uppercase opacity-50 italic">Módulo Gestão</p>
+              <p className="text-[10px] font-black text-white uppercase opacity-50">Módulo Gestão</p>
               <p className="text-sm font-black text-green-500 uppercase">Bancos</p>
             </button>
-            <div className="bg-[#121418]/50 border-b-4 border-gray-800 p-6 rounded-3xl opacity-40 cursor-default">
-              <p className="text-[9px] font-black text-gray-600 uppercase italic">Base IA</p>
+            <div className="bg-[#121418]/50 border-b-4 border-gray-800 p-6 rounded-3xl opacity-30 cursor-default">
+              <p className="text-[9px] font-black text-gray-600 uppercase">Base IA</p>
               <p className="text-sm font-black text-gray-700 uppercase">Protestos</p>
             </div>
-            <div className="bg-[#121418]/50 border-b-4 border-gray-800 p-6 rounded-3xl opacity-40 cursor-default">
-              <p className="text-[9px] font-black text-gray-600 uppercase italic">Base IA</p>
+            <div className="bg-[#121418]/50 border-b-4 border-gray-800 p-6 rounded-3xl opacity-30 cursor-default">
+              <p className="text-[9px] font-black text-gray-600 uppercase">Base IA</p>
               <p className="text-sm font-black text-gray-700 uppercase">Conciliação</p>
             </div>
           </div>
@@ -172,10 +153,10 @@ const App: React.FC = () => {
           {/* CHAT IA CENTRALIZADO */}
           <div className="flex-1 bg-[#121418] rounded-[40px] shadow-2xl overflow-hidden flex flex-col border border-gray-800 min-h-[450px]">
             <div className="p-4 bg-black text-center border-b border-[#D4A373]/20 italic">
-               <h2 className="text-[#D4A373] font-black uppercase text-[10px] tracking-[0.3em]">IA Unificada (DOCX Base)</h2>
+               <h2 className="text-[#D4A373] font-black uppercase text-[10px] tracking-[0.3em]">IA Financeira Ativa</h2>
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-[#0B0C10] italic">
-              {messages.length === 0 && <p className="text-center text-gray-600 font-bold uppercase text-[10px] mt-20">Consultas sobre Sacado, Bancos ou Protestos...</p>}
+              {messages.length === 0 && <p className="text-center text-gray-600 font-bold uppercase text-[10px] mt-20">Aguardando sua dúvida técnica...</p>}
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] p-5 rounded-3xl text-sm ${msg.role === 'model' ? 'bg-[#1A1D23] text-gray-200 border-l-4 border-[#D4A373]' : 'bg-[#D4A373] text-black font-bold'}`}>
@@ -183,23 +164,22 @@ const App: React.FC = () => {
                   </div>
                 </div>
               ))}
-              {isAiLoading && <div className="text-[9px] font-black text-[#D4A373] animate-pulse uppercase italic">Processando Inteligência...</div>}
+              {isAiLoading && <div className="text-[9px] font-black text-[#D4A373] animate-pulse uppercase italic">Consultando Documentação...</div>}
               <div ref={chatEndRef} />
             </div>
             <form onSubmit={handleAskAI} className="p-6 bg-black border-t border-gray-800 flex gap-3">
-              <input className="flex-1 p-4 bg-[#1A1D23] border border-gray-800 rounded-2xl outline-none focus:border-[#D4A373] text-white font-bold italic" placeholder="Digite sua dúvida operacional..." value={aiQuery} onChange={e => setAiQuery(e.target.value)} />
-              <button type="submit" className="bg-[#D4A373] text-black px-8 rounded-2xl font-black uppercase text-xs">Consultar</button>
+              <input className="flex-1 p-4 bg-[#1A1D23] border border-gray-800 rounded-2xl outline-none focus:border-[#D4A373] text-white font-bold italic" placeholder="Digite sobre Sacado, Bancos ou Protestos..." value={aiQuery} onChange={e => setAiQuery(e.target.value)} />
+              <button type="submit" className="bg-[#D4A373] text-black px-8 rounded-2xl font-black uppercase text-xs">Enviar</button>
             </form>
           </div>
         </div>
       )}
 
-      {/* VIEW: RISCO SACADO (FAQ + COMANDOS) */}
       {currentView === 'risco-sacado' && (
         <div className="max-w-6xl mx-auto animate-slide-up italic">
           <div className="bg-[#121418] rounded-[40px] p-8 border border-gray-800 shadow-2xl">
             <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
-               <h2 className="text-2xl font-black text-white uppercase">Central Risco Sacado</h2>
+               <h2 className="text-2xl font-black text-white uppercase italic">Central Risco Sacado</h2>
                <button onClick={() => setCurrentView('home')} className="text-[#D4A373] font-black uppercase text-[10px] border border-[#D4A373] px-6 py-2 rounded-full">← HUB</button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -222,13 +202,13 @@ const App: React.FC = () => {
 
       {currentView === 'gestao-bancos' && (
         <div className="max-w-4xl mx-auto bg-[#121418] rounded-[40px] p-12 border border-gray-800 text-center italic">
-           <h2 className="text-3xl font-black text-white uppercase">Gestão de Bancos</h2>
-           <p className="text-gray-600 font-bold uppercase text-xs mb-10 mt-2 tracking-widest">Interface em fase de integração de usuários</p>
+           <h2 className="text-3xl font-black text-white uppercase italic">Acessos Bancários</h2>
+           <p className="text-gray-600 font-bold uppercase text-xs mb-10 mt-2 tracking-widest">Módulo em fase de criação</p>
            <button onClick={() => setCurrentView('home')} className="bg-[#22c55e] text-black px-12 py-4 rounded-2xl font-black uppercase text-xs">Voltar ao HUB</button>
         </div>
       )}
 
-      {/* POP-UP DE RESPOSTA E CÓPIA (MODAL FINAL) */}
+      {/* POP-UP DE RESPOSTA E CÓPIA */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 italic">
            <div className="bg-white w-full max-w-2xl rounded-[32px] overflow-hidden shadow-2xl animate-scale-in">
@@ -241,7 +221,7 @@ const App: React.FC = () => {
                     {selected.body}
                  </div>
                  <div className="flex flex-col gap-3">
-                    <button onClick={handleCopy} className={`w-full py-5 rounded-2xl font-black uppercase text-sm transition-all ${isCopied ? 'bg-green-600 text-white' : 'bg-black text-[#D4A373] hover:bg-gray-900'}`}>
+                    <button onClick={() => { navigator.clipboard.writeText(selected.body); setIsCopied(true); setTimeout(() => setIsCopied(false), 2000); }} className={`w-full py-5 rounded-2xl font-black uppercase text-sm transition-all ${isCopied ? 'bg-green-600 text-white' : 'bg-black text-[#D4A373]'}`}>
                        {isCopied ? 'TEXTO COPIADO!' : 'COPIAR PARA O CERVELLO / E-MAIL'}
                     </button>
                     <button onClick={() => setSelected(null)} className="w-full py-3 text-gray-400 font-black uppercase text-[10px]">FECHAR JANELA</button>
@@ -251,7 +231,7 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* MODAL DE INPUTS (RESTAURADO PARA FORMULÁRIOS) */}
+      {/* MODAL DE INPUTS */}
       <PromptModal isOpen={modalOpen} onClose={() => {setModalOpen(false); setPendingCommand(null);}} title={modalTitle} fields={modalFields} onSubmit={handleModalSubmit} />
     </div>
   );
