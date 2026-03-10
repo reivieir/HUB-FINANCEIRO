@@ -17,17 +17,14 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    const text =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Sem resposta da IA";
+    console.log("RESPOSTA GEMINI:", data);
 
-    res.status(200).json({ text });
+    res.status(200).json(data);
 
   } catch (error) {
 
     res.status(500).json({
-      error: "Erro no servidor Gemini",
-      details: error.message
+      error: error.message
     });
 
   }
