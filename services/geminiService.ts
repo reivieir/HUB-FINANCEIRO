@@ -1,14 +1,9 @@
 export const createDexcoChat = async () => {
 
-  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-  const MODEL = "gemini-2.5-flash";
-
   return {
     sendMessage: async (prompt: string) => {
 
-      const URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
-
-      const response = await fetch(URL, {
+      const response = await fetch("/api/gemini", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -16,19 +11,13 @@ export const createDexcoChat = async () => {
         body: JSON.stringify({
           contents: [
             {
-              parts: [
-                { text: prompt }
-              ]
+              parts: [{ text: prompt }]
             }
           ]
         })
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.error?.message || "Erro na API Gemini");
-      }
 
       const text =
         data?.candidates?.[0]?.content?.parts?.[0]?.text ||
