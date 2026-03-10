@@ -1,5 +1,7 @@
 export function createDexcoChat() {
+
   return {
+
     async sendMessage(prompt: string) {
 
       const response = await fetch("/api/gemini", {
@@ -12,17 +14,20 @@ export function createDexcoChat() {
         })
       });
 
-      if (!response.ok) {
-        throw new Error("Erro ao consultar IA");
-      }
-
       const data = await response.json();
+
+      const texto = data?.resposta ?? "Sem resposta da IA";
 
       return {
         response: {
-          text: () => data.resposta || "Sem resposta da IA"
+          text() {
+            return texto;
+          }
         }
       };
+
     }
+
   };
+
 }
