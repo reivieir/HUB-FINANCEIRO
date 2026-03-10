@@ -1,4 +1,4 @@
-export async function perguntarIA(pergunta: string) {
+export async function perguntarIA(pergunta: string): Promise<string> {
 
   const response = await fetch("/api/gemini", {
     method: "POST",
@@ -16,5 +16,5 @@ export async function perguntarIA(pergunta: string) {
 
   const data = await response.json();
 
-  return data.resposta;
+  return data.resposta as string;
 }
