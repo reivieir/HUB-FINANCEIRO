@@ -1,7 +1,7 @@
 export const createDexcoChat = async () => {
 
   const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-  const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-pro";
+  const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-1.5-flash-latest";
 
   return {
     sendMessage: async (prompt: string) => {
@@ -16,6 +16,7 @@ export const createDexcoChat = async () => {
         body: JSON.stringify({
           contents: [
             {
+              role: "user",
               parts: [
                 {
                   text: `Você é o Dexco Assist da Tesouraria. Responda tecnicamente: ${prompt}`
