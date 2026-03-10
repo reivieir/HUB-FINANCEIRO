@@ -1,12 +1,12 @@
 export const createDexcoChat = async () => {
 
   const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-  const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-1.5-flash";
+  const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-pro";
 
   return {
     sendMessage: async (prompt: string) => {
 
-      const URL = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent?key=${API_KEY}`;
+      const URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
       const response = await fetch(URL, {
         method: "POST",
