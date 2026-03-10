@@ -1,4 +1,9 @@
-export default async function handler(req, res) {
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+
+export default async function handler(
+  req: VercelRequest,
+  res: VercelResponse
+) {
 
   if (req.method !== "POST") {
     return res.status(405).json({ erro: "Método não permitido" });
@@ -47,7 +52,7 @@ export default async function handler(req, res) {
       resposta: texto
     });
 
-  } catch (erro) {
+  } catch (erro: any) {
 
     return res.status(500).json({
       erro: "Erro ao consultar Gemini",
