@@ -1,7 +1,7 @@
 export const createDexcoChat = async () => {
 
   const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-  const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.0-flash";
+  const MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.5-flash";
 
   return {
     sendMessage: async (prompt: string) => {
