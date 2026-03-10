@@ -11,7 +11,9 @@ export const createDexcoChat = async () => {
         body: JSON.stringify({
           contents: [
             {
-              parts: [{ text: prompt }]
+              parts: [
+                { text: prompt }
+              ]
             }
           ]
         })
@@ -19,9 +21,7 @@ export const createDexcoChat = async () => {
 
       const data = await response.json();
 
-      const text =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "Sem resposta da IA";
+      const text = data?.text || "Sem resposta da IA";
 
       return {
         response: {
