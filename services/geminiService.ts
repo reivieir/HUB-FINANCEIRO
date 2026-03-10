@@ -1,4 +1,4 @@
-export function createDexcoChat() {
+export async function createDexcoChat() {
 
   return {
 
@@ -13,6 +13,10 @@ export function createDexcoChat() {
           prompt: prompt
         })
       });
+
+      if (!response.ok) {
+        throw new Error("Erro ao consultar IA");
+      }
 
       const data = await response.json();
 
