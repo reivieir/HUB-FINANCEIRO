@@ -1,7 +1,7 @@
+// /api/gemini.ts
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// ⚠️ Export default handler compatível com App Router
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -11,14 +11,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ resposta: "Prompt vazio" }, { status: 400 });
     }
 
-    const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json({ resposta: "Chave GEMINI_API_KEY não encontrada" }, { status: 500 });
+    }
 
+    // Inicializa cliente Gemini
+    const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = client.getGenerativeModel({
       model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
     });
 
+    // Gera resposta
     const result: any = await model.generate({ prompt });
 
+    // Extrai o texto de forma segura
     const texto =
       result.output_text ?? result.output?.[0]?.content?.[0]?.text ?? "Sem resposta";
 
