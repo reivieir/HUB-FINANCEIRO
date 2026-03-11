@@ -1,4 +1,4 @@
-export async function createDexcoChat() {
+export function createDexcoChat() {
 
   return {
 
@@ -24,7 +24,7 @@ export async function createDexcoChat() {
 
       return {
         response: {
-          text() {
+          async text() {
             return texto;
           }
         }
