@@ -1,39 +1,30 @@
+import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import type { NextApiRequest, NextApiResponse } from "next";
 
-type Data = {
-  resposta: string;
-};
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ resposta: "Método não permitido" });
-  }
-
+// ⚠️ Export default handler compatível com App Router
+export async function POST(req: NextRequest) {
   try {
-    const { prompt } = req.body;
-    if (!prompt) return res.status(400).json({ resposta: "Prompt vazio" });
+    const body = await req.json();
+    const prompt = body.prompt;
 
-    // Inicializa o cliente
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+    if (!prompt) {
+      return NextResponse.json({ resposta: "Prompt vazio" }, { status: 400 });
+    }
 
-    const model = genAI.getGenerativeModel({
+    const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+    const model = client.getGenerativeModel({
       model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
     });
 
-    // Gera resposta
     const result: any = await model.generate({ prompt });
 
-    // Extrai texto de forma segura
     const texto =
       result.output_text ?? result.output?.[0]?.content?.[0]?.text ?? "Sem resposta";
 
-    return res.status(200).json({ resposta: texto });
+    return NextResponse.json({ resposta: texto });
   } catch (error) {
     console.error("Erro na API Gemini:", error);
-    return res.status(500).json({ resposta: "Erro ao consultar IA" });
+    return NextResponse.json({ resposta: "Erro ao consultar IA" }, { status: 500 });
   }
 }
