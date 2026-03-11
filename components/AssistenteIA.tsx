@@ -16,7 +16,6 @@ export default function AssistenteIA() {
 
     const novaPergunta = pergunta;
     setPergunta("");
-
     setMensagens((prev) => [...prev, { autor: "user", texto: novaPergunta }]);
     setLoading(true);
 
@@ -24,10 +23,9 @@ export default function AssistenteIA() {
       const chat = createDexcoChat();
       const result = await chat.sendMessage(novaPergunta);
       const respostaIA = await result.response.text();
-
       setMensagens((prev) => [...prev, { autor: "ia", texto: respostaIA }]);
     } catch (erro) {
-      setMensagens((prev) => [...prev, { autor: "ia", texto: "Erro ao consultar a IA." }]);
+      setMensagens((prev) => [...prev, { autor: "ia", texto: "Erro ao consultar IA." }]);
     }
 
     setLoading(false);
