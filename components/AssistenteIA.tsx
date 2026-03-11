@@ -9,9 +9,10 @@ export default function AssistenteIA() {
 
   const enviarPergunta = async () => {
 
-    if (!pergunta) return;
+    if (!pergunta.trim()) return;
 
     setLoading(true);
+    setResposta("");
 
     try {
 
@@ -24,6 +25,8 @@ export default function AssistenteIA() {
       setResposta(text);
 
     } catch (erro) {
+
+      console.error(erro);
 
       setResposta("Erro ao consultar a IA.");
 
@@ -41,7 +44,7 @@ export default function AssistenteIA() {
       </h1>
 
       <textarea
-        className="bg-[#1E1E1E] p-4 rounded-lg text-white"
+        className="bg-[#1E1E1E] p-4 rounded-lg text-white min-h-[120px]"
         placeholder="Digite sua pergunta..."
         value={pergunta}
         onChange={(e) => setPergunta(e.target.value)}
@@ -49,15 +52,19 @@ export default function AssistenteIA() {
 
       <button
         onClick={enviarPergunta}
-        className="bg-[#D4A373] text-black px-6 py-2 rounded-lg font-bold"
+        className="bg-[#D4A373] text-black px-6 py-2 rounded-lg font-bold w-fit"
       >
         Perguntar
       </button>
 
-      {loading && <p>Consultando IA...</p>}
+      {loading && (
+        <p className="text-gray-400">
+          Consultando IA...
+        </p>
+      )}
 
       {resposta && (
-        <div className="bg-[#1E1E1E] p-4 rounded-lg">
+        <div className="bg-[#1E1E1E] p-4 rounded-lg whitespace-pre-wrap">
           {resposta}
         </div>
       )}
