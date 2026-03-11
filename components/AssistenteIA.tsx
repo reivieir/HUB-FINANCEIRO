@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { perguntarIA } from "../services/geminiService";
+import { createDexcoChat } from "../services/geminiService";
 
 export default function AssistenteIA() {
 
@@ -8,18 +8,29 @@ export default function AssistenteIA() {
   const [loading, setLoading] = useState(false);
 
   const enviarPergunta = async () => {
+
     if (!pergunta) return;
 
     setLoading(true);
 
     try {
-      const resp = await perguntarIA(pergunta);
-      setResposta(resp);
+
+      const chat = createDexcoChat();
+
+      const result = await chat.sendMessage(pergunta);
+
+      const text = await result.response.text();
+
+      setResposta(text);
+
     } catch (erro) {
-      setResposta("Erro ao consultar IA.");
+
+      setResposta("Erro ao consultar a IA.");
+
     }
 
     setLoading(false);
+
   };
 
   return (
