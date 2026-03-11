@@ -1,51 +1,34 @@
 import { useState } from "react";
 import { createDexcoChat } from "../services/geminiService";
 
-interface Mensagem {
-  autor: "user" | "ia";
-  texto: string;
-}
-
 export default function AssistenteIA() {
 
-  const [mensagens, setMensagens] = useState<Mensagem[]>([]);
   const [pergunta, setPergunta] = useState("");
+  const [resposta, setResposta] = useState("");
   const [loading, setLoading] = useState(false);
 
   const enviarPergunta = async () => {
 
     if (!pergunta.trim()) return;
 
-    const novaPergunta = pergunta;
-
-    setPergunta("");
-
-    setMensagens((prev) => [
-      ...prev,
-      { autor: "user", texto: novaPergunta }
-    ]);
-
     setLoading(true);
+    setResposta("");
 
     try {
 
       const chat = createDexcoChat();
 
-      const result = await chat.sendMessage(novaPergunta);
+      const result = await chat.sendMessage(pergunta);
 
-      const respostaIA = await result.response.text();
+      const text = await result.response.text();
 
-      setMensagens((prev) => [
-        ...prev,
-        { autor: "ia", texto: respostaIA }
-      ]);
+      setResposta(text);
 
     } catch (erro) {
 
-      setMensagens((prev) => [
-        ...prev,
-        { autor: "ia", texto: "Erro ao consultar a IA." }
-      ]);
+      console.error(erro);
+
+      setResposta("Erro ao consultar a IA.");
 
     }
 
@@ -54,63 +37,37 @@ export default function AssistenteIA() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="p-8 flex flex-col gap-4">
 
-      <div className="p-6 border-b border-[#2D2D2D] text-xl font-bold">
+      <h1 className="text-2xl font-bold">
         Assistente Financeiro IA
-      </div>
+      </h1>
 
-      {/* AREA DO CHAT */}
+      <textarea
+        className="bg-[#1E1E1E] p-4 rounded-lg text-white min-h-[120px]"
+        placeholder="Digite sua pergunta..."
+        value={pergunta}
+        onChange={(e) => setPergunta(e.target.value)}
+      />
 
-      <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+      <button
+        onClick={enviarPergunta}
+        className="bg-[#D4A373] text-black px-6 py-2 rounded-lg font-bold w-fit"
+      >
+        Perguntar
+      </button>
 
-        {mensagens.map((msg, index) => (
+      {loading && (
+        <p className="text-gray-400">
+          Consultando IA...
+        </p>
+      )}
 
-          <div
-            key={index}
-            className={`max-w-[70%] p-4 rounded-lg ${
-              msg.autor === "user"
-                ? "bg-[#D4A373] text-black self-end"
-                : "bg-[#1E1E1E] text-white self-start"
-            }`}
-          >
-            {msg.texto}
-          </div>
-
-        ))}
-
-        {loading && (
-          <div className="bg-[#1E1E1E] p-4 rounded-lg w-fit">
-            IA está pensando...
-          </div>
-        )}
-
-      </div>
-
-      {/* INPUT */}
-
-      <div className="p-4 border-t border-[#2D2D2D] flex gap-3">
-
-        <input
-          className="flex-1 bg-[#1E1E1E] p-3 rounded-lg text-white"
-          placeholder="Digite sua pergunta..."
-          value={pergunta}
-          onChange={(e) => setPergunta(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              enviarPergunta();
-            }
-          }}
-        />
-
-        <button
-          onClick={enviarPergunta}
-          className="bg-[#D4A373] text-black px-6 rounded-lg font-bold"
-        >
-          Enviar
-        </button>
-
-      </div>
+      {resposta && (
+        <div className="bg-[#1E1E1E] p-4 rounded-lg whitespace-pre-wrap">
+          {resposta}
+        </div>
+      )}
 
     </div>
   );
