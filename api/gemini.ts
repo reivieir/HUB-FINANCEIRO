@@ -1,63 +1,70 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import fs from "fs";
+import path from "path";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
+const pastaConhecimento = path.join(process.cwd(), "knowledge");
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ erro: "Método não permitido" });
-  }
+function carregarBaseConhecimento() {
+
+  const arquivos = fs.readdirSync(pastaConhecimento);
+
+  let base = "";
+
+  arquivos.forEach((arquivo) => {
+
+    if (arquivo.endsWith(".txt")) {
+
+      const conteudo = fs.readFileSync(
+        path.join(pastaConhecimento, arquivo),
+        "utf8"
+      );
+
+      base += `\n\nDOCUMENTO: ${arquivo}\n${conteudo}`;
+    }
+
+  });
+
+  return base;
+}
+
+export default async function handler(req, res) {
 
   try {
 
-    const API_KEY = process.env.GEMINI_API_KEY;
-
-    if (!API_KEY) {
-      return res.status(500).json({
-        erro: "API KEY não configurada"
-      });
-    }
-
     const { prompt } = req.body;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
-            }
-          ]
-        })
-      }
-    );
+    const baseConhecimento = carregarBaseConhecimento();
 
-    const data = await response.json();
+    const pergunta = `
+Utilize a base de conhecimento abaixo para responder.
 
-    const texto =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Sem resposta da IA";
+BASE DE CONHECIMENTO:
+${baseConhecimento}
 
-    return res.status(200).json({
-      resposta: texto
+PERGUNTA:
+${prompt}
+`;
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash"
     });
 
-  } catch (erro: any) {
+    const result = await model.generateContent(pergunta);
 
-    return res.status(500).json({
-      erro: "Erro ao consultar Gemini",
-      detalhe: erro.message
+    const resposta = result.response.text();
+
+    res.status(200).json({ resposta });
+
+  } catch (erro) {
+
+    console.error(erro);
+
+    res.status(500).json({
+      resposta: "Erro ao consultar a IA."
     });
 
   }
+
 }
