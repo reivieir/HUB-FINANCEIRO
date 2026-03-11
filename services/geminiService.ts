@@ -1,30 +1,24 @@
-export function createDexcoChat() {
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+
+export async function createDexcoChat() {
+
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash"
+  });
 
   return {
 
     async sendMessage(prompt: string) {
 
-      const response = await fetch("/api/gemini", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          prompt: prompt
-        })
-      });
+      const result = await model.generateContent(prompt);
 
-      if (!response.ok) {
-        throw new Error("Erro ao consultar IA");
-      }
-
-      const data = await response.json();
-
-      const texto = data?.resposta ?? "Sem resposta da IA";
+      const texto = result.response.text();
 
       return {
         response: {
-          async text() {
+          text() {
             return texto;
           }
         }
