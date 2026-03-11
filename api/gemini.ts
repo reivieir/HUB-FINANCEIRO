@@ -2,43 +2,41 @@ import fs from "fs";
 import path from "path";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const pastaConhecimento = path.join(process.cwd(), "knowledge");
-
-function carregarBaseConhecimento() {
-
-  const arquivos = fs.readdirSync(pastaConhecimento);
-
-  let base = "";
-
-  arquivos.forEach((arquivo) => {
-
-    if (arquivo.endsWith(".txt")) {
-
-      const conteudo = fs.readFileSync(
-        path.join(pastaConhecimento, arquivo),
-        "utf8"
-      );
-
-      base += `\n\nDOCUMENTO: ${arquivo}\n${conteudo}`;
-    }
-
-  });
-
-  return base;
-}
-
 export default async function handler(req, res) {
 
   try {
 
     const { prompt } = req.body;
 
-    const baseConhecimento = carregarBaseConhecimento();
+    const pastaConhecimento = path.join(process.cwd(), "knowledge");
+
+    let baseConhecimento = "";
+
+    if (fs.existsSync(pastaConhecimento)) {
+
+      const arquivos = fs.readdirSync(pastaConhecimento);
+
+      arquivos.forEach((arquivo) => {
+
+        if (arquivo.endsWith(".txt")) {
+
+          const conteudo = fs.readFileSync(
+            path.join(pastaConhecimento, arquivo),
+            "utf8"
+          );
+
+          baseConhecimento += `\n\nDOCUMENTO: ${arquivo}\n${conteudo}`;
+
+        }
+
+      });
+
+    }
 
     const pergunta = `
 Utilize a base de conhecimento abaixo para responder.
 
-BASE DE CONHECIMENTO:
+BASE:
 ${baseConhecimento}
 
 PERGUNTA:
@@ -59,7 +57,7 @@ ${prompt}
 
   } catch (erro) {
 
-    console.error(erro);
+    console.error("ERRO GEMINI:", erro);
 
     res.status(500).json({
       resposta: "Erro ao consultar a IA."
