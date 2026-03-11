@@ -1,31 +1,35 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(req, res) {
+type Data = {
+  resposta: string;
+};
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<Data>
+) {
   if (req.method !== "POST") {
     return res.status(405).json({ resposta: "Método não permitido" });
   }
 
   try {
     const { prompt } = req.body;
-    if (!prompt) {
-      return res.status(400).json({ resposta: "Prompt vazio" });
-    }
+    if (!prompt) return res.status(400).json({ resposta: "Prompt vazio" });
 
-    // Inicializa o cliente com a chave do .env
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    // Inicializa o cliente
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-    // Seleciona o modelo que você definiu no .env
     const model = genAI.getGenerativeModel({
-      model: process.env.GEMINI_MODEL || "gemini-2.5-flash"
+      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
     });
 
-    // Chamada de geração de texto
-    const result = await model.generate({
-      prompt: prompt
-    });
+    // Gera resposta
+    const result: any = await model.generate({ prompt });
 
-    // Extrai o texto da resposta
-    const texto = result.output_text ?? result.output?.[0]?.content?.[0]?.text ?? "Sem resposta";
+    // Extrai texto de forma segura
+    const texto =
+      result.output_text ?? result.output?.[0]?.content?.[0]?.text ?? "Sem resposta";
 
     return res.status(200).json({ resposta: texto });
   } catch (error) {
