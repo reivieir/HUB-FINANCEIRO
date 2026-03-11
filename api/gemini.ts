@@ -8,33 +8,55 @@ export default async function handler(req, res) {
 
     const { prompt } = req.body;
 
-    const pastaConhecimento = path.join(process.cwd(), "knowledge");
+    if (!prompt) {
+      return res.status(400).json({
+        resposta: "Pergunta não enviada."
+      });
+    }
+
+    // -------------------------
+    // CARREGAR BASE DE CONHECIMENTO
+    // -------------------------
 
     let baseConhecimento = "";
 
-    if (fs.existsSync(pastaConhecimento)) {
+    try {
 
-      const arquivos = fs.readdirSync(pastaConhecimento);
+      const pasta = path.join(process.cwd(), "knowledge");
 
-      arquivos.forEach((arquivo) => {
+      if (fs.existsSync(pasta)) {
 
-        if (arquivo.endsWith(".txt")) {
+        const arquivos = fs.readdirSync(pasta);
 
-          const conteudo = fs.readFileSync(
-            path.join(pastaConhecimento, arquivo),
-            "utf8"
-          );
+        for (const arquivo of arquivos) {
 
-          baseConhecimento += `\n\nDOCUMENTO: ${arquivo}\n${conteudo}`;
+          if (arquivo.endsWith(".txt")) {
+
+            const conteudo = fs.readFileSync(
+              path.join(pasta, arquivo),
+              "utf8"
+            );
+
+            baseConhecimento += `\n\nDOCUMENTO: ${arquivo}\n${conteudo}`;
+
+          }
 
         }
 
-      });
+      }
+
+    } catch (erro) {
+
+      console.error("Erro lendo base de conhecimento:", erro);
 
     }
 
+    // -------------------------
+    // PERGUNTA PARA IA
+    // -------------------------
+
     const pergunta = `
-Utilize a base de conhecimento abaixo para responder.
+Use a base de conhecimento abaixo para responder a pergunta.
 
 BASE:
 ${baseConhecimento}
@@ -53,13 +75,13 @@ ${prompt}
 
     const resposta = result.response.text();
 
-    res.status(200).json({ resposta });
+    return res.status(200).json({ resposta });
 
   } catch (erro) {
 
-    console.error("ERRO GEMINI:", erro);
+    console.error("Erro na API Gemini:", erro);
 
-    res.status(500).json({
+    return res.status(500).json({
       resposta: "Erro ao consultar a IA."
     });
 
