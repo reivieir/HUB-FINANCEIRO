@@ -1,4 +1,4 @@
-export function createDexcoChat() {
+export async function createDexcoChat() {
 
   return {
 
@@ -10,7 +10,7 @@ export function createDexcoChat() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          prompt: prompt
+          prompt
         })
       });
 
@@ -20,12 +20,10 @@ export function createDexcoChat() {
 
       const data = await response.json();
 
-      const texto = data?.resposta ?? "Sem resposta da IA";
-
       return {
         response: {
-          async text() {
-            return texto;
+          text() {
+            return data.resposta;
           }
         }
       };
