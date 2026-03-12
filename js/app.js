@@ -1,53 +1,48 @@
-// Função para alternar entre as abas principais
-function showTab(tabId) {
-    // Esconde todos os conteúdos
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    // Remove o estilo ativo de todos os botões
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-
-    // Mostra a aba selecionada
-    document.getElementById(tabId).classList.add('active');
-    // Encontra o botão clicado e marca como ativo (busca pelo texto correspondente)
-    event.currentTarget.classList.add('active');
-}
-
-// Funções para a janela do Chat da IA
-function toggleChat() {
-    const chatWindow = document.getElementById('aiChatWindow');
-    if (chatWindow.style.display === 'flex') {
-        chatWindow.style.display = 'none';
-    } else {
-        chatWindow.style.display = 'flex';
-    }
-}
-
-// Simulador de envio de mensagem (preparando para futura API)
-function sendMessage() {
+async function sendMessage() {
     const input = document.getElementById('userInput');
     const message = input.value.trim();
-    
-    if (message !== '') {
-        const chatMessages = document.getElementById('chatMessages');
+    const chatMessages = document.getElementById('chatMessages');
+
+    if (message === '') return;
+
+    // 1. Mostra a mensagem do usuário
+    const userDiv = document.createElement('p');
+    userDiv.className = 'user-message';
+    userDiv.textContent = message;
+    chatMessages.appendChild(userDiv);
+    input.value = ''; // Limpa o campo
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // 2. Mostra status de "Pensando..."
+    const typingDiv = document.createElement('p');
+    typingDiv.className = 'ai-message';
+    typingDiv.textContent = 'Pensando...';
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    try {
+        // 3. Envia para o nosso arquivo /api/chat.js na Vercel
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
         
-        // Adiciona a mensagem do usuário
-        const userDiv = document.createElement('p');
-        userDiv.className = 'user-message';
-        userDiv.textContent = message;
-        chatMessages.appendChild(userDiv);
-        
-        input.value = '';
-        
-        // Simulação da resposta da IA (aqui entrará o fetch para a API futuramente)
-        setTimeout(() => {
-            const aiDiv = document.createElement('p');
-            aiDiv.className = 'ai-message';
-            aiDiv.textContent = 'Entendido. Estou processando sua dúvida na base de conhecimento. (Integração IA em breve)';
-            chatMessages.appendChild(aiDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Rola para o fim
-        }, 1000);
+        // 4. Remove o "Pensando..."
+        chatMessages.removeChild(typingDiv);
+
+        // 5. Exibe a resposta real
+        const aiDiv = document.createElement('p');
+        aiDiv.className = 'ai-message';
+        // Troca as quebras de linha por <br> para ficar formatado
+        aiDiv.innerHTML = data.reply ? data.reply.replace(/\n/g, '<br>') : "Erro ao ler a resposta.";
+        chatMessages.appendChild(aiDiv);
+
+    } catch (error) {
+        typingDiv.textContent = 'Erro ao conectar com a IA. Verifique sua conexão.';
     }
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
