@@ -1,28 +1,20 @@
 import { useState } from "react";
-import Sidebar from "./components/Sidebar";
-import AssistenteIA from "./components/AssistenteIA";
-import Bancos from "./components/Bancos";
-import Conciliacao from "./components/Conciliacao";
+// Remova as importações dos outros componentes temporariamente para testar
+// import Sidebar from "./components/Sidebar";
+// import AssistenteIA from "./components/AssistenteIA";
+// import Bancos from "./components/Bancos";
+// import Conciliacao from "./components/Conciliacao";
+
 function App() {
   const [pagina, setPagina] = useState("ia");
-  const renderPagina = () => {
-    switch (pagina) {
-      case "bancos":
-        return <Bancos />;
-      case "conciliacao":
-        return <Conciliacao />;
-      case "ia":
-      default:
-        return <AssistenteIA />;
-    }
-  };
+
+  // Remova o renderPagina e retorne um texto simples
   return (
-    <div className="flex">
-      <Sidebar setPagina={setPagina} />
-      <div className="flex-1 bg-[#121212] text-white min-h-screen">
-        {renderPagina()}
-      </div>
+    <div className="flex" style={{ backgroundColor: '#121212', color: 'white', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <h1>Olá! Se você está vendo isso, o App.tsx está funcionando!</h1>
+      <p>Página atual: {pagina}</p>
     </div>
   );
 }
+
 export default App;
