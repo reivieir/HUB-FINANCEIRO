@@ -1,21 +1,45 @@
-import { createDexcoChat } from "./services/geminiServices"; // Ajuste o caminho se necessário
+import React from 'react';
 
-// Dentro do seu componente:
-const [mensagem, setMensagem] = useState("");
-const [resposta, setResposta] = useState("");
+interface AssistenteIAProps {
+  prompt: string;
+  setPrompt: (prompt: string) => void;
+  respostaIA: string;
+  loading: boolean;
+  handleEnviar: (e: React.FormEvent) => void;
+}
 
-const handleEnviar = async (e) => {
-  e.preventDefault();
-  console.log("Botão clicado! Enviando prompt:", mensagem); // Isso TEM que aparecer no F12
-
-  try {
-    const chat = await createDexcoChat();
-    const result = await chat.sendMessage(mensagem);
-    const texto = result.response.text();
-    console.log("IA respondeu:", texto);
-    setResposta(texto);
-  } catch (error) {
-    console.error("ERRO DETECTADO:", error); // Isso vai mostrar o erro real no F12
-    alert("Erro: " + error.message);
-  }
+const AssistenteIA: React.FC<AssistenteIAProps> = ({
+  prompt,
+  setPrompt,
+  respostaIA,
+  loading,
+  handleEnviar,
+}) => {
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Assistente Financeiro IA</h1>
+      <div className="mb-4 p-4 bg-gray-800 rounded-lg">
+        <p>{respostaIA}</p>
+      </div>
+      <form onSubmit={handleEnviar} className="flex gap-2">
+        <input
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Digite sua pergunta..."
+          className="flex-1 p-2 rounded bg-gray-700 text-white border border-gray-600"
+          disabled={loading}
+        />
+        <button
+          type="submit"
+          className="p-2 bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50"
+          disabled={loading}
+        >
+          {loading ? "Enviando..." : "Enviar"}
+        </button>
+      </form>
+    </div>
+  );
 };
+
+export default AssistenteIA;
