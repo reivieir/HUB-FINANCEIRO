@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Financeiro</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h2>Hub Financeiro</h2>
+        <nav>
+            <button class="nav-btn active" onclick="showTab('conciliacao')">Conciliação Bancária</button>
+            <button class="nav-btn" onclick="showTab('bancos')">Gestão de Bancos</button>
+            <button class="nav-btn" onclick="showTab('caixa')">Gestão de Caixa</button>
+            <button class="nav-btn" onclick="showTab('protestos')">Protestos</button>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <div id="conciliacao" class="tab-content active">
+            <h1>Conciliação Bancária</h1>
+            <p>Área de suporte para resolução de pendências e conferência de extratos.</p>
+            </div>
+
+        <div id="bancos" class="tab-content">
+            <h1>Gestão de Bancos</h1>
+            <p>Documentação e suporte para criação, manutenção e acessos bancários.</p>
+        </div>
+
+        <div id="caixa" class="tab-content">
+            <h1>Gestão de Caixa</h1>
+            <p>Orientações sobre fluxo de caixa, pagamentos e recebimentos.</p>
+        </div>
+
+        <div id="protestos" class="tab-content">
+            <h1>Protestos</h1>
+            <p>Procedimentos para baixas, cartas de anuência e negociações.</p>
+        </div>
+    </main>
+
+    <button class="ai-fab" onclick="toggleChat()">🤖 Ajuda com IA</button>
+
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="chat-header">
+            <h3>Assistente Financeiro</h3>
+            <button onclick="toggleChat()">X</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <p class="ai-message">Olá! Sou o assistente do Hub. Como posso ajudar com Conciliação, Bancos, Caixa ou Protestos hoje?</p>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Digite sua dúvida...">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

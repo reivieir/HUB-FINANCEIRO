@@ -1,0 +1,28 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { display: flex; height: 100vh; background-color: #f4f7f6; }
+
+/* Menu Lateral */
+.sidebar { width: 250px; background-color: #1e293b; color: white; padding: 20px; display: flex; flex-direction: column; }
+.sidebar h2 { margin-bottom: 30px; font-size: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+.nav-btn { background: none; border: none; color: #cbd5e1; padding: 12px; text-align: left; cursor: pointer; border-radius: 5px; margin-bottom: 10px; font-size: 1rem; transition: 0.3s; }
+.nav-btn:hover, .nav-btn.active { background-color: #334155; color: white; }
+
+/* Conteúdo */
+.content { flex: 1; padding: 40px; overflow-y: auto; }
+.tab-content { display: none; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.tab-content.active { display: block; }
+.tab-content h1 { color: #0f172a; margin-bottom: 15px; }
+.tab-content p { color: #475569; }
+
+/* Interface do Chat da IA */
+.ai-fab { position: fixed; bottom: 30px; right: 30px; background-color: #2563eb; color: white; border: none; padding: 15px 20px; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 1rem; font-weight: bold; }
+.ai-chat-window { display: none; position: fixed; bottom: 90px; right: 30px; width: 350px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); flex-direction: column; overflow: hidden; }
+.chat-header { background: #2563eb; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+.chat-header button { background: none; border: none; color: white; font-weight: bold; cursor: pointer; }
+.chat-messages { height: 300px; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; }
+.ai-message, .user-message { padding: 10px; border-radius: 8px; max-width: 80%; font-size: 0.9rem; }
+.ai-message { background: #e2e8f0; align-self: flex-start; color: #1e293b; }
+.user-message { background: #2563eb; color: white; align-self: flex-end; }
+.chat-input { display: flex; border-top: 1px solid #e2e8f0; }
+.chat-input input { flex: 1; padding: 15px; border: none; outline: none; }
+.chat-input button { padding: 15px; background: #f1f5f9; border: none; cursor: pointer; font-weight: bold; color: #2563eb; }
