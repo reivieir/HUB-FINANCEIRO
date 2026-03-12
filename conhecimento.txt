@@ -303,6 +303,461 @@ N/A
 8.	Normas relacionadas
 
 N/A
+1.	Objetivo
+
+Descrever o procedimento para lançamento de extratos bancários em contas do grupo não configuradas para importação automática via JOB, bem como o tratamento a ser adotado nos casos de falha na importação dos extratos de contas automatizadas, garantindo o correto registro e conciliação dos movimentos bancários.
+2.	Definições
+
+Periodicidade: Diária.
+
+Sistemas e ferramentas associadas: 
+	Transações do SAP: FF.5 / FS10N
+	APP do FIORI “Administrar Extratos Da Conta”
+	Ferramentas: Plataforma Bancária; acesso a conta do banco na internet.
+3.	Regras 
+
+	Importação automática via JOB
+	Contas sem JOB configurado
+	Falha na importação automática
+	Continuidade da conciliação
+	Abrangência do lançamento manual
+
+5.	Detalhamento do processo
+
+
+1.	Lançamento Manual APP FIORI
+1.1.	Acesse o APP “Administrar Extrato da Conta”
+1.2.	No Campo “Conta do banco da empresa” informe o número da conta que irá receber os lançamentos.
+1.3.	Clique na conta e em seguida em “Inicio”
+1.4.	Clique no último extrato dessa conta
+1.5.	Clique em “Criar Seguinte”
+1.6.	Informe a “Data Extrato Conta”, sempre a data da movimentação
+1.7.	Verifique o saldo inicial e informe o saldo final
+1.8.	No campo “Transação Manual” será 108 para débitos, 208 para créditos e 105 para débitos de tarifas
+1.9.	No campo “Data Efetiva” já virá com data, mas se não tiver, informar a mesma data informada na data do extrato.
+1.10.	No campo “Montante” informar o valor que está no extrato, se for débito, terá que colocar o sinal de negativo na frente do valor
+1.11.	No Campo “Motivo do Pagamento	” e “Descrição” é informado o mesmo texto, pegar a descrição que está no extrato do banco, copiar e colar nesses campos.
+1.12.	Se houver mais de uma linha de lançamento clicar em “Criar” ao lado de “Gerar Modelo”, vai inserir mais uma linha e repita os passos 1.8 a 1.11
+1.13.	Após fazer todos os lançamentos do extrato para o dia clicar em “Criar” no canto direito da tela e após clicar em “Lançar”
+1.14.	Acessar a transação FS10N no SAP e verificar se os saldos estão corretos
+2.	Acessar Transação FS10N
+2.1.	No campo “Nº Conta” e informar a conta movimento, lembrando que para cada conta transitória de banco existe uma movimento as transitórias iniciam-se 1111xxx saída e entrada 1121xxx e a movimento inicia com1001xxx, conforme relação anexo, é nela que deverá conferir o saldo.
+2.2.	No campo “Empresa” informar a empresa que irá consultar
+2.3.	Exercício é o ano que está consultando e aperta F8
+2.4.	Na Coluna Saldo Acumulado e na linha do mês que está consultando estará o saldo atual, se esse saldo não estiver “batendo” com o saldo que está no banco deverá carregar o que está faltando.
+2.5.	Dois cliques na coluna “Saldo” na linha do mês que está consultando, irá abrir a movimentação do mês.
+2.6.	Ordenar por data e verificar o dia que está faltando.
+2.7.	Para o caso de falhar o carregamento de muitos extratos, o trabalho para carregar manualmente é muito grande, acionar o time de Sustentação TI e pedir para o Leandro Peron rodar os JOBs do dia novamente, caso tenha falhado somente um ou outro extrato, então importar manualmente.
+2.8.	Acessar o site skyline.com.br/cloud/multi/#/login
+2.9.	Usuário: CECRISAR.CECRISAR
+2.10.	Senha:  cecrisa20
+2.11.	Servidor: Servidor Skyline 2 clicar em login
+2.12.	Informe a data que deseja extrair o arquivo, lembrando que o arquivo a ser baixado estará sempre um dia após sua movimentação, exemplo extrato do dia 18/10 estará no dia 19/10
+2.13.	Encontre o extrato e clique em baixar
+3.	Acesse a transação FF.5
+3.1.	Dois cliques em “Extrato de conta: diversos formatos (SWIFT, MultiCash, BAI..”
+3.2.	Flegar “Importar dados”
+3.3.	Selecionar “Cobrança/Pagar Itaú – Brasil”
+3.4.	No campo “File Dump” apertar F4 e procurar o arquivo baixado do site skyline
+3.5.	Não alterar nada e flegar “Imprimir – Extrato de Conta / Log de Lançamento / Estatística” e apertar F8
+3.6.	Acessar a transação FS10N no SAP e confrontar saldo com o saldo de banco e verificar se estão corretos
+
+10.	Objetivo
+
+Baixa da liquidação – Risco Sacado (SAP | Transação F-110)
+A liquidação das operações de Risco Sacado ocorre nos dias 05, 15 e 25 de cada mês, conforme o calendário de processamento.
+
+A baixa contábil da liquidação é realizada somente após a confirmação do pagamento. Após essa confirmação, a baixa é executada no SAP por meio da transação F-110, que realiza a geração/execução do pagamento e a respectiva compensação (baixa) dos títulos vinculados à operação. 
+11.	Definições
+
+Periodicidade: Diária.
+
+Sistemas e ferramentas associadas: 
+	Transações do SAP: F-110 / FBL3N / FBL1N
+	Ferramentas: Plataforma Bancária; acesso a conta do banco na internet
+12.	Regras 
+
+
+•	A provisão do recurso para pagamento do Risco Sacado deve ser solicitada pelo responsável interno pelo produto Risco Sacado.
+•	A solicitação deve ser feita via Cervello, no caminho:
+Home > Catálogo de serviços > CSC > Tesouraria > Solicitação de recurso diário.
+•	Os valores de provisão devem ser apurados no SAP pela FBL1N, filtrando pela data de pagamento (data de liquidação).
+•	Antes de abrir o chamado de provisão no Cervello, é obrigatório consolidar os valores de liquidação do dia conforme a origem abaixo:
+o	Enviar e-mail solicitando os valores de liquidação do dia para
+	Safra
+	Santander
+	Daycoval
+	ABC		
+•	Bradesco: consultar no extrato a opção “Lançamentos Futuros”, onde os valores de liquidação serão exibidos
+•	Itaú: acessar as contas de Risco Sacado e seguir o caminho:
+Outros serviços > Notas Negociadas Em seguida, filtrar por data de vencimento, informando a data de liquidação, e coletar os valores.
+
+
+
+13.	Fluxograma do processo
+1º Abrir FBL3N filtrar pelo dia do vencimento que irá conciliar
+2º Abrir a FBL1N verificar por banco/fornecedor se os valores estão de acordo com a FBL3N
+3º Abrir a transação F110
+4º Rodar Proposta – Conferir valores com a FBL1N 
+5º Rodar Ciclo de Pagamento
+6º Conferir FBL3N se os valores zeraram
+ 
+14.	Detalhamento do processo
+
+
+4.	Acesse a transação FBL3N
+4.1.	Carregar a Variante “CONCIFULL” dentro do criador “REIVIEIR” aperta F8
+4.2.	Informe a Empresa que irá conciliar
+4.3.	Apertar Shifit + F4 informar data de lançamento e aperte F8
+5.	Acesse Transação FBL1N
+5.1.	Informe os fornecedores/bancos no campo Conta de Fornecedor, abaixo as contas para cada banco, após isso, marcar Operação do Razão Especial no bloco Tipo, e em Vencimento Liquido informe o dia que está conciliando (05,15 ou 25). 
+5.1.1.	1596 – ABC Brasil
+5.1.2.	5266 – Bradesco
+5.1.3.	92295 – Daycoval
+5.1.4.	1581100 – Itaú
+5.1.5.	5276	- Safra
+5.1.6.	8542 – Santander
+5.2.	Verifique se os valores da FBL1N estão de Acordo com a FBL3N
+6.	Acessar a Transação F110
+6.1.	Dia de Execução coloque o dia do vencimento/débito em banco
+6.2.	Identificação coloque BRDX para Dexco e BRDF para Duratex Florestal aperte Enter
+6.3.	Clique na Aba Parametro e aperte F9 e copie o último parâmetro registrado ex: 05.01.2026 BRDX
+6.4.	Seleção Livre – NomeCpo: Dt.base prazo pgto., e em Valores informar o vencimento que baixando 20260105(aaaa/mm/dd)
+6.5.	Log Adicional: Marque “Seleç. de meio-pagamento em caso de erro”
+6.6.	Clique em Status e Salve 
+6.7.	Clique em Proposta e marque Exec. Imediatamente
+6.8.	Confira os valores gerados, se estiver de acordo coma FBL3N
+6.9.	Clique em Ciclo de Pagamento Marque Exec. Imediatamente
+6.10.	Espere rodar o ciclo e pronto foi baixado, FLB3N, as contas de Risco Sacado estão zeradas
+7.	Acessar Transação F-04
+7.1.	Preencha o campo “Data documento” e “Data lançamento” com a data dos lançamentos.
+7.2.	Preencha o campo “Empresa” com o código da empresa que está sendo conciliada.
+7.3.	Preencha o campo “Txt.cab.doc” com o texto padrão “Conciliação Bancária”.
+7.4.	Marque a opção “Transferência c/compensação”.
+7.5.	Clique no botão “Selecionar PA”.
+7.6.	Em Outra Seleção, selecionar Data de Lançamento, clicar em Processar
+7.7.	Em conta inserir as contas razão que deseja conciliar,  flegar PA Normais e apertar Enter
+7.8.	No campo “DE” informar a Data de Lançamento e clicar em Processar PA
+7.9.	Verificar se os valores em Não Atribuído é zero, se sim clique em Lançar
+
+19.	Objetivo
+
+Orientar acerca de TED – TEF e PIX de mesma titularidade
+20.	Definições
+
+Periodicidade: Diária.
+
+Sistemas e ferramentas associadas: 
+	Transações do SAP: FBL3N / F-04
+	Ferramentas: Plataforma Bancária; acesso a conta do banco na internet.
+21.	Regras 
+
+	Essas movimentações não seguem uma regra absoluta, porém têm uma frequência alta nos padrões de movimentação, que ajuda a identificação. Esses recursos sempre são feitos pelo operador do Caixa em valores “redondos”, saindo das contas satélites para o Itaú ou saindo do Itaú para as contas satélites.
+	As movimentações são feitas via TED / TEF e PIX. 
+	 Nossos pagamentos são centralizados nas contas principais do Itaú, portanto todo recurso da empresa disponível em outros bancos migrará para o Itaú e se alguma dessas contas precisar de recurso para debitar algo sairá do Itaú para supri-las. 
+	Raramente os valores saem de contas satélites e vão para contas satélites, caso aconteça solicitar informação ao operado do caixa. 
+
+8.	Acesse a transação FBL3N
+8.1.	Carregar a Variante “CONCIFULL” dentro do criador “REIVIEIR” apertar F8
+8.2.	Informe a Empresa que irá conciliar
+8.3.	Apertar Shifit + F4 informar data de lançamento e apertar F8
+8.4.	Filtrar por valores, somente valores que foram transferidos de contas satélites para o Itáu
+9.	Acessar Transação F-04
+9.1.	Preencha o campo “Data documento” e “Data lançamento” com a data dos lançamentos.
+9.2.	Preencha o campo “Empresa” com o código da empresa que está sendo conciliada.
+9.3.	Preencha o campo “Txt.cab.doc” com o texto padrão “Conciliação Bancária”.
+9.4.	Marque a opção “Transferência c/compensação”.
+9.5.	Clique no botão “Selecionar PA”.
+9.6.	Em Outra Seleção, selecionar “Montante” e flegar Outras Contas e apertar Enter. 
+9.7.	Em “Conta” inserir as contas razão de entrada e saída do recurso, flegar PA Normais e apertar Enter
+9.8.	No campo “Montante (BRL)” informar os valores que foram transferidos e apertar Shift+F4.
+9.9.	Após carregar os dados conferir se o campo “Não Atribuído” zerou, então clicar em “Lançar”
+
+24.	Riscos 
+
+Sempre ter a certeza que o valor utilizado para conciliação é de fato uma transferência de recursos feita pelo operador do Caixa para equalização do caixa da empresa, caso contrário terá que estornar para que o recurso seja contabilizado corretamente. 
+
+
+28.	Objetivo
+
+Detalhar o processo de estorno para casos em que haver lançamentos incorretos, ou por solicitação de alguma área para ajuste. 
+29.	Definições
+
+Periodicidade: Diária.
+
+Sistemas e ferramentas associadas: 
+	Transações do SAP: FBL3N / FBRA / FB08
+	Ferramentas: Chamado / E-mail(Quando a solicitação vem de outra área)
+30.	Regras 
+
+	A solicitação que vir de outras áreas para estorno de algum lançamento conciliado, deverá contar número de compensação e número do documento que irá estornar, data de lançamento e número da conta razão
+
+32.	Detalhamento do processo
+
+10.	Acesse a transação FBRA
+10.1.	No campo “Doc.compensação” informar o número de compensação
+10.2.	No campo “Empresa” informar a empresa que irá fazer o estorno
+10.3.	No campo “Exercício” informar o ano que foi lançado o documento
+10.4.	Clicar em “Partidas” e verificar se o documento que precisa ser estornado está dentro desse lote compensado e clicar em “Voltar” (F3)
+10.5.	O número de documento que o solicitante precisa estornar estará dentro do lote compensado, portanto terá que estornar o lote todo e depois conciliar novamente 
+10.6.	Após conferir, clicar em “Anular Compensação” (Ctrl + S)
+10.7.	Irá perguntar se deseja continuar, clicar em “SIM”
+10.8.	No campo “Motivo do Estorno” informar 01
+10.9.	No campo “Data de Lançamento” informar a data que foi compensado
+10.10.	No campo “Período” informar o mês de lançamento.
+
+37.	Objetivo
+
+Detalhar processo de contabilização e conciliação relacionado a depósitos de funcionários, feitos a partir de estouro de salários ou prestação de contas de despesas abertas no Concur. 
+38.	Definições
+
+Periodicidade: Diária.
+
+Sistemas e ferramentas associadas: 
+	Transações do SAP: FBL3N / F-51 / F-04 / 
+	Ferramentas: N/A
+39.	Regras 
+
+•	Análise prévia obrigatória AR
+•	Deposito não pertence ao AR, informar CPF na atribuição
+•	Conciliador irá identificar e extrair os CPFs
+•	Verificação de cadastro na base de fornecedores
+•	Transferência para posição de fornecedores
+•	Permanência até identificação e baixa
+•	Depósitos Identificados pelo RH será tratamento via Planilha ZITI
+•	Depósitos sem cadastro na base SAP deverá ser investigado 
+41.	Detalhamento do processo
+
+11.	Transferência depósitos funcionários
+11.1.	Acesse a transação FBL3N
+11.2.	Carregar a Variante “CONCIFULL” dentro do criador “REIVIEIR” apertar F8
+11.3.	Informe a Empresa que irá conciliar
+11.4.	Apertar Shifit + F4 informar data de lançamento e apertar F8
+11.5.	Filtrar por atribuição, *CPF*
+11.6.	Clicar em Lista  Exportar  Planilha Eletrônica
+11.7.	Confrontar a planilha eletrônica com a base de funcionários e base de colaboradores anexo. 
+11.8.	O que for encontrado transferir para posição de fornecedores
+12.	Acessar Transação F-51
+12.1.	Preencha o campo “Data documento” e “Data lançamento” com a data dos lançamentos.
+12.2.	Preencha o campo “Empresa” com o código da empresa que está sendo conciliada.
+12.3.	Preencha o campo “Txt.cab.doc” com o texto padrão “Conciliação Bancária”.
+12.4.	Marque a opção “Transferência c/compensação”.
+12.5.	Clique no botão “Selecionar PA”.
+12.6.	Em Outra Seleção, selecionar “Nº do Documento” e flegar Outras Contas e apertar Enter. 
+12.7.	Em “Conta” inserir as contas razão que estão os depósitos, em “TPConta” informar “S”, flegar PA Normais e apertar Enter
+12.8.	No campo “Nº do documento” informar os números de documentos contantes na planilha e apertar Shift+F4.
+12.9.	Clicar em “Dar baixa à dif”
+12.10.	No campo “ChvLnçt” informar a chave “31”
+12.11.	No campo “Montante” informar o valor que será transferido
+12.12.	Em “Bloq. Pgto” informa “A”
+12.13.	Em “Atribuição” informar “DEV FUNCIONÁRIO”
+12.14.	No campo “Texto” informar “DATA CRÉD DD/MM/AAAA Nº Doc. XXXXXXXXXX"
+12.15.	Clicar em “Processar PA” 
+12.16.	Clicar em Lançar
+13.	Conciliação lançamentos RH
+13.1.	Aguardar a chegada do e-mail enviado pelo RH – “Contabilização Devoluções – MM/AAAA
+13.2.	Acessar a transação FBL3N
+13.3.	Carregar a Variante “CONCIFULL” dentro do criador “REIVIEIR” apertar F8
+13.4.	Informe a Empresa que irá conciliar
+13.5.	Apertar Shifit + F4 informar data de lançamento e apertar F8
+13.6.	Filtrar a coluna “Texto” por *estouro*
+13.7.	Esse filtro irá trazer o lançamento do RH e no campo texto desse lançamento terá a informação da data que o deposito foi feito, essa é a informação que utilizará para conciliar.
+13.8.	Acessar a transação F-04
+13.9.	Preencha o campo “Data documento” e “Data lançamento” com a data dos lançamentos.
+13.10.	Preencha o campo “Empresa” com o código da empresa que está sendo conciliada.
+13.11.	Preencha o campo “Txt.cab.doc” com o texto padrão “Conciliação Bancária”.
+13.12.	Marque a opção “Transferência c/compensação”.
+13.13.	Clique no botão “Selecionar PA”.
+13.14.	Em Outra Seleção, selecionar “Montante” e flegar Outras Contas e apertar Enter. 
+13.15.	Em “Conta” inserir as contas razão que estão os depósitos, flegar PA Normais e apertar Enter
+13.16.	Em “Montante (BRL) informar os valores que foram lançados pelo RH na  ZITI, apertar Shift + F4
+13.17.	Verificar o débito (RH) e confrontar com o crédito extrato, utilizar o crédito que está informado no lançamento do RH(Data do crédito e Valor) zerando “Não atribuído”, clicar em Lançar.
+
+
+46.	Objetivo
+
+Demonstrar o processo de conciliação de resgates e aplicações.
+47.	Definições
+
+Periodicidade: Diária.
+
+Sistemas e ferramentas associadas: 
+	Transações do SAP: FBL3N / F-04
+	Ferramentas: Plataforma Bancária; acesso a conta do banco na internet.
+48.	Regras 
+
+	As baixas de resgate e aplicação são feitas pela Tesouraria Corporativa
+	Todos as baixas de resgates e aplicações devem ser feitas no dia seguinte à movimentação
+	Os resgates e aplicações que ocorrem em contas que não temos cadastrado no plano de contas da Dexco, ex: BTG, Scotiabank, Rabobank, deverão ser tratadas na conta centralizadora Itaú, o recurso saí ou entra na conta do Itaú e abaixa ocorre nela também. A baixa é feita pelo time da Tesouraria Corporativa. 
+
+
+49.	Fluxograma do processo
+1º Abrir FBL3N
+2º Identificar valores resgatados ou aplicados 
+3º Abrir a transação F-04
+4º Conferir os valores e conciliar
+ 
+
+
+50.	Detalhamento do processo
+
+
+14.	Acesse a transação FBL3N
+14.1.	Carregar a Variante “CONCIFULL” dentro do criador “REIVIEIR” apertar F8
+14.2.	Informe a Empresa que irá conciliar
+14.3.	Apertar Shifit + F4 informar data de lançamento e apertar F8
+14.4.	Verificar se as baixas foram feitas corretamente
+15.	Acessar Transação F-04
+15.1.	Preencha o campo “Data documento” e “Data lançamento” com a data dos lançamentos.
+15.2.	Preencha o campo “Empresa” com o código da empresa que está sendo conciliada.
+15.3.	Preencha o campo “Txt.cab.doc” com o texto padrão “Conciliação Bancária”.
+15.4.	Marque a opção “Transferência c/compensação”.
+15.5.	Clique no botão “Selecionar PA”.
+15.6.	Em Outra Seleção, selecionar “Montante” e flegar Outras Contas e apertar Enter. 
+15.7.	Em “Conta” inserir as contas razão, flegar PA Normais e apertar Enter
+15.8.	No campo “Montante (BRL)” informar os valores que foram resgatados/aplicados e apertar Shift+F4.
+15.9.	Após carregar os dados conferir se o campo “Não Atribuído” zerou, então clicar em “Lançar”
+
+55.	Objetivo
+
+As contabilizações decorrentes do processo de conciliação seguem um fluxo operacional padronizado. O procedimento é sempre o mesmo, havendo variação apenas nas contas contábeis utilizadas em cada lançamento. Dessa forma, será apresentado o processo operacional padrão, aplicável a todas as contabilizações realizadas no âmbito desta conciliação.
+56.	Definições
+
+Periodicidade: Diária.
+
+Sistemas e ferramentas associadas: 
+	Transações do SAP: FBL3N / F-04
+	Ferramentas: Plataforma Bancária; acesso a conta do banco na internet; E-mails
+57.	Regras 
+
+	Os débitos referentes a esse processo sempre têm que vir das áreas responsáveis. 
+	Salários e Consignado – RH
+	Mútuo – Tesouraria Corporativa 
+	CRCC – Núcleo SGD (Dário Ascencio)
+	Despesas Diversas – Contabilização direta
+o	Tarifas Bancárias - 
+o	Tarifas de Cambio
+o	Dividendos 
+o	JR Ações
+o	Fração Ação
+o	Juros Multa
+	Reembolso Intercompany – Sempre questionar Contas a pagar, se é faturamento ou não, quando não for faturamento a contabilização é feita pelo conciliador – Entrada do recurso na conta 1606011. 
+	AFAC – Tesouraria Corporativa
+	Levantamento Judicial
+Esse procedimento será utilizado para qualquer operação que a contabilização ocorra pelo conciliador. 
+59.	Detalhamento do processo
+16.	Acesse a transação FBL3N
+16.1.	Carregar a Variante “CONCIFULL” dentro do criador “REIVIEIR” apertar F8
+16.2.	Informe a Empresa que irá conciliar
+16.3.	Apertar Shifit + F4 informar data de lançamento e apertar F8
+16.4.	Analisar as informações carregadas, identificar os valores para contabilização direta e colher o número do documento. 
+17.	Acessar Transação F-04
+17.1.	Preencha o campo “Data documento” e “Data lançamento” com a data dos lançamentos.
+17.2.	Preencha o campo “Empresa” com o código da empresa que está sendo conciliada.
+17.3.	Preencha o campo “Txt.cab.doc” com o texto padrão “Conciliação Bancária”.
+17.4.	Marque a opção “Transferência c/compensação”.
+17.5.	Clique no botão “Selecionar PA”.
+17.6.	Em Outra Seleção, selecionar “Número do documento” e flegar Outras Contas e apertar Enter. 
+17.7.	Em conta inserir as contas razão que deseja conciliar, flegar PA Normais e apertar Enter
+17.8.	No campo “Nº Documento” informar o número do documento colhido na FBL3N e apertar Shift+F4.
+17.9.	Após carregar os dados irá marcar os valores e clicar em “Dar baixa a difer”, sempre que estiver contabilizando um Débito, no campo “ChvLnçt” informar chave 40 e sempre que estiver contabilizando um Crédito informar no campo “ChvLnçt” chave 50, e no campo “Conta” informar a conta correspondente a operação que está fazendo conforme tabela abaixo e apertar Enter
+17.10.	No campo “Montante”, informar o valor que está contabilizando, no campo “Texto” informar a descrição adequada ao que está contabilizando.
+17.11.	Sempre que o valor for um recebimento/pagamento de empresas do próprio grupo deverá ser informado a Sociedade Parceira, para informar a Sociedade, após o passo acima (2.10) irá clicar em “Dados Adicionais” e informar a sociedade parceira no campo “Nº soc.parceira”, e seguir,  clicar em “Processar PA” e clicar em Lançar.
+17.12.	Verificar sociedade parceira e orientações para preenchimento no anexo.
+
+
+
+Salários
+Consignado
+CRCC Pagamento
+CRCC Recebimento
+CRCC Fundação Itausa
+Tarifas Bancárias - 
+Tarifas de Cambio
+Dividendos 
+JR Ações
+Fração Ação
+Juros Multa
+Intercompany Recebimento
+Intercompany Pagamento
+AFAC
+Levantamento Judicial 
+	1600702
+2600503
+2606000
+1606011
+1600683
+7001300
+7001313
+2602201
+2602202
+2600506
+7002313
+1606011
+2606000
+Solicitar a contabilidade
+1650498
+	 
+
+OBS: Para esse exemplo foi pego um valor aleatório só para demonstrar onde preencher a sociedade parceira, porém a sociedade deverá seguir as orientações que estão no anexo.
+
+64.	Objetivo
+
+Detalhar os procedimentos de conferência e liquidação para as operações de comércio exterior. Este processo foca na validação dos fechamentos de câmbio, assegurando que os fluxos de importação (contas a pagar) e exportação (contas a receber) estejam devidamente conciliados com as variações cambiais e as liquidações bancárias.
+65.	Definições
+
+Periodicidade: Diária.
+
+Sistemas e ferramentas associadas: 
+	Transações do SAP: FBL3N / F-04
+	Ferramentas: E-mail
+66.	Regras 
+
+	Centralização dos Fechamentos de Câmbio
+o	Os fechamentos de câmbio estão centralizados, quase integralmente, nas contas internacionais. Ainda assim, existem fechamentos pontuais realizados em contas de varejo. Em ambos os casos, o processo operacional de conciliação permanece inalterado, independentemente da via utilizada, havendo apenas a alteração do número da conta contábil de registro, sem impactos adicionais.
+
+	Critérios para Conciliação Cambial
+o	Para a execução da conciliação, é indispensável a utilização da taxa de câmbio correspondente à moeda da operação (EUR, USD, CHF). A conciliação deve ser realizada de forma segregada por moeda e por data de liquidação, sendo vedada a consolidação de moedas ou datas distintas, uma vez que tal prática compromete o correto cálculo da variação cambial.
+
+	Obtenção da Taxa de Câmbio
+o	A taxa de câmbio deve ser coletada diretamente no título da operação, por meio de um layout de exibição que permita a identificação clara da moeda envolvida e da taxa de câmbio efetivamente aplicada. 
+
+68.	Detalhamento do processo
+
+Antes de iniciar o processo de conciliação, é imprescindível assegurar que as áreas responsáveis tenham realizado integralmente as baixas pertinentes às operações. Ao final dessas baixas, eventuais diferenças remanescentes devem estar restritas exclusivamente à variação cambial ou à comissão de agente, conforme detalhado neste procedimento.
+
+Caso não haja confirmação de que todas as baixas foram devidamente efetuadas, a área responsável deverá ser acionada previamente. Dessa forma, garante-se que a conciliação seja iniciada sem a ocorrência de divergências que não estejam previstas ou tratadas neste POP.
+
+18.	Fechamento de Cambio
+18.1.	Coleta de Informação FLB3N
+18.1.1.	Acesse a transação FBL3N
+18.1.2.	Informe a conta que irá conciliar
+18.1.3.	Informe a Empresa que irá conciliar
+18.1.4.	Apertar Shifit + F4 informar data de documento e aperte F8
+18.1.5.	Após carregar troque o layout para Reinaldo_CAM, isso trará a moeda, taxa e data
+18.1.6.	Some por moeda e inicie sempre pela moeda que tem o menor número de partidas
+18.1.7.	Copie os números de documento das partidas referente a primeira moeda que irá conciliar
+18.2.	Conciliação
+18.2.1.	Acessar Transação F-04
+18.2.2.	Preencha o campo “Data documento” e “Data lançamento” com a data dos lançamentos.
+18.2.3.	Preencha o campo “Empresa” com o código da empresa que está sendo conciliada.
+18.2.4.	Preencha o campo “Moeda/taxa câm.” com a moeda e a taxa colhida na FBL3N
+18.2.5.	Preencha o campo “Txt.cab.doc” com o texto padrão “Conciliação Bancária”.
+18.2.6.	Marque a opção “Transferência c/compensação”.
+18.2.7.	Clique no botão “Selecionar PA”.
+18.2.8.	No campo “Conta” informar a conta que está conciliando 
+18.2.9.	Selecionar em Outra seleção, o campo “Nº Documento”, apertar Enter
+18.2.10.	Cole os números de documento coletados na FBL3N, apertar Shift + F4
+18.2.11.	Caso não tenha diferenças e o campo “Não Atribuído” zerar, então clicar em Lançar. 
+18.2.12.	 Para o caso de o campo “Não atribuído” estiver diferente de zero, acionar quem fez a baixa e questionar sobre a diferença, após confirmarem ao que se refere a diferença clicar em “Dar baixa a dif.” Informar no campo “ChvLnçt” a chave 50 para crédito e 40 para débito e informar a conta conforme item (4.) abaixo.  
+18.2.13.	Informar o montante da diferença, e clicar em Processar PA
+18.2.14.	Teremos três casos: Tarifa de comissão de agente, variação cambial positiva e variação cambial negativa.
+19.	Contas para diferenças na conciliação de fechamento de câmbio
+19.1.	Variação cambial positiva – Chave 50 – Conta: 7000109
+19.2.	Variação cambial negativa – Chave 40 – Conta: 7001310
+19.3.	Comissão de agente – Chave 40 – Conta: 7001313
+19.4.	Tarifa Bancária – Chave 40 – Conta 7001300
+
 
 
  
