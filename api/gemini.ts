@@ -20,15 +20,15 @@ export default async function handler(req, res) {
 
     const texto = result.response.text();
 
-    res.status(200).json({
+    return res.status(200).json({
       resposta: texto
     });
 
-  } catch (erro) {
+  } catch (error) {
 
-    console.error("Erro Gemini:", erro);
+    console.error("Erro Gemini:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       resposta: "Erro ao consultar IA"
     });
 
