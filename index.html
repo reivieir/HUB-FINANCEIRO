@@ -24,13 +24,39 @@
         
         <div id="conciliacao" class="tab-content active">
             <h1>Conciliação Bancária</h1>
-            <p>Área de suporte para resolução de pendências e conferência de extratos.</p>
+            <p style="margin-bottom: 20px;">Área de suporte para resolução de pendências e conferência de extratos.</p>
+            
+            <div class="filters-container">
+                <select id="filtroEmpresa" onchange="filtrarTabela()">
+                    <option value="">Todas as Empresas</option>
+                </select>
+                <select id="filtroBanco" onchange="filtrarTabela()">
+                    <option value="">Todos os Bancos</option>
+                </select>
+            </div>
+
+            <div class="table-container">
+                <table id="tabelaConciliacao">
+                    <thead>
+                        <tr>
+                            <th>Empresa</th>
+                            <th>Banco</th>
+                            <th>Conta</th>
+                            <th>Data</th>
+                            <th>Saldo</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaCorpo">
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div id="bancos" class="tab-content">
             <h1>Gestão de Bancos</h1>
             <p>Acesse o sistema diretamente por aqui:</p>
-            <iframe src="https://bank-management-lime.vercel.app/" width="100%" height="600px" style="border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 15px; background-color: #f8fafc;"></iframe>
+            <iframe src="https://seusite.com.br" width="100%" height="600px" style="border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 15px; background-color: #f8fafc;"></iframe>
         </div>
 
         <div id="caixa" class="tab-content">
