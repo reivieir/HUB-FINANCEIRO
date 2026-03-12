@@ -1,3 +1,74 @@
+// ==========================================
+// DADOS E LÓGICA DA TABELA DE CONCILIAÇÃO
+// ==========================================
+const dadosConciliacao = [
+    { empresa: "Empresa Matriz", banco: "Itaú", conta: "12345-6", data: "12/03/2026", saldo: "R$ 150.000,00", status: "Conciliado" },
+    { empresa: "Empresa Matriz", banco: "Bradesco", conta: "98765-4", data: "12/03/2026", saldo: "R$ 45.300,00", status: "Pendente" },
+    { empresa: "Filial SP", banco: "Itaú", conta: "11111-1", data: "12/03/2026", saldo: "R$ 89.000,00", status: "Conciliado" },
+    { empresa: "Filial SP", banco: "Santander", conta: "22222-2", data: "12/03/2026", saldo: "R$ 12.500,00", status: "Pendente" },
+    { empresa: "Filial RJ", banco: "Banco do Brasil", conta: "33333-3", data: "12/03/2026", saldo: "R$ 5.400,00", status: "Conciliado" }
+];
+
+function carregarTabela(dados) {
+    const tbody = document.getElementById('tabelaCorpo');
+    if(!tbody) return;
+    tbody.innerHTML = ''; 
+
+    dados.forEach(item => {
+        const tr = document.createElement('tr');
+        const statusClass = item.status === 'Conciliado' ? 'status-ok' : 'status-pendente';
+        
+        tr.innerHTML = `
+            <td>${item.empresa}</td>
+            <td><strong>${item.banco}</strong></td>
+            <td>${item.conta}</td>
+            <td>${item.data}</td>
+            <td>${item.saldo}</td>
+            <td><span class="${statusClass}">${item.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function popularFiltros() {
+    const filtroEmpresa = document.getElementById('filtroEmpresa');
+    const filtroBanco = document.getElementById('filtroBanco');
+    
+    if(!filtroEmpresa || !filtroBanco) return;
+
+    const empresas = [...new Set(dadosConciliacao.map(item => item.empresa))];
+    const bancos = [...new Set(dadosConciliacao.map(item => item.banco))];
+
+    empresas.forEach(empresa => {
+        filtroEmpresa.innerHTML += `<option value="${empresa}">${empresa}</option>`;
+    });
+
+    bancos.forEach(banco => {
+        filtroBanco.innerHTML += `<option value="${banco}">${banco}</option>`;
+    });
+}
+
+function filtrarTabela() {
+    const empresaSelecionada = document.getElementById('filtroEmpresa').value;
+    const bancoSelecionado = document.getElementById('filtroBanco').value;
+
+    const dadosFiltrados = dadosConciliacao.filter(item => {
+        const matchEmpresa = empresaSelecionada === "" || item.empresa === empresaSelecionada;
+        const matchBanco = bancoSelecionado === "" || item.banco === bancoSelecionado;
+        return matchEmpresa && matchBanco;
+    });
+
+    carregarTabela(dadosFiltrados);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    popularFiltros();
+    carregarTabela(dadosConciliacao);
+});
+
+// ==========================================
+// LÓGICA DE NAVEGAÇÃO E CHAT DA IA
+// ==========================================
 let historicoChat = [];
 
 function showTab(tabId) {
@@ -12,18 +83,14 @@ function showTab(tabId) {
     event.currentTarget.classList.add('active');
 }
 
-// NOVO: Função para limpar o chat
 function novoChat() {
-    historicoChat = []; // Zera a memória da IA
+    historicoChat = []; 
     const chatMessages = document.getElementById('chatMessages');
-    
-    // Limpa a tela e coloca a mensagem inicial de volta
     chatMessages.innerHTML = `
         <p class="ai-message">Olá! Sou o assistente do Hub. O histórico foi limpo. Como posso ajudar agora?</p>
     `;
 }
 
-// NOVO: Enviar com a tecla Enter
 function enviarComEnter(event) {
     if (event.key === 'Enter') {
         sendMessage();
