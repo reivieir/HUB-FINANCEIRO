@@ -6,14 +6,18 @@ export async function createDexcoChat() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          prompt
-        })
+        body: JSON.stringify({ prompt })
       });
+
       if (!response.ok) {
-        throw new Error("Erro ao consultar IA");
+        // Tenta ler a resposta de erro da API
+        const errorData = await response.json();
+        throw new Error(errorData.resposta || "Erro desconhecido ao consultar IA");
       }
+
       const data = await response.json();
+      
+      // Retorna no formato esperado pelo componente AssistenteIA
       return {
         response: {
           text() {
