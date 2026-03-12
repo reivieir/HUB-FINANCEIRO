@@ -3,10 +3,8 @@ import Sidebar from "./components/Sidebar";
 import AssistenteIA from "./components/AssistenteIA";
 import Bancos from "./components/Bancos";
 import Conciliacao from "./components/Conciliacao";
-
 function App() {
   const [pagina, setPagina] = useState("ia");
-
   const renderPagina = () => {
     switch (pagina) {
       case "bancos":
@@ -18,7 +16,6 @@ function App() {
         return <AssistenteIA />;
     }
   };
-
   return (
     <div className="flex">
       <Sidebar setPagina={setPagina} />
@@ -28,5 +25,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
