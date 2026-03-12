@@ -7,12 +7,12 @@ export async function createDexcoChat() {
         body: JSON.stringify({ prompt }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.resposta || "Erro ao consultar IA");
+        throw new Error(data.resposta || "Erro na consulta");
       }
 
-      const data = await response.json();
       return {
         response: {
           text: () => data.resposta
