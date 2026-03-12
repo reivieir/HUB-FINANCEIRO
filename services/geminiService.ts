@@ -1,25 +1,37 @@
-// /services/geminiService.ts
 export function createDexcoChat() {
+
   return {
+
     async sendMessage(prompt: string) {
+
       const response = await fetch("/api/gemini", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          prompt: prompt
+        })
       });
 
-      if (!response.ok) throw new Error("Erro ao consultar IA");
+      if (!response.ok) {
+        throw new Error("Erro ao consultar IA");
+      }
 
       const data = await response.json();
+
       const texto = data?.resposta ?? "Sem resposta da IA";
 
       return {
         response: {
           async text() {
             return texto;
-          },
-        },
+          }
+        }
       };
-    },
+
+    }
+
   };
+
 }
