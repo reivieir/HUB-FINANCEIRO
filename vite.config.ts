@@ -1,17 +1,18 @@
-import path from 'path';
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: './',
-  server: {
-    port: 3000,
-    host: '0.0.0.0',
-  },
   plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, '.'),
-    },
+  server: {
+    proxy: {
+      // Isso permite que você teste localmente a API
+      '/api': 'http://localhost:3000'
+    }
   },
-});
+  build: {
+    // Garante que o Vite procure os arquivos na raiz
+    rollupOptions: {
+      input: './index.html'
+    }
+  }
+} )
