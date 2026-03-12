@@ -14,7 +14,7 @@ body { display: flex; height: 100vh; background-color: #f4f7f6; }
 .tab-content h1 { color: #0f172a; margin-bottom: 15px; }
 .tab-content p { color: #475569; }
 
-/* NOVO: Layout do Chat em Tela Cheia */
+/* Layout do Chat em Tela Cheia */
 .chat-layout { display: none; flex-direction: column; height: calc(100vh - 80px); padding: 0; overflow: hidden; }
 .chat-layout.active { display: flex; }
 .chat-header-full { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #e2e8f0; background: #ffffff; border-radius: 8px 8px 0 0; }
@@ -31,3 +31,18 @@ body { display: flex; height: 100vh; background-color: #f4f7f6; }
 .chat-input-full input { flex: 1; padding: 15px; border: 1px solid #cbd5e1; border-radius: 5px; outline: none; font-size: 1rem; }
 .chat-input-full button { padding: 15px 30px; background: #2563eb; border: none; cursor: pointer; font-weight: bold; color: white; border-radius: 5px; margin-left: 10px; transition: 0.3s; font-size: 1rem; }
 .chat-input-full button:hover { background: #1d4ed8; }
+
+/* Tabela e Filtros de Conciliação */
+.filters-container { display: flex; gap: 15px; margin-bottom: 20px; }
+.filters-container select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 1rem; outline: none; background-color: white; color: #1e293b; min-width: 200px; cursor: pointer; }
+.filters-container select:hover { border-color: #94a3b8; }
+
+.table-container { overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #e2e8f0; }
+#tabelaConciliacao { width: 100%; border-collapse: collapse; text-align: left; }
+#tabelaConciliacao th, #tabelaConciliacao td { padding: 15px; border-bottom: 1px solid #e2e8f0; }
+#tabelaConciliacao th { background-color: #f8fafc; font-weight: 600; color: #475569; }
+#tabelaConciliacao tbody tr:hover { background-color: #f1f5f9; transition: 0.2s; }
+
+/* Cores de Status */
+.status-ok { color: #10b981; font-weight: bold; background: #d1fae5; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
+.status-pendente { color: #ef4444; font-weight: bold; background: #fee2e2; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
