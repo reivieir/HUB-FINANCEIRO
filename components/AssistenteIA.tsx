@@ -1,117 +1,21 @@
-import { useState } from "react";
-import { createDexcoChat } from "../services/geminiService";
+import { createDexcoChat } from "./services/geminiServices"; // Ajuste o caminho se necessário
 
-interface Mensagem {
-  autor: "user" | "ia";
-  texto: string;
-}
+// Dentro do seu componente:
+const [mensagem, setMensagem] = useState("");
+const [resposta, setResposta] = useState("");
 
-export default function AssistenteIA() {
+const handleEnviar = async (e) => {
+  e.preventDefault();
+  console.log("Botão clicado! Enviando prompt:", mensagem); // Isso TEM que aparecer no F12
 
-  const [mensagens, setMensagens] = useState<Mensagem[]>([]);
-  const [pergunta, setPergunta] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const enviarPergunta = async () => {
-
-    if (!pergunta.trim()) return;
-
-    const novaPergunta = pergunta;
-
-    setPergunta("");
-
-    setMensagens((prev) => [
-      ...prev,
-      { autor: "user", texto: novaPergunta }
-    ]);
-
-    setLoading(true);
-
-    try {
-
-      const chat = createDexcoChat();
-
-      const result = await chat.sendMessage(novaPergunta);
-
-      const respostaIA = await result.response.text();
-
-      setMensagens((prev) => [
-        ...prev,
-        { autor: "ia", texto: respostaIA }
-      ]);
-
-    } catch (erro) {
-
-      setMensagens((prev) => [
-        ...prev,
-        { autor: "ia", texto: "Erro ao consultar a IA." }
-      ]);
-
-    }
-
-    setLoading(false);
-
-  };
-
-  return (
-    <div className="flex flex-col h-screen">
-
-      <div className="p-6 border-b border-[#2D2D2D] text-xl font-bold">
-        Assistente Financeiro IA
-      </div>
-
-      {/* AREA DO CHAT */}
-
-      <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
-
-        {mensagens.map((msg, index) => (
-
-          <div
-            key={index}
-            className={`max-w-[70%] p-4 rounded-lg ${
-              msg.autor === "user"
-                ? "bg-[#D4A373] text-black self-end"
-                : "bg-[#1E1E1E] text-white self-start"
-            }`}
-          >
-            {msg.texto}
-          </div>
-
-        ))}
-
-        {loading && (
-          <div className="bg-[#1E1E1E] p-4 rounded-lg w-fit">
-            IA está pensando...
-          </div>
-        )}
-
-      </div>
-
-      {/* INPUT */}
-
-      <div className="p-4 border-t border-[#2D2D2D] flex gap-3">
-
-        <input
-          className="flex-1 bg-[#1E1E1E] p-3 rounded-lg text-white"
-          placeholder="Digite sua pergunta..."
-          value={pergunta}
-          onChange={(e) => setPergunta(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              enviarPergunta();
-            }
-          }}
-        />
-
-        <button
-          onClick={enviarPergunta}
-          className="bg-[#D4A373] text-black px-6 rounded-lg font-bold"
-        >
-          Enviar
-        </button>
-
-      </div>
-
-    </div>
-  );
-}
+  try {
+    const chat = await createDexcoChat();
+    const result = await chat.sendMessage(mensagem);
+    const texto = result.response.text();
+    console.log("IA respondeu:", texto);
+    setResposta(texto);
+  } catch (error) {
+    console.error("ERRO DETECTADO:", error); // Isso vai mostrar o erro real no F12
+    alert("Erro: " + error.message);
+  }
+};
