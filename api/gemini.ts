@@ -1,36 +1,37 @@
-// /api/gemini.ts
-import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export async function POST(req: NextRequest) {
+export default async function handler(req, res) {
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ resposta: "Método não permitido" });
+  }
+
   try {
-    const body = await req.json();
-    const prompt = body.prompt;
 
-    if (!prompt) {
-      return NextResponse.json({ resposta: "Prompt vazio" }, { status: 400 });
-    }
+    const { prompt } = req.body;
 
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ resposta: "Chave GEMINI_API_KEY não encontrada" }, { status: 500 });
-    }
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-    // Inicializa cliente Gemini
-    const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = client.getGenerativeModel({
-      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash"
     });
 
-    // Gera resposta
-    const result: any = await model.generate({ prompt });
+    const result = await model.generateContent(prompt);
 
-    // Extrai o texto de forma segura
-    const texto =
-      result.output_text ?? result.output?.[0]?.content?.[0]?.text ?? "Sem resposta";
+    const texto = result.response.text();
 
-    return NextResponse.json({ resposta: texto });
-  } catch (error) {
-    console.error("Erro na API Gemini:", error);
-    return NextResponse.json({ resposta: "Erro ao consultar IA" }, { status: 500 });
+    res.status(200).json({
+      resposta: texto
+    });
+
+  } catch (erro) {
+
+    console.error("Erro Gemini:", erro);
+
+    res.status(500).json({
+      resposta: "Erro ao consultar IA"
+    });
+
   }
+
 }
