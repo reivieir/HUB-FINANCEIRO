@@ -1,0 +1,154 @@
+Manual Integrado de Operações e Gestão de Tesouraria
+
+1. Visão Estratégica e Fundamentos da Gestão de Caixa
+
+A gestão de caixa é o núcleo vital da saúde financeira corporativa. Sob a ótica de Governança, a precisão operacional não é apenas uma tarefa de controle, mas o alicerce que sustenta a liquidez e viabiliza a tomada de decisão estratégica pela Alta Gestão. Uma tesouraria eficiente deve assegurar que cada centavo esteja posicionado no momento correto, mitigando o custo de capital e eliminando riscos de inadimplência técnica.
+
+A arquitetura adotada baseia-se no modelo de Caixa Centralizador (Itaú). Esta estrutura permite que todos os recursos excedentes identificados em contas periféricas sejam consolidados em uma conta principal, otimizando a redistribuição de capital para cobertura de compromissos em diversas frentes. Tal centralização mitiga a ociosidade financeira e permite uma gestão de aplicações e resgates muito mais assertiva. Contudo, a eficácia deste modelo depende de uma rotina rigorosa de abertura, equacionamento e fechamento, garantindo que a companhia opere sempre dentro de suas diretrizes de segurança e conformidade.
+
+
+--------------------------------------------------------------------------------
+
+
+2. Ciclo Operacional do Caixa Diário: Da Abertura ao Fechamento
+
+A sincronização entre as etapas do dia é mandatória para garantir a solvência operacional e o respeito aos prazos de compensação bancária. O operador deve assegurar que todos os compromissos sejam honrados sem ferir os limites de crédito ou horários de grade.
+
+2.1. Etapas do Dia
+
+1. Processo Inicial e Conferência de Saldos: Ao iniciar o expediente, deve-se realizar a finalização do caixa do dia anterior e a abertura do atual simultaneamente. Os saldos iniciais devem ser preenchidos nas planilhas (abas azuis) refletindo exatamente o extrato bancário. A planilha de fechamento do dia anterior deve ser enviada à Tesouraria Corporativa imediatamente.
+2. Equacionamento e Realização: Consiste no processamento de demandas de RH, Contas a Pagar, Importação e Tesouraria Corporativa.
+  * Extração SAP: Utilizar a transação FBL3N para a conta contábil 2006000, aplicando obrigatoriamente as variantes GAGESTAO e FATCAXA.
+  * Análise Intercompany: Validar as entradas de faturamento, considerando que as saídas já constam na posição de Contas a Pagar.
+  * Lançamento de Complementos: Inserir na planilha os valores recebidos via chamado que ainda não foram baixados no SAP.
+3. Movimentação Bancária e Finalização: Efetivação das transferências para centralização e cobertura. Durante esta fase, é obrigatório manter em cada conta o valor correspondente à Margem Segura indicada na planilha. O dia encerra-se com a conferência final (entre 14h00 e 16h20) e o envio dos prints dos extratos das contas principais.
+
+2.2. Calendário de Dias Críticos
+
+Dia	Obrigação Financeira Correspondente
+05	Risco Sacado, Rateio de Condomínio e CRCC (entre dias 05 e 09)
+15	Fornecedores, Adiantamento de Folha, Financiamentos e Risco Sacado
+25	Fornecedores, Risco Sacado e Pagamento de Faturamento Intercompany
+30	Folha de Pagamento Integral
+
+2.3. Regras de Ouro Operacionais
+
+* Aprovação em Dupla: Inegociável para toda e qualquer movimentação, conforme normas de alçada.
+* Horário Limite para Demandas: 12h00 para recebimento de solicitações das áreas.
+* Limite para TEDs: 06h30 para inclusão e aprovação final.
+* Folha Banco do Brasil: Obrigatória a antecipação e manutenção dos recursos em conta com um dia de antecedência (D-0), dada a ausência de limites flexíveis nesta instituição.
+
+
+--------------------------------------------------------------------------------
+
+
+3. Operações Específicas e Gestão de Encargos
+
+A complexidade técnica de operações reguladas exige atenção aos detalhes para evitar custos extraordinários e multas contratuais.
+
+3.1. Gestão de Energia: Mercado Livre vs. Cativo
+
+Diferente do mercado cativo, onde há uma fatura única com bandeiras tarifárias, a companhia atua no Mercado Livre de Energia, recebendo faturas separadas de geração e distribuição.
+
+* CCEE (Câmara de Comercialização de Energia Elétrica): O Aporte de Garantia Financeira é divulgado no 12º dia útil. O cálculo do aporte deve somar as liquidações, encargos e ajustes, acrescentando obrigatoriamente um buffer de 5% sobre o total para provisionamento de caixa.
+* Lógica do Encargo de Energia de Reserva (EER): O EER subsidia geradoras de reserva (termelétricas). Há uma relação inversa: em períodos úmidos (reservatórios cheios), o preço da energia cai, mas o EER sobe para garantir o pagamento das reservas contratadas. Em períodos de seca, o acionamento de térmicas encarece a energia, mas o preço alto ajuda a cobrir os custos, tendendo a reduzir o EER.
+
+3.2. Processos de Comércio Exterior e Mercado de Capitais
+
+* Siscomex: Impostos de importação pagos via débito automático exclusivamente pela conta Itaú-Siscomex.
+* Marinha Mercante: Cobrança sobre frete marítimo paga exclusivamente via Banco do Brasil. O valor corresponde a 8% do frete mais a taxa de utilização fixa de R$ 21,20.
+* Dividendos: Pagamento obrigatório em até 45 dias após a divulgação do balanço anual.
+* NDF (Non-Deliverable Forward): Instrumento de hedge para fixação de taxa de câmbio em exportações, protegendo a margem operacional contra volatilidade.
+* CRCC (Reembolso Intercompany): Reembolso de despesas pagas pela Dexco (DX) em nome de outras empresas do grupo. Execução obrigatória no último dia útil do mês, com informações enviadas 2 a 3 dias antes.
+
+
+--------------------------------------------------------------------------------
+
+
+4. Governança de Back Office: Usuários e Perfis Bancários
+
+A gestão de perfis é a primeira linha de defesa contra fraudes e garante a continuidade operacional.
+
+4.1. Regras de Acesso e SLAs
+
+* SLA de Atendimento: 3 dias úteis para usuários básicos via JIRA.
+* Procurações: Devem ser atualizadas com 60 dias de antecedência ao vencimento para evitar bloqueio de senhas.
+* Usuário Master: Deve ser obrigatoriamente um procurador oficial.
+* Restrições Santander: Limite rigoroso de 4 usuários Master. A governança exige que Master aprove Master e Secundário aprove Secundário.
+
+4.2. Documentação e Autenticação (Exigência Bradesco)
+
+A distinção no tratamento documental é crítica para evitar rejeições em agência:
+
+* Reconhecimento por Semelhança: Necessário nos Cartões de Assinatura.
+* Reconhecimento por Autenticidade: Necessário para Documentos de Identidade (RG/CNH) e Comprovantes de Residência.
+* Formulário CADU (1179-7E): Não exige firma reconhecida, mas deve ser aberto via Adobe Acrobat para preenchimento correto.
+
+
+--------------------------------------------------------------------------------
+
+
+5. Soluções Financeiras: O Ecossistema de Risco Sacado (Aevee)
+
+O Risco Sacado (solução Aevee) permite a antecipação de recebíveis por fornecedores baseada no crédito da companhia, sem onerar o fluxo de caixa imediato, que ocorre apenas no vencimento original.
+
+5.1. Operação Sistêmica no SAP HANA
+
+1. Remessa (/n/AEV/TFI14): Aprovação e geração de arquivos. Após gerar, deve-se obrigatoriamente acessar a transação AL11 para conferir a saída física dos arquivos.
+2. Retorno (/n/AEV/TFI092): Processamento dos arquivos bancários.
+  * Verificação Crítica: Na TFI14, validar se a coluna "Baixa Lanç" está marcada com "X". Se não estiver, mas o banco confirmou o pagamento, deve-se selecionar o título e clicar em "Gerar Baixas" manualmente.
+  * Status Final: Marcar todos os títulos processados como "RCC Enviado".
+
+5.2. Habilitação de Fornecedores (/n/AEV/TFI015)
+
+O cadastro exige validação documental (CNPJ, Contrato Social e Procurações). É vedado o cadastro de usuários sem poderes de representação legal para evitar riscos de fraude.
+
+
+--------------------------------------------------------------------------------
+
+
+6. Gestão de Contingências e Bloqueios Judiciais
+
+A resposta a bloqueios deve ser imediata para possibilitar a atuação do Departamento Jurídico.
+
+6.1. Identificação e Extração
+
+* Banco do Brasil: Menu > Conta Corrente > Consultas > Extratos de Ordens Judiciais.
+* Itaú: Extrato > Valor Bloqueado > Exibir > Detalhar Bloqueio Judicial.
+* Bradesco: Navegador Exclusivo > Veja saldos de todas as contas > Clicar sobre o bloqueio.
+
+6.2. Instituições sem Extração Automática
+
+Para os bancos abaixo, a extração não é automática e o relatório deve ser solicitado imediatamente por e-mail:
+
+* Banrisul: Corporativo_Plataforma_SP@banrisul.com.br
+* Caixa Econômica: camila.a.santos@caixa.gov.br / andre.faria@caixa.gov.br
+* Santander: atendimentocashii@santander.com.br
+
+
+--------------------------------------------------------------------------------
+
+
+7. Diretório de Sistemas e Contatos Bancários
+
+7.1. Tabela Mestre de Relacionamento
+
+Banco	Contato Principal	E-mail	Telefone / Ramal
+Itaú	Leandro El Kadri Aguiar	leandro.aguiar@itaubba.com	(11) 97327-0939
+Bradesco	Alexsandro Silva Dias	alexsandro.dias@bradesco.com.br	(11) 94061-4869
+B. Brasil	Felipe Campardo	felipecampardo@bb.com.br	(11) 99470-4702
+Safra	Marcele Esposito / Francisco Romero	marcele.esposito@safra.com.br	(11) 99704-9074 / (11) 98288-4778
+Banrisul	Jonatam Regazzo / Marcos Flori	Corporativo_Plataforma_SP@banrisul.com.br	(11) 2188-1519 / 1531 / 1526
+Nexxera	Daniela da Gloria Cargnin	daniela.cargnin@nexxera.com	(48) 99157-4421
+
+7.2. Dicionário de Transações SAP
+
+Transação	Finalidade Estratégica
+FBL3N	Extração de base de pagamentos (Conta 2006000) e Intercompany.
+/n/AEV/TFI14	Gestão de Remessas de Risco Sacado, Baixas Manuais e Estornos.
+/n/AEV/TFI092	Processamento de Retornos Bancários de Risco Sacado.
+/n/AEV/TFI015	Cadastro de Fornecedores, Agentes Financeiros e Usuários RCC.
+/n/AEV/TFI045	Manutenção de Usuários do Portal (Senhas e Bloqueios).
+AL11	Verificação de diretórios e saída física de arquivos de remessa.
+
+Conclusão: A excelência na Tesouraria é fruto da disciplina operacional. O operador é o guardião deste manual e deve zelar pela atualização constante das informações e pela manutenção rigorosa da governança de acessos e saldos.
