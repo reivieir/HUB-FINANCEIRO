@@ -1,145 +1,103 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Hub Financeiro - Dexco</title>
-
     <link rel="stylesheet" href="css/style.css">
-
     <style>
-
-        /* Garante que o conteúdo ocupe o espaço correto e os iframes fiquem limpos */
-
-        .tab-content iframe {
-
-            width: 100%;
-
-            height: calc(100vh - 120px);
-
-            border: none;
-
-            border-radius: 8px;
-
-            background-color: #f8fafc;
-
+        /* AJUSTE DE VISUALIZAÇÃO CORRIGIDO */
+        html {
+            height: 100%;
+            overflow: hidden; /* Evita a tela infinita para a direita */
         }
 
-        .tab-content { display: none; padding: 10px; }
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            /* Força o zoom de forma segura para Chrome/Edge */
+            zoom: 0.8; 
+            display: flex;
+            background-color: #f8fafc;
+        }
 
-        .tab-content.active { display: block; }
+        /* Garante que o conteúdo ocupe o espaço correto e os iframes fiquem limpos */
+        .tab-content iframe {
+            width: 100%;
+            height: calc(100vh - 120px);
+            border: none;
+            border-radius: 8px;
+            background-color: #f8fafc;
+        }
+        
+        .tab-content { 
+            display: none; 
+            padding: 10px; 
+            width: 100%; /* Garante que a aba use a largura total disponível */
+            box-sizing: border-box;
+        }
+        
+        .tab-content.active { 
+            display: block; 
+        }
 
+        .content {
+            flex: 1;
+            overflow-x: hidden; /* Corta qualquer transbordamento lateral */
+        }
     </style>
-
 </head>
-
 <body>
 
-
-
     <aside class="sidebar">
-
         <h2>Hub Financeiro</h2>
-
         <nav>
-
             <button class="nav-btn active" onclick="showTab('conciliacao')">Conciliação Bancária</button>
-
             <button class="nav-btn" onclick="showTab('bancos')">Gestão de Bancos</button>
-
             <button class="nav-btn" onclick="showTab('caixa')">Gestão de Caixa</button>
-
             <button class="nav-btn" onclick="showTab('protestos')">Protestos</button>
-
             <hr style="border: 0; border-top: 1px solid #334155; margin: 15px 0;">
-
             <button class="nav-btn" onclick="showTab('chat-tab')">🤖 Assistente IA</button>
-
         </nav>
-
     </aside>
 
-
-
     <main class="content">
-
         
-
         <div id="conciliacao" class="tab-content active">
-
             <iframe src="conciliacao.html"></iframe>
-
         </div>
-
-
 
         <div id="bancos" class="tab-content">
-
             <iframe src="https://bank-management-lime.vercel.app/"></iframe>
-
         </div>
-
-
 
         <div id="caixa" class="tab-content">
-
             <h1>Gestão de Caixa</h1>
-
             <p>Orientações sobre fluxo de caixa, pagamentos e recebimentos.</p>
-
         </div>
-
-
 
         <div id="protestos" class="tab-content">
-
             <h1>Protestos</h1>
-
             <p>Procedimentos para baixas, cartas de anuência e negociações.</p>
-
         </div>
-
-
 
         <div id="chat-tab" class="tab-content chat-layout">
-
             <div class="chat-header-full">
-
                 <h2>Assistente Financeiro IA</h2>
-
                 <button class="new-chat-btn" onclick="novoChat()">+ Novo Chat</button>
-
             </div>
-
             <div id="chatMessages" class="chat-messages-full">
-
                 <p class="ai-message">Olá! Sou o assistente do Hub. Como posso ajudar hoje?</p>
-
             </div>
-
             <div class="chat-input-full">
-
                 <input type="text" id="userInput" placeholder="Digite sua dúvida..." onkeypress="enviarComEnter(event)">
-
                 <button onclick="sendMessage()">Enviar</button>
-
             </div>
-
         </div>
-
-
 
     </main>
 
-
-
     <script src="js/app.js"></script>
-
 </body>
-
 </html>
