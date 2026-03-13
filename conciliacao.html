@@ -12,11 +12,47 @@
             --border: #e2e8f0;
         }
         
-        body { margin: 0; font-family: Arial, sans-serif; background: #f8fafc; padding: 20px; }
+        body { margin: 0; font-family: Arial, sans-serif; background: #f8fafc; padding: 0; }
+
+        /* NOVO CABEÇALHO ESTILO PRINT */
+        .header-blue {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header-title { font-size: 16px; font-weight: normal; }
+        .header-btns { display: flex; gap: 10px; }
+        
+        .btn-export {
+            background: white;
+            color: black;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 2px;
+        }
+        .btn-logout {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* CONTEÚDO */
+        .container { padding: 0 20px 20px 20px; }
 
         .nav-bancos { 
             background: white; padding: 10px 25px; display: flex; gap: 15px; 
-            border-bottom: 1px solid var(--border); margin: -20px -20px 20px -20px; overflow-x: auto;
+            border-bottom: 1px solid var(--border); margin: 0 -20px 20px -20px; overflow-x: auto;
         }
         .banco-link { 
             padding: 10px 20px; cursor: pointer; font-weight: bold; border-radius: 6px; 
@@ -39,12 +75,10 @@
         .action-link { color: #2563eb; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 12px; }
         .delete-link { color: #ef4444; margin-left: 10px; }
         
-        /* Estilo do botão de desbloqueio no topo */
         .btn-unlock-top {
             background: none; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 4px;
             cursor: pointer; font-size: 10px; font-weight: bold; color: #64748b; margin-left: 10px;
         }
-        .btn-unlock-top:hover { background: #f1f5f9; }
         .status-locked { color: #94a3b8; font-style: italic; font-size: 11px; }
 
         /* MODAL */
@@ -60,30 +94,40 @@
 </head>
 <body>
 
-    <div class="nav-bancos" id="nav-bancos"></div>
-
-    <div class="kpis">
-        <div class="kpi-card">TOTAL GERAL<br><span class="kpi" id="total">0</span></div>
-        <div class="kpi-card"><span id="kpi-label">TODOS</span><br><span class="kpi" id="total-f">0</span></div>
+    <div class="header-blue">
+        <div class="header-title">Dexco S.A - Conciliação Bancária</div>
+        <div class="header-btns">
+            <button class="btn-export" onclick="exportarCSV()">Exportar CSV</button>
+            <button class="btn-logout" onclick="window.parent.location.reload()">Sair / Bloquear</button>
+        </div>
     </div>
 
-    <div class="controls">
-        <input type="text" id="busca" class="search-input" placeholder="Buscar Empresa ou CNPJ..." oninput="render()">
-        <button class="btn-add" onclick="abrirModal()">+ INCLUIR NOVO</button>
-    </div>
+    <div class="container">
+        <div class="nav-bancos" id="nav-bancos"></div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Empresa</th><th>Contas</th><th>CNPJ</th><th>Banco</th><th>Razão Débito</th><th>Razão Crédito</th><th>Razão Mov.</th>
-                <th style="text-align:center">
-                    Ações 
-                    <button id="btnUnlock" class="btn-unlock-top" onclick="solicitarSenhaGeral()">🔓 DESBLOQUEAR</button>
-                </th>
-            </tr>
-        </thead>
-        <tbody id="tabelaCorpo"></tbody>
-    </table>
+        <div class="kpis">
+            <div class="kpi-card">TOTAL GERAL<br><span class="kpi" id="total">0</span></div>
+            <div class="kpi-card"><span id="kpi-label">TODOS</span><br><span class="kpi" id="total-f">0</span></div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="busca" class="search-input" placeholder="Buscar Empresa ou CNPJ..." oninput="render()">
+            <button class="btn-add" onclick="abrirModal()">+ INCLUIR NOVO</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Empresa</th><th>Contas</th><th>CNPJ</th><th>Banco</th><th>Razão Débito</th><th>Razão Crédito</th><th>Razão Mov.</th>
+                    <th style="text-align:center">
+                        Ações 
+                        <button id="btnUnlock" class="btn-unlock-top" onclick="solicitarSenhaGeral()">🔓 DESBLOQUEAR</button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="tabelaCorpo"></tbody>
+        </table>
+    </div>
 
     <div id="modal" class="modal">
         <div class="modal-content">
@@ -110,12 +154,11 @@
     <script>
         const SUPABASE_URL = "https://spcpujmqnjtalupxzqpp.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwY3B1am1xbmp0YWx1cHh6cXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MjI3ODMsImV4cCI6MjA4ODI5ODc4M30.TYVtILJNISNR3aDejRM5fsWKt9TuIHgN1dS2deVbQwQ"; 
-        
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let dados = [];
         let bancoSel = "";
-        let sistemaDesbloqueado = false; // Controle global de desbloqueio
+        let sistemaDesbloqueado = false;
 
         async function carregar() {
             const { data, error } = await sb.from("conciliacao_bancaria").select("*");
@@ -132,15 +175,8 @@
             document.getElementById("total-f").innerText = lista.length;
             document.getElementById("kpi-label").innerText = bancoSel ? bancoSel.toUpperCase() : "TODOS";
 
-            // Atualiza o texto do botão de desbloqueio no topo
             const btnUnlock = document.getElementById("btnUnlock");
-            if (sistemaDesbloqueado) {
-                btnUnlock.innerText = "🔒 BLOQUEAR";
-                btnUnlock.style.color = "#c40000";
-            } else {
-                btnUnlock.innerText = "🔓 DESBLOQUEAR";
-                btnUnlock.style.color = "#64748b";
-            }
+            btnUnlock.innerText = sistemaDesbloqueado ? "🔒 BLOQUEAR" : "🔓 DESBLOQUEAR";
 
             document.getElementById("tabelaCorpo").innerHTML = lista.map(i => `
                 <tr>
@@ -155,29 +191,17 @@
                         ${sistemaDesbloqueado ? 
                             `<a class="action-link" onclick="prepararEdicao('${i.id}')">Editar</a>
                              <a class="action-link delete-link" onclick="remover('${i.id}')">Excluir</a>` 
-                            : 
-                            `<span class="status-locked">Restrito</span>`
-                        }
+                            : `<span class="status-locked">Bloqueado</span>`}
                     </td>
                 </tr>`).join("");
             atualizarNav();
         }
 
-        // Função para desbloquear tudo de uma vez
         function solicitarSenhaGeral() {
-            if (sistemaDesbloqueado) {
-                sistemaDesbloqueado = false;
-                render();
-                return;
-            }
-
-            const senha = prompt("Digite a senha para habilitar as funções de edição:");
-            if (senha === "Dexco2026") {
-                sistemaDesbloqueado = true;
-                render();
-            } else if (senha !== null) {
-                alert("Senha incorreta!");
-            }
+            if (sistemaDesbloqueado) { sistemaDesbloqueado = false; render(); return; }
+            const senha = prompt("Digite a senha para habilitar edições:");
+            if (senha === "Dexco2026") { sistemaDesbloqueado = true; render(); }
+            else if (senha !== null) alert("Senha incorreta!");
         }
 
         function atualizarNav() {
@@ -234,6 +258,17 @@
             if (!confirm("Excluir configuração?")) return;
             await sb.from("conciliacao_bancaria").delete().eq("id", id);
             carregar();
+        }
+
+        function exportarCSV() {
+            let csv = "\uFEFFEmpresa;Contas;CNPJ;Banco;Razao Debito;Razao Credito;Razao Movimento\n";
+            dados.forEach(i => {
+                csv += `${i.empresa_nome||""};${i.conta_numero||""};${i.cnpj||""};${i.banco_nome||""};${i.conta_razao_debito||""};${i.conta_razao_credito||""};${i.conta_razao_movimento||""}\n`;
+            });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = "conciliacao_dexco.csv";
+            link.click();
         }
 
         carregar();
