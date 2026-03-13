@@ -3,8 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub Financeiro</title>
+    <title>Hub Financeiro - Dexco</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Garante que o conteúdo ocupe o espaço correto e os iframes fiquem limpos */
+        .tab-content iframe {
+            width: 100%;
+            height: calc(100vh - 120px);
+            border: none;
+            border-radius: 8px;
+            background-color: #f8fafc;
+        }
+        .tab-content { display: none; padding: 10px; }
+        .tab-content.active { display: block; }
+    </style>
 </head>
 <body>
 
@@ -23,41 +35,11 @@
     <main class="content">
         
         <div id="conciliacao" class="tab-content active">
-            <h1>Conciliação Bancária</h1>
-            <p style="margin-bottom: 20px;">Área de suporte para resolução de pendências e conferência de extratos.</p>
-            
-            <div class="filters-container">
-                <select id="filtroEmpresa" onchange="filtrarTabela()">
-                    <option value="">Todas as Empresas</option>
-                </select>
-                <select id="filtroBanco" onchange="filtrarTabela()">
-                    <option value="">Todos os Bancos</option>
-                </select>
-            </div>
-
-            <div class="table-container">
-                <table id="tabelaConciliacao">
-                    <thead>
-                        <tr>
-                            <th>Empresa</th>
-                            <th>Contas</th>
-                            <th>CNPJ</th>
-                            <th>Banco</th>
-                            <th>Conta Razão Débito</th>
-                            <th>Conta Razão Crédito</th>
-                            <th>Conta Razão Movimento</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaCorpo">
-                        </tbody>
-                </table>
-            </div>
+            <iframe src="conciliacao.html"></iframe>
         </div>
 
         <div id="bancos" class="tab-content">
-            <h1>Gestão de Bancos</h1>
-            <p>Acesse o sistema diretamente por aqui:</p>
-            <iframe src="https://bank-management-lime.vercel.app/" width="100%" height="600px" style="border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 15px; background-color: #f8fafc;"></iframe>
+            <iframe src="https://bank-management-lime.vercel.app/"></iframe>
         </div>
 
         <div id="caixa" class="tab-content">
@@ -75,11 +57,11 @@
                 <h2>Assistente Financeiro IA</h2>
                 <button class="new-chat-btn" onclick="novoChat()">+ Novo Chat</button>
             </div>
-            <div class="chat-messages-full" id="chatMessages">
-                <p class="ai-message">Olá! Sou o assistente do Hub. Como posso ajudar com Conciliação, Bancos, Caixa ou Protestos hoje?</p>
+            <div id="chatMessages" class="chat-messages-full">
+                <p class="ai-message">Olá! Sou o assistente do Hub. Como posso ajudar hoje?</p>
             </div>
             <div class="chat-input-full">
-                <input type="text" id="userInput" placeholder="Digite sua dúvida financeira..." onkeypress="enviarComEnter(event)">
+                <input type="text" id="userInput" placeholder="Digite sua dúvida..." onkeypress="enviarComEnter(event)">
                 <button onclick="sendMessage()">Enviar</button>
             </div>
         </div>
