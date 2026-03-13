@@ -14,7 +14,7 @@
         
         body { margin: 0; font-family: Arial, sans-serif; background: #f8fafc; padding: 0; }
 
-        /* NOVO CABEÇALHO ESTILO PRINT */
+        /* CABEÇALHO */
         .header-blue {
             background-color: var(--primary);
             color: white;
@@ -81,15 +81,19 @@
         }
         .status-locked { color: #94a3b8; font-style: italic; font-size: 11px; }
 
-        /* MODAL */
+        /* MODAIS */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 30px; border-radius: 10px; width: 500px; }
+        .modal-content { background: white; padding: 30px; border-radius: 10px; width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
         .modal-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
-        .modal-field input { padding: 10px; border: 1px solid var(--border); border-radius: 5px; }
+        .modal-field label { font-size: 12px; font-weight: bold; color: #64748b; }
+        .modal-field input { padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 14px; }
         .modal-footer { display: flex; gap: 10px; margin-top: 20px; }
         .btn-save { flex: 1; padding: 12px; background: var(--success); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
         .btn-cancel { flex: 1; padding: 12px; background: #94a3b8; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        /* ESTILO ESPECÍFICO MODAL SENHA */
+        .btn-confirm { flex: 1; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -121,7 +125,7 @@
                     <th>Empresa</th><th>Contas</th><th>CNPJ</th><th>Banco</th><th>Razão Débito</th><th>Razão Crédito</th><th>Razão Mov.</th>
                     <th style="text-align:center">
                         Ações 
-                        <button id="btnUnlock" class="btn-unlock-top" onclick="solicitarSenhaGeral()">🔓 DESBLOQUEAR</button>
+                        <button id="btnUnlock" class="btn-unlock-top" onclick="abrirModalSeguranca()">🔓 DESBLOQUEAR</button>
                     </th>
                 </tr>
             </thead>
@@ -147,6 +151,20 @@
             <div class="modal-footer">
                 <button class="btn-save" onclick="salvar()">SALVAR</button>
                 <button class="btn-cancel" onclick="fecharModal()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-seguranca" class="modal">
+        <div class="modal-content" style="width: 320px; text-align: center;">
+            <h3 style="margin-top:0; color:var(--primary)">Acesso Restrito</h3>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">Digite a senha para habilitar edições</p>
+            <div class="modal-field">
+                <input type="password" id="input-senha-segura" placeholder="Senha do Sistema" onkeypress="if(event.key==='Enter') validarSenhaSegura()">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-confirm" onclick="validarSenhaSegura()">CONFIRMAR</button>
+                <button class="btn-cancel" onclick="fecharModalSeguranca()">VOLTAR</button>
             </div>
         </div>
     </div>
@@ -197,11 +215,33 @@
             atualizarNav();
         }
 
-        function solicitarSenhaGeral() {
-            if (sistemaDesbloqueado) { sistemaDesbloqueado = false; render(); return; }
-            const senha = prompt("Digite a senha para habilitar edições:");
-            if (senha === "Dexco2026") { sistemaDesbloqueado = true; render(); }
-            else if (senha !== null) alert("Senha incorreta!");
+        /* FUNÇÕES DO MODAL DE SEGURANÇA */
+        function abrirModalSeguranca() {
+            if (sistemaDesbloqueado) {
+                sistemaDesbloqueado = false;
+                render();
+            } else {
+                document.getElementById("modal-seguranca").style.display = "flex";
+                document.getElementById("input-senha-segura").value = "";
+                document.getElementById("input-senha-segura").focus();
+            }
+        }
+
+        function fecharModalSeguranca() {
+            document.getElementById("modal-seguranca").style.display = "none";
+        }
+
+        function validarSenhaSegura() {
+            const senha = document.getElementById("input-senha-segura").value;
+            if (senha === "Dexco2026") {
+                sistemaDesbloqueado = true;
+                fecharModalSeguranca();
+                render();
+            } else {
+                alert("Senha incorreta!");
+                document.getElementById("input-senha-segura").value = "";
+                document.getElementById("input-senha-segura").focus();
+            }
         }
 
         function atualizarNav() {
@@ -221,6 +261,7 @@
             document.getElementById("m-raz-deb").value = "";
             document.getElementById("m-raz-cre").value = "";
             document.getElementById("m-raz-mov").value = "";
+            document.getElementById("modal-titulo").innerText = "Nova Configuração";
             document.getElementById("modal").style.display = "flex";
         }
 
@@ -251,6 +292,7 @@
             document.getElementById("m-raz-deb").value = item.conta_razao_debito;
             document.getElementById("m-raz-cre").value = item.conta_razao_credito;
             document.getElementById("m-raz-mov").value = item.conta_razao_movimento;
+            document.getElementById("modal-titulo").innerText = "Editar Configuração";
             document.getElementById("modal").style.display = "flex";
         }
 
