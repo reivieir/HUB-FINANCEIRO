@@ -36,10 +36,16 @@
         th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 11px; color: #475569; text-transform: uppercase; }
         td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 13px; }
 
-        /* Estilo dos Links de Ação */
         .action-link { color: #2563eb; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 12px; }
         .delete-link { color: #ef4444; margin-left: 10px; }
-        .unlock-link { color: #64748b; cursor: pointer; font-style: italic; font-size: 11px; }
+        
+        /* Estilo do botão de desbloqueio no topo */
+        .btn-unlock-top {
+            background: none; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 4px;
+            cursor: pointer; font-size: 10px; font-weight: bold; color: #64748b; margin-left: 10px;
+        }
+        .btn-unlock-top:hover { background: #f1f5f9; }
+        .status-locked { color: #94a3b8; font-style: italic; font-size: 11px; }
 
         /* MODAL */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
@@ -69,7 +75,11 @@
     <table>
         <thead>
             <tr>
-                <th>Empresa</th><th>Contas</th><th>CNPJ</th><th>Banco</th><th>Razão Débito</th><th>Razão Crédito</th><th>Razão Mov.</th><th style="text-align:center">Ações / Desbloquear</th>
+                <th>Empresa</th><th>Contas</th><th>CNPJ</th><th>Banco</th><th>Razão Débito</th><th>Razão Crédito</th><th>Razão Mov.</th>
+                <th style="text-align:center">
+                    Ações 
+                    <button id="btnUnlock" class="btn-unlock-top" onclick="solicitarSenhaGeral()">🔓 DESBLOQUEAR</button>
+                </th>
             </tr>
         </thead>
         <tbody id="tabelaCorpo"></tbody>
@@ -105,7 +115,7 @@
 
         let dados = [];
         let bancoSel = "";
-        let linhasDesbloqueadas = []; // Array para controlar quais IDs estão liberados para edição
+        let sistemaDesbloqueado = false; // Controle global de desbloqueio
 
         async function carregar() {
             const { data, error } = await sb.from("conciliacao_bancaria").select("*");
@@ -122,10 +132,17 @@
             document.getElementById("total-f").innerText = lista.length;
             document.getElementById("kpi-label").innerText = bancoSel ? bancoSel.toUpperCase() : "TODOS";
 
-            document.getElementById("tabelaCorpo").innerHTML = lista.map(i => {
-                const estaDesbloqueado = linhasDesbloqueadas.includes(i.id);
+            // Atualiza o texto do botão de desbloqueio no topo
+            const btnUnlock = document.getElementById("btnUnlock");
+            if (sistemaDesbloqueado) {
+                btnUnlock.innerText = "🔒 BLOQUEAR";
+                btnUnlock.style.color = "#c40000";
+            } else {
+                btnUnlock.innerText = "🔓 DESBLOQUEAR";
+                btnUnlock.style.color = "#64748b";
+            }
 
-                return `
+            document.getElementById("tabelaCorpo").innerHTML = lista.map(i => `
                 <tr>
                     <td>${i.empresa_nome || ""}</td>
                     <td>${i.conta_numero || ""}</td>
@@ -135,23 +152,28 @@
                     <td>${i.conta_razao_credito || ""}</td>
                     <td>${i.conta_razao_movimento || ""}</td>
                     <td style="text-align:center">
-                        ${estaDesbloqueado ? 
+                        ${sistemaDesbloqueado ? 
                             `<a class="action-link" onclick="prepararEdicao('${i.id}')">Editar</a>
                              <a class="action-link delete-link" onclick="remover('${i.id}')">Excluir</a>` 
                             : 
-                            `<a class="unlock-link" onclick="desbloquearLinha('${i.id}')">🔓 Desbloquear</a>`
+                            `<span class="status-locked">Bloqueado</span>`
                         }
                     </td>
-                </tr>`;
-            }).join("");
+                </tr>`).join("");
             atualizarNav();
         }
 
-        // Função para validar a senha e liberar a linha
-        function desbloquearLinha(id) {
-            const senha = prompt("Digite a senha de segurança para habilitar ações:");
+        // Função para desbloquear tudo de uma vez
+        function solicitarSenhaGeral() {
+            if (sistemaDesbloqueado) {
+                sistemaDesbloqueado = false;
+                render();
+                return;
+            }
+
+            const senha = prompt("Digite a senha para habilitar as funções de edição:");
             if (senha === "Dexco2026") {
-                linhasDesbloqueadas.push(id);
+                sistemaDesbloqueado = true;
                 render();
             } else if (senha !== null) {
                 alert("Senha incorreta!");
