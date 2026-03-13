@@ -6,7 +6,6 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Método não permitido' });
     }
 
-    // Agora recebemos o histórico inteiro do app.js
     const { history } = req.body; 
     const apiKey = process.env.GEMINI_API_KEY; 
 
@@ -18,9 +17,8 @@ export default async function handler(req, res) {
         const filePath = path.join(process.cwd(), 'conhecimento.txt');
         const baseDeConhecimento = fs.readFileSync(filePath, 'utf8');
 
-        // Formata o histórico recebido para o padrão que a API do Gemini entende
         const formattedContents = history.map(msg => ({
-            role: msg.role, // 'user' ou 'model'
+            role: msg.role, 
             parts: [{ text: msg.text }]
         }));
 
@@ -31,7 +29,13 @@ export default async function handler(req, res) {
                 systemInstruction: {
                     parts: [{ text: baseDeConhecimento }]
                 },
-                contents: formattedContents // Envia a conversa toda
+                contents: formattedContents,
+                // ==========================================
+                // NOVO: HABILITA A BUSCA NA WEB DO GOOGLE
+                // ==========================================
+                tools: [
+                    { googleSearch: {} }
+                ]
             })
         });
 
