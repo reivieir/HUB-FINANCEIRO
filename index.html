@@ -6,6 +6,23 @@
     <title>Hub Financeiro - Dexco</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
+        /* AJUSTE DE VISUALIZAÇÃO EM 80% */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        body {
+            /* Força o zoom em 80% para Chrome, Edge e Safari */
+            zoom: 80%; 
+            /* Compatibilidade para Firefox */
+            -moz-transform: scale(0.8);
+            -moz-transform-origin: 0 0;
+            /* Compensa a largura no Firefox para não sobrar espaço branco */
+            width: 125%; 
+        }
+
         /* Garante que o conteúdo ocupe o espaço correto e os iframes fiquem limpos */
         .tab-content iframe {
             width: 100%;
