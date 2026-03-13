@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --primary: #002b45; --danger: #c40000; }
+        body { margin: 0; font-family: Arial, sans-serif; background: #f8fafc; padding: 20px; }
+        .nav-bancos { background: white; padding: 10px; display: flex; gap: 15px; border-bottom: 1px solid #e2e8f0; margin: -20px -20px 20px -20px; }
+        .banco-link { padding: 8px 15px; cursor: pointer; font-weight: bold; border-radius: 4px; color: #64748b; }
+        .banco-link.ativo { background: var(--primary); color: white; }
+        .kpis { display: flex; gap: 20px; margin-bottom: 20px; }
+        .kpi-card { background: white; padding: 20px; border-radius: 8px; flex: 1; border: 1px solid #e2e8f0; }
+        .kpi { font-size: 32px; color: var(--danger); font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; font-size: 13px; }
+        th { background: #f1f5f9; color: #475569; text-transform: uppercase; font-size: 11px; }
+        .action-link { color: #2563eb; cursor: pointer; text-decoration: none; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="nav-bancos" id="nav-bancos"></div>
+    <div class="kpis">
+        <div class="kpi-card">TOTAL GERAL<br><span class="kpi" id="total">0</span></div>
+        <div class="kpi-card"><span id="kpi-label">FILTRADO</span><br><span class="kpi" id="total-f">0</span></div>
+    </div>
+    <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+        <input type="text" id="busca" placeholder="Buscar Empresa/CNPJ..." oninput="render()" style="flex:1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+        <button onclick="abrirModal()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:bold;">+ ADICIONAR</button>
+    </div>
+    <table>
+        <thead>
+            <tr><th>Empresa</th><th>Contas</th><th>CNPJ</th><th>Banco</th><th>Razão Débito</th><th>Razão Crédito</th><th>Razão Mov.</th><th style="text-align:center">Ações</th></tr>
+        </thead>
+        <tbody id="tabelaCorpo"></tbody>
+    </table>
+
+    <script>
+        const sb = supabase.createClient("https://spcpujmqnjtalupxzqpp.supabase.co", "SUA_KEY");
+        let dados = [];
+        let bancoSel = "";
+
+        async function carregar() {
+            const { data } = await sb.from("conciliacao_bancaria").select("*");
+            dados = data || [];
+            render();
+        }
+
+        function render() {
+            const busca = document.getElementById("busca").value.toLowerCase();
+            let lista = dados.filter(i => (i.empresa_nome?.toLowerCase().includes(busca) || i.cnpj?.includes(busca)) && (bancoSel === "" || i.banco_nome === bancoSel));
+            
+            document.getElementById("total").innerText = dados.length;
+            document.getElementById("total-f").innerText = lista.length;
+            document.getElementById("kpi-label").innerText = bancoSel ? bancoSel.toUpperCase() : "TODOS";
+
+            document.getElementById("tabelaCorpo").innerHTML = lista.map(i => `
+                <tr>
+                    <td>${i.empresa_nome || ""}</td><td>${i.conta_numero || ""}</td><td>${i.cnpj || ""}</td><td>${i.banco_nome || ""}</td>
+                    <td>${i.conta_razao_debito || ""}</td><td>${i.conta_razao_credito || ""}</td><td>${i.conta_razao_movimento || ""}</td>
+                    <td style="text-align:center">
+                        <a class="action-link" onclick="editar('${i.id}')">Editar</a> | 
+                        <a class="action-link" style="color:#ef4444" onclick="remover('${i.id}')">Excluir</a>
+                    </td>
+                </tr>`).join("");
+            atualizarNav();
+        }
+
+        function atualizarNav() {
+            const bancos = [...new Set(dados.map(i => i.banco_nome).filter(Boolean))].sort();
+            document.getElementById("nav-bancos").innerHTML = `<div class="banco-link ${bancoSel===''?'ativo':''}" onclick="setBanco('')">TODOS</div>` + 
+                bancos.map(b => `<div class="banco-link ${b===bancoSel?'ativo':''}" onclick="setBanco('${b}')">${b.toUpperCase()}</div>`).join("");
+        }
+
+        function setBanco(b) { bancoSel = b; render(); }
+        carregar();
+    </script>
+</body>
+</html>
