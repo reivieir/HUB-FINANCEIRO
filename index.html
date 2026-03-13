@@ -9,14 +9,13 @@
         /* AJUSTE DE VISUALIZAÇÃO CORRIGIDO */
         html {
             height: 100%;
-            overflow: hidden; /* Evita a tela infinita para a direita */
+            overflow: hidden; 
         }
 
         body {
             margin: 0;
             padding: 0;
             height: 100%;
-            /* Força o zoom de forma segura para Chrome/Edge */
             zoom: 0.8; 
             display: flex;
             background-color: #f8fafc;
@@ -34,17 +33,54 @@
         .tab-content { 
             display: none; 
             padding: 10px; 
-            width: 100%; /* Garante que a aba use a largura total disponível */
+            width: 100%; 
             box-sizing: border-box;
+            height: 100%; /* Adicionado para preencher o container */
         }
         
         .tab-content.active { 
             display: block; 
         }
 
+        /* AJUSTE ESPECÍFICO PARA O CHAT NÃO CORTAR */
+        #chat-tab.active {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px); /* Ajuste para o zoom de 80% */
+        }
+
+        .chat-messages-full {
+            flex: 1; /* Faz as mensagens ocuparem o espaço central */
+            overflow-y: auto; /* Habilita a rolagem se o texto for longo */
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chat-header-full {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .chat-input-full {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .chat-input-full input {
+            flex: 1;
+        }
+
         .content {
             flex: 1;
-            overflow-x: hidden; /* Corta qualquer transbordamento lateral */
+            overflow-x: hidden; 
         }
     </style>
 </head>
@@ -82,7 +118,7 @@
             <p>Procedimentos para baixas, cartas de anuência e negociações.</p>
         </div>
 
-        <div id="chat-tab" class="tab-content chat-layout">
+        <div id="chat-tab" class="tab-content">
             <div class="chat-header-full">
                 <h2>Assistente Financeiro IA</h2>
                 <button class="new-chat-btn" onclick="novoChat()">+ Novo Chat</button>
