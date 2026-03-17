@@ -29,7 +29,7 @@
         }
         .dia-btn {
             padding: 4px 10px; border-radius: 4px; background: white; border: 1px solid var(--border);
-            font-size: 10px; font-weight: bold; cursor: pointer; color: var(--primary);
+            font-size: 10px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s;
         }
         .dia-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-novo-dia { background: #10b981; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; }
@@ -47,7 +47,7 @@
         /* GRID */
         .grid-container { height: calc(100vh - 113px); overflow: auto; padding: 5px; background: white; }
         table { border-collapse: collapse; width: 100%; font-size: 10px; table-layout: fixed; }
-        th, td { border: 1px solid var(--border); padding: 3px 5px; min-width: 150px; box-sizing: border-box; vertical-align: middle; }
+        th, td { border: 1px solid var(--border); padding: 3px 5px; min-width: 140px; box-sizing: border-box; vertical-align: middle; }
 
         .col-categoria {
             position: sticky; left: 0; z-index: 11; background: white;
@@ -61,7 +61,7 @@
         .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 2px; }
         .input-lancar {
             width: 100%; border: 1px solid #e2e8f0; border-radius: 2px;
-            padding: 3px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc;
+            padding: 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc;
         }
         .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
 
@@ -73,14 +73,12 @@
         
         .indent { padding-left: 20px !important; }
         
-        /* Ocultar input nas linhas de leitura */
+        /* Ocultar input nas linhas que são apenas de resultado/soma */
         .no-input .input-lancar { display: none; }
         .no-input .cell-acumulado { font-weight: bold; font-size: 11px; }
 
-        .flash { animation: flash 0.6s ease-out; }
-        @keyframes flash { 0% { background: #dcfce7; } 100% { background: transparent; } }
-        
-        /* Destaque para o destino da TED */
+        .flash { animation: flash 0.5s; }
+        @keyframes flash { from { background: #dcfce7; } to { background: transparent; } }
         .flash-in { animation: flash-in 0.8s ease-out; }
         @keyframes flash-in { 0% { background: #bfdbfe; } 100% { background: transparent; } }
     </style>
@@ -88,16 +86,12 @@
 <body>
 
     <div class="header-blue">
-        <div>Dexco S.A - Cash Pooling</div>
+        <div>Dexco S.A - Cash Pooling (Gestão Diária)</div>
         <button onclick="window.parent.location.reload()" style="background:#ef4444; color:white; border:none; padding:3px 10px; border-radius:3px; cursor:pointer;">Sair / Bloquear</button>
     </div>
 
-    <div class="nav-dias">
-        <div class="dia-btn">11/03</div>
-        <div class="dia-btn">12/03</div>
-        <div class="dia-btn active">13/03</div>
-        <button class="btn-novo-dia">+ ABRIR 14/03</button>
-    </div>
+    <div class="nav-dias" id="nav-dias-container">
+        </div>
 
     <div class="nav-empresas">
         <div class="tab-btn active">BRDX</div>
@@ -112,7 +106,7 @@
     </div>
 
     <script>
-        // Contas do cabeçalho
+        // CONTAS
         const contas = [
             { b: 'ITAÚ', c: '0262 / 17843-7' }, { b: 'ITAÚ', c: '0262 / 29500-9' },
             { b: 'ITAÚ', c: '0262 / 11079-4' }, { b: 'ITAÚ', c: '7307 / 50310-7' },
@@ -121,74 +115,34 @@
 
         // PLANO DE CONTAS
         const plano = [
-            { id: 'si', nome: 'SALDO INICIAL :', tipo: 'linha-destaque', readOnly: true },
+            { id: 'si', nome: 'SALDO INICIAL :', tipo: 'linha-destaque', readOnly: false },
             { id: 'te', nome: 'TOTAL ENTRADAS', tipo: 'bg-total-entradas', readOnly: true },
             { id: 'sc', nome: 'SOMA CLIENTES', tipo: 'grupo-soma', readOnly: true },
-            { id: 'c1', nome: 'Cobrança', tipo: 'item' },
-            { id: 'c2', nome: 'Deposito Clientes', tipo: 'item' },
-            { id: 'c3', nome: 'Rede Card/Cielo', tipo: 'item' },
-            { id: 'c4', nome: 'Entradas outras', tipo: 'item' },
-            { id: 'c5', nome: 'Exportação', tipo: 'item' },
+            { id: 'c1', nome: 'Cobrança', tipo: 'item' }, { id: 'c2', nome: 'Deposito Clientes', tipo: 'item' }, { id: 'c3', nome: 'Rede Card/Cielo', tipo: 'item' }, { id: 'c4', nome: 'Entradas outras', tipo: 'item' }, { id: 'c5', nome: 'Exportação', tipo: 'item' },
             { id: 'sco', nome: 'SOMA COLABORADORES', tipo: 'grupo-soma', readOnly: true },
-            { id: 'co1', nome: 'Concur', tipo: 'item' },
-            { id: 'co2', nome: 'Salários', tipo: 'item' },
+            { id: 'co1', nome: 'Concur', tipo: 'item' }, { id: 'co2', nome: 'Salários', tipo: 'item' },
             { id: 'so', nome: 'SOMA OUTROS', tipo: 'grupo-soma', readOnly: true },
-            { id: 'o1', nome: 'Deposito Outros', tipo: 'item' },
-            { id: 'o2', nome: 'Desbloqueio Judicial', tipo: 'item' },
-            { id: 'o3', nome: 'Resgate', tipo: 'item' },
-            { id: 'o4', nome: 'Pagamento Fundação', tipo: 'item' },
-            { id: 'o5', nome: 'Rateio de Condominio - CRCC', tipo: 'item' },
-            { id: 'o6', nome: 'Venda de Ativos - Facilities', tipo: 'item' },
-            { id: 'o7', nome: 'CCEE - Energia', tipo: 'item' },
-            { id: 'o8', nome: 'NDF', tipo: 'item' },
+            { id: 'o1', nome: 'Deposito Outros', tipo: 'item' }, { id: 'o2', nome: 'Desbloqueio Judicial', tipo: 'item' }, { id: 'o3', nome: 'Resgate', tipo: 'item' }, { id: 'o4', nome: 'Pagamento Fundação', tipo: 'item' }, { id: 'o5', nome: 'Rateio de Condominio - CRCC', tipo: 'item' }, { id: 'o6', nome: 'Venda de Ativos - Facilities', tipo: 'item' }, { id: 'o7', nome: 'CCEE - Energia', tipo: 'item' }, { id: 'o8', nome: 'NDF', tipo: 'item' },
             { id: 'sf', nome: 'SOMA FINANCIAMENTO', tipo: 'grupo-soma', readOnly: true },
-            { id: 'f1', nome: 'Financiamento', tipo: 'item' },
-            { id: 'f2', nome: 'SWAP', tipo: 'item' },
+            { id: 'f1', nome: 'Financiamento', tipo: 'item' }, { id: 'f2', nome: 'SWAP', tipo: 'item' },
             { id: 'sint', nome: 'SOMA INTERCOMPANY', tipo: 'grupo-soma', readOnly: true },
-            { id: 'i1', nome: 'Intercias', tipo: 'item' },
-            { id: 'i2', nome: 'Faturamento', tipo: 'item' },
-            { id: 'i3', nome: "Faturamento SCP's", tipo: 'item' },
+            { id: 'i1', nome: 'Intercias', tipo: 'item' }, { id: 'i2', nome: 'Faturamento', tipo: 'item' }, { id: 'i3', nome: "Faturamento SCP's", tipo: 'item' },
             { id: 'm1', nome: 'Mutuo', tipo: 'item-root' },
             { id: 'a1', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item-root' },
-            { id: 'tr', nome: 'SOMA TED RECEBIDA', tipo: 'linha-destaque', readOnly: false },
+            { id: 'tr', nome: 'SOMA TED RECEBIDA', tipo: 'linha-destaque', readOnly: true },
             
             { id: 'tsai', nome: 'TOTAL SAÍDAS', tipo: 'bg-total-saidas', readOnly: true },
             { id: 'sfor', nome: 'SOMA FORNECEDORES', tipo: 'grupo-soma', readOnly: true },
-            { id: 's1', nome: 'SAP', tipo: 'item' },
-            { id: 's2', nome: 'Complemento', tipo: 'item' },
-            { id: 's3', nome: 'Siscomex', tipo: 'item' },
-            { id: 's4', nome: 'Concessionaria', tipo: 'item' },
-            { id: 's5', nome: 'CCEE - ENERGIA', tipo: 'item' },
-            { id: 's6', nome: 'Câmbio', tipo: 'item' },
-            { id: 's7', nome: 'Marinha Mercante', tipo: 'item' },
+            { id: 's1', nome: 'SAP', tipo: 'item' }, { id: 's2', nome: 'Complemento', tipo: 'item' }, { id: 's3', nome: 'Siscomex', tipo: 'item' }, { id: 's4', nome: 'Concessionaria', tipo: 'item' }, { id: 's5', nome: 'CCEE - ENERGIA', tipo: 'item' }, { id: 's6', nome: 'Câmbio', tipo: 'item' }, { id: 's7', nome: 'Marinha Mercante', tipo: 'item' },
             { id: 'ssal', nome: 'SOMA SALARIOS', tipo: 'grupo-soma', readOnly: true },
-            { id: 'sa1', nome: 'Salários', tipo: 'item' },
-            { id: 'sa2', nome: 'Débito de Consignado', tipo: 'item' },
+            { id: 'sa1', nome: 'Salários', tipo: 'item' }, { id: 'sa2', nome: 'Débito de Consignado', tipo: 'item' },
             { id: 'ssout', nome: 'SOMA OUTROS', tipo: 'grupo-soma', readOnly: true },
-            { id: 'so1', nome: 'Cartão de Crédito', tipo: 'item' },
-            { id: 'so2', nome: 'Tarifas', tipo: 'item' },
-            { id: 'so3', nome: 'Comissão / Fiança', tipo: 'item' },
-            { id: 'so4', nome: 'Bloqueio judicial', tipo: 'item' },
-            { id: 'so5', nome: 'Sem Parar', tipo: 'item' },
-            { id: 'so6', nome: 'CRCC', tipo: 'item' },
-            { id: 'so7', nome: 'Aplicação', tipo: 'item' },
-            { id: 'so8', nome: 'NDF', tipo: 'item' },
+            { id: 'so1', nome: 'Cartão de Crédito', tipo: 'item' }, { id: 'so2', nome: 'Tarifas', tipo: 'item' }, { id: 'so3', nome: 'Comissão / Fiança', tipo: 'item' }, { id: 'so4', nome: 'Bloqueio judicial', tipo: 'item' }, { id: 'so5', nome: 'Sem Parar', tipo: 'item' }, { id: 'so6', nome: 'CRCC', tipo: 'item' }, { id: 'so7', nome: 'Aplicação', tipo: 'item' }, { id: 'so8', nome: 'NDF', tipo: 'item' },
             { id: 'ssfin', nome: 'SOMA FINANCIAMENTOS', tipo: 'grupo-soma', readOnly: true },
-            { id: 'sfi1', nome: 'Financiamentos Principal', tipo: 'item' },
-            { id: 'sfi2', nome: 'Financiamentos Juros', tipo: 'item' },
-            { id: 'sfi3', nome: 'SWAP Principal', tipo: 'item' },
-            { id: 'sfi4', nome: 'SWAP Juros', tipo: 'item' },
-            { id: 'sfi5', nome: 'Dividendos', tipo: 'item' },
+            { id: 'sfi1', nome: 'Financiamentos Principal', tipo: 'item' }, { id: 'sfi2', nome: 'Financiamentos Juros', tipo: 'item' }, { id: 'sfi3', nome: 'SWAP Principal', tipo: 'item' }, { id: 'sfi4', nome: 'SWAP Juros', tipo: 'item' }, { id: 'sfi5', nome: 'Dividendos', tipo: 'item' },
             { id: 'ssint', nome: 'SOMA INTERCOMPANY', tipo: 'grupo-soma', readOnly: true },
-            { id: 'sin1', nome: 'Intercias', tipo: 'item' },
-            { id: 'sin2', nome: 'Faturamento DF', tipo: 'item' },
-            { id: 'sin3', nome: "Faturamento SCP's", tipo: 'item' },
-            { id: 'smut', nome: 'Mutuo', tipo: 'item-root' },
-            { id: 'sapo', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item-root' },
-            { id: 'sviv', nome: 'VIVA DECORA', tipo: 'item-root' },
-            { id: 'scri', nome: 'CRI SOMA', tipo: 'item-root' },
-            
-            // LINHA ESPECIAL DE TRANSFERÊNCIA
+            { id: 'sin1', nome: 'Intercias', tipo: 'item' }, { id: 'sin2', nome: 'Faturamento DF', tipo: 'item' }, { id: 'sin3', nome: "Faturamento SCP's", tipo: 'item' },
+            { id: 'smut', nome: 'Mutuo', tipo: 'item-root' }, { id: 'sapo', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item-root' }, { id: 'sviv', nome: 'VIVA DECORA', tipo: 'item-root' }, { id: 'scri', nome: 'CRI SOMA', tipo: 'item-root' },
             { id: 'stenv', nome: 'SOMA TED D ENVIADA', tipo: 'linha-transferencia' },
             
             { id: 'calc', nome: 'SALDO CALCULADO', tipo: 'linha-destaque', readOnly: true },
@@ -196,14 +150,79 @@
             { id: 'seg', nome: 'SALDO SEGURO', tipo: 'linha-destaque', readOnly: true }
         ];
 
-        function render() {
+        // GESTÃO DE DIAS (ESTADO)
+        let diasCadastrados = ['11/03', '12/03', '13/03'];
+        let diaAtivo = '13/03';
+        let dadosPorDia = {};
+
+        function renderTabsDias() {
+            const container = document.getElementById('nav-dias-container');
+            let html = diasCadastrados.map(d => `<div class="dia-btn ${d === diaAtivo ? 'active' : ''}" onclick="mudarDia('${d}')">${d}</div>`).join('');
+            
+            // Lógica simples para sugerir o próximo dia (Ex: 13/03 -> 14/03)
+            let lastDay = diasCadastrados[diasCadastrados.length - 1];
+            let num = parseInt(lastDay.split('/')[0]) + 1;
+            let nextDayStr = (num < 10 ? '0' : '') + num + '/' + lastDay.split('/')[1];
+            
+            html += `<button class="btn-novo-dia" onclick="abrirNovoDia('${nextDayStr}')">+ ABRIR ${nextDayStr}</button>`;
+            container.innerHTML = html;
+        }
+
+        // SALVAR E CARREGAR DADOS
+        function salvarEstado() {
+            let estado = {};
+            contas.forEach((c, idx) => {
+                estado[idx] = {};
+                plano.forEach(l => {
+                    let el = document.getElementById(`val-${l.id}-${idx}`);
+                    if(el) estado[idx][l.id] = el.innerText;
+                });
+            });
+            dadosPorDia[diaAtivo] = estado;
+        }
+
+        function carregarEstado() {
+            let estado = dadosPorDia[diaAtivo] || {};
+            contas.forEach((c, idx) => {
+                plano.forEach(l => {
+                    let el = document.getElementById(`val-${l.id}-${idx}`);
+                    if(el) {
+                        el.innerText = (estado[idx] && estado[idx][l.id]) ? estado[idx][l.id] : "0,00";
+                    }
+                });
+                recalcularColuna(idx);
+            });
+        }
+
+        function mudarDia(novoDia) {
+            salvarEstado();
+            diaAtivo = novoDia;
+            carregarEstado();
+            renderTabsDias();
+        }
+
+        function abrirNovoDia(nextDayStr) {
+            salvarEstado();
+            // Cria um objeto novo para o dia de amanhã
+            dadosPorDia[nextDayStr] = {};
+            contas.forEach((c, idx) => {
+                dadosPorDia[nextDayStr][idx] = {};
+                // O Saldo Inicial de amanhã recebe o Saldo Calculado de hoje
+                let calcHoje = dadosPorDia[diaAtivo][idx]['calc'] || "0,00";
+                dadosPorDia[nextDayStr][idx]['si'] = calcHoje;
+            });
+            diasCadastrados.push(nextDayStr);
+            diaAtivo = nextDayStr;
+            carregarEstado();
+            renderTabsDias();
+        }
+
+        // RENDERIZAÇÃO DA TABELA
+        function renderTabela() {
             const h = document.getElementById('h-contas');
             const b = document.getElementById('b-caixa');
-            
-            // Cabeçalho de Contas
             h.innerHTML = `<tr><th class="col-categoria"></th>${contas.map(c => `<th>${c.b}<br>${c.c}</th>`).join('')}</tr>`;
             
-            // Corpo da Tabela
             b.innerHTML = plano.map(l => {
                 const isBgLine = (l.tipo === 'bg-total-entradas' || l.tipo === 'bg-total-saidas');
                 const isIndent = (l.tipo === 'item');
@@ -212,22 +231,16 @@
                 return `<tr>
                     <td class="col-categoria ${l.tipo} ${isIndent ? 'indent' : ''}">${l.nome}</td>
                     ${contas.map((c, i) => {
-                        
-                        // Lógica especial para a linha de TED ENVIADA (Transferência)
                         if (l.tipo === 'linha-transferencia') {
-                            return `<td>
-                                <div class="cell-wrapper">
+                            return `<td><div class="cell-wrapper">
                                     <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
                                     <select id="sel-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;">
                                         <option value="">Destino...</option>
                                         ${contas.map((ct, idx) => idx !== i ? `<option value="${idx}">${ct.b} ${ct.c.split('/')[1]}</option>` : '').join('')}
                                     </select>
                                     <input type="text" class="input-lancar" placeholder="Valor + Enter" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
-                                </div>
-                            </td>`;
+                                </div></td>`;
                         }
-
-                        // Lógica Padrão para as outras linhas
                         return `<td class="${isBgLine ? l.tipo : ''} ${noInputClass}">
                             <div class="cell-wrapper">
                                 <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
@@ -239,64 +252,101 @@
             }).join('');
         }
 
+        // LANÇAMENTOS E CÁLCULOS
+        function getV(id, cidx) {
+            let el = document.getElementById(`val-${id}-${cidx}`);
+            return el ? parseFloat(el.innerText.replace(/\./g, '').replace(',', '.')) || 0 : 0;
+        }
+
+        function setV(id, cidx, val) {
+            let el = document.getElementById(`val-${id}-${cidx}`);
+            if(el) el.innerText = val.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+        }
+
+        function recalcularColuna(idx) {
+            // SOMAS ENTRADAS
+            let sc = getV('c1',idx) + getV('c2',idx) + getV('c3',idx) + getV('c4',idx) + getV('c5',idx); setV('sc', idx, sc);
+            let sco = getV('co1',idx) + getV('co2',idx); setV('sco', idx, sco);
+            let so = getV('o1',idx) + getV('o2',idx) + getV('o3',idx) + getV('o4',idx) + getV('o5',idx) + getV('o6',idx) + getV('o7',idx) + getV('o8',idx); setV('so', idx, so);
+            let sf = getV('f1',idx) + getV('f2',idx); setV('sf', idx, sf);
+            let sint = getV('i1',idx) + getV('i2',idx) + getV('i3',idx); setV('sint', idx, sint);
+            
+            let te = sc + sco + so + sf + sint + getV('m1',idx) + getV('a1',idx) + getV('tr',idx);
+            setV('te', idx, te);
+
+            // SOMAS SAÍDAS
+            let sfor = getV('s1',idx) + getV('s2',idx) + getV('s3',idx) + getV('s4',idx) + getV('s5',idx) + getV('s6',idx) + getV('s7',idx); setV('sfor', idx, sfor);
+            let ssal = getV('sa1',idx) + getV('sa2',idx); setV('ssal', idx, ssal);
+            let ssout = getV('so1',idx) + getV('so2',idx) + getV('so3',idx) + getV('so4',idx) + getV('so5',idx) + getV('so6',idx) + getV('so7',idx) + getV('so8',idx); setV('ssout', idx, ssout);
+            let ssfin = getV('sfi1',idx) + getV('sfi2',idx) + getV('sfi3',idx) + getV('sfi4',idx) + getV('sfi5',idx); setV('ssfin', idx, ssfin);
+            let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx); setV('ssint', idx, ssint);
+
+            let tsai = sfor + ssal + ssout + ssfin + ssint + getV('smut',idx) + getV('sapo',idx) + getV('sviv',idx) + getV('scri',idx) + getV('stenv',idx);
+            setV('tsai', idx, tsai);
+
+            // SALDOS GERAIS
+            let si = getV('si', idx);
+            let calc = si + te - tsai;
+            setV('calc', idx, calc);
+            
+            let marg = getV('marg', idx);
+            let seg = calc - marg;
+            setV('seg', idx, seg); // Aqui nasce o SALDO SEGURO solicitado
+        }
+
         function lancar(e, lid, cidx) {
             if(e.key === 'Enter') {
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v)) return;
                 
-                const sp = document.getElementById(`val-${lid}-${cidx}`);
-                let at = parseFloat(sp.innerText.replace(/\./g, '').replace(',', '.'));
-                sp.innerText = (at + v).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                setV(lid, cidx, getV(lid, cidx) + v);
                 
                 e.target.parentElement.parentElement.classList.add('flash');
                 setTimeout(() => e.target.parentElement.parentElement.classList.remove('flash'), 500);
                 e.target.value = "";
+                
+                recalcularColuna(cidx); // Atualiza os totais automaticamente
+                salvarEstado();
             }
         }
 
-        // FUNÇÃO DE TRANSFERÊNCIA INTERNA (Cash Pooling)
         function lancarTransferencia(e, fromIdx, lid) {
             if(e.key === 'Enter') {
                 const selectDestino = document.getElementById(`sel-${lid}-${fromIdx}`);
                 const toIdx = selectDestino.value;
-                
-                if(toIdx === "") {
-                    alert("Selecione a conta de destino na caixinha acima antes de dar Enter.");
-                    return;
-                }
+                if(toIdx === "") { alert("Selecione o destino primeiro."); return; }
 
-                const val = parseFloat(e.target.value.replace(',', '.'));
-                if(isNaN(val) || val <= 0) {
-                    alert("Digite um valor válido para transferência.");
-                    return;
-                }
+                const v = parseFloat(e.target.value.replace(',', '.'));
+                if(isNaN(v) || v <= 0) return;
                 
-                // 1. Debitar (adicionar à saída) na conta atual (Origem)
-                const spanOut = document.getElementById(`val-${lid}-${fromIdx}`);
-                let atualOut = parseFloat(spanOut.innerText.replace(/\./g, '').replace(',', '.'));
-                spanOut.innerText = (atualOut + val).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                // Saída (Origem)
+                setV(lid, fromIdx, getV(lid, fromIdx) + v);
+                // Entrada (Destino - na linha TED RECEBIDA id = 'tr')
+                setV('tr', toIdx, getV('tr', toIdx) + v);
                 
-                // 2. Creditar (adicionar à entrada) na conta de Destino (TED RECEBIDA id='tr')
-                const spanIn = document.getElementById(`val-tr-${toIdx}`);
-                let atualIn = parseFloat(spanIn.innerText.replace(/\./g, '').replace(',', '.'));
-                spanIn.innerText = (atualIn + val).toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                
-                // Feedback Visual de Sucesso
                 e.target.parentElement.parentElement.classList.add('flash');
-                spanIn.parentElement.parentElement.classList.add('flash-in'); 
-                
+                document.getElementById(`val-tr-${toIdx}`).parentElement.parentElement.classList.add('flash-in'); 
                 setTimeout(() => {
-                    e.target.parentElement.parentElement.classList.remove('flash');
-                    spanIn.parentElement.parentElement.classList.remove('flash-in');
+                    document.querySelectorAll('.flash, .flash-in').forEach(el => {
+                        el.classList.remove('flash'); el.classList.remove('flash-in');
+                    });
                 }, 800);
                 
-                // Limpa os campos
-                e.target.value = "";
-                selectDestino.value = "";
+                e.target.value = ""; selectDestino.value = "";
+                
+                recalcularColuna(fromIdx);
+                recalcularColuna(toIdx);
+                salvarEstado();
             }
         }
 
-        render();
+        // START
+        renderTabela();
+        renderTabsDias();
+        // Inicializa o dia 13 vazio
+        dadosPorDia['13/03'] = {};
+        carregarEstado();
+
     </script>
 </body>
 </html>
