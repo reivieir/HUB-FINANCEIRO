@@ -22,26 +22,33 @@
             height: 40px; box-sizing: border-box; font-size: 12px;
         }
 
-        /* NAVEGAÇÃO DE DIAS E EMPRESAS */
+        /* NAVEGAÇÃO DE DIAS */
         .nav-dias {
             background: #e2e8f0; display: flex; align-items: center;
             padding: 5px 15px; gap: 8px; height: 38px; border-bottom: 1px solid var(--border);
+            overflow-x: auto;
         }
         .dia-btn {
-            display: flex; align-items: center; gap: 5px;
+            display: flex; align-items: center; gap: 6px;
             padding: 4px 10px; border-radius: 4px; background: white; border: 1px solid var(--border);
-            font-size: 10px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s;
+            font-size: 11px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s;
+            white-space: nowrap;
         }
         .dia-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .btn-fechar-aba {
-            color: #ef4444; font-weight: bold; cursor: pointer; font-size: 12px; line-height: 1;
-        }
-        .dia-btn.active .btn-fechar-aba { color: #fca5a5; }
-        .dia-btn.active .btn-fechar-aba:hover { color: white; }
+        
+        /* ÍCONES DAS ABAS */
+        .btn-acao { color: #94a3b8; font-size: 12px; cursor: pointer; line-height: 1; }
+        .btn-acao:hover { color: var(--primary); }
+        .btn-acao.fechar:hover { color: #ef4444; }
+        
+        .dia-btn.active .btn-acao { color: #93c5fd; }
+        .dia-btn.active .btn-acao:hover { color: white; }
+        .dia-btn.active .btn-acao.fechar:hover { color: #fca5a5; }
 
-        .btn-novo-dia { background: #10b981; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; }
+        .btn-novo-dia { background: #10b981; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; }
         .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; }
 
+        /* ABAS EMPRESAS */
         .nav-empresas {
             display: flex; background: white; border-bottom: 1px solid var(--border);
             overflow-x: auto; padding: 5px 15px 0 15px; height: 35px;
@@ -132,7 +139,7 @@
             { id: 'sf', nome: 'SOMA FINANCIAMENTO', tipo: 'grupo-soma', readOnly: true },
             { id: 'f1', nome: 'Financiamento', tipo: 'item' }, { id: 'f2', nome: 'SWAP', tipo: 'item' },
             { id: 'sint', nome: 'SOMA INTERCOMPANY', tipo: 'grupo-soma', readOnly: true },
-            { id: 'i1', nome: 'Intercias', tipo: 'item' }, { id: 'i2', nome: 'Faturamento', tipo: 'item' }, { id: 'i3', nome: "Faturamento SCP's", tipo: 'item' },
+            { id: 'i1', nome: 'Intercias', tipo: 'item' }, { id: 'i2', nome: 'Faturamento', item: 'item' }, { id: 'i3', nome: "Faturamento SCP's", tipo: 'item' },
             { id: 'm1', nome: 'Mutuo', tipo: 'item-root' }, { id: 'a1', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item-root' },
             { id: 'tr', nome: 'SOMA TED RECEBIDA', tipo: 'linha-destaque', readOnly: true },
             
@@ -155,40 +162,32 @@
             { id: 'seg', nome: 'SALDO SEGURO', tipo: 'linha-destaque', readOnly: true }
         ];
 
-        // GESTÃO DE DIAS (ESTADO E BANCO SIMULADO)
+        // GESTÃO DO BANCO E ABAS
         let diasCadastrados = ['12/03', '13/03'];
         let diaAtivo = '13/03';
-        let dadosPorDia = {};
+        let dadosPorDia = {}; // O objeto central que simula o Banco de Dados
 
         function renderTabsDias() {
             const container = document.getElementById('nav-dias-container');
             
-            // Abas dos Dias com Botão de Fechar (X)
             let html = diasCadastrados.map(d => `
                 <div class="dia-btn ${d === diaAtivo ? 'active' : ''}" onclick="mudarDia('${d}')">
-                    ${d}
-                    <span class="btn-fechar-aba" onclick="event.stopPropagation(); fecharAba('${d}')" title="Fechar e Salvar">&times;</span>
+                    <span ondblclick="event.stopPropagation(); renomearDia('${d}')">${d}</span>
+                    <span class="btn-acao" onclick="event.stopPropagation(); renomearDia('${d}')" title="Renomear Guia">✎</span>
+                    <span class="btn-acao fechar" onclick="event.stopPropagation(); fecharAba('${d}')" title="Ocultar Guia">&times;</span>
                 </div>
             `).join('');
             
-            // Lógica para prever o próximo dia
-            let nextDayStr = "14/03";
-            if (diasCadastrados.length > 0) {
-                let lastDay = [...Object.keys(dadosPorDia)].pop() || diasCadastrados[diasCadastrados.length - 1];
-                let num = parseInt(lastDay.split('/')[0]) + 1;
-                nextDayStr = (num < 10 ? '0' : '') + num + '/' + lastDay.split('/')[1];
-            }
-            
-            html += `<button class="btn-novo-dia" onclick="abrirNovoDia('${nextDayStr}')">+ ABRIR ${nextDayStr}</button>`;
+            html += `<button class="btn-novo-dia" onclick="abrirNovoDia()">+ ABRIR NOVO DIA</button>`;
 
-            // Botão de Excluir do Banco
             if(diaAtivo) {
-                html += `<button class="btn-excluir-dia" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR ${diaAtivo}</button>`;
+                html += `<button class="btn-excluir-dia" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}] DO BANCO</button>`;
             }
 
             container.innerHTML = html;
         }
 
+        // SALVA O QUE ESTÁ NA TELA NA CHAVE (NOME DA ABA) DO BANCO
         function salvarEstado() {
             if(!diaAtivo) return;
             let estado = {};
@@ -223,7 +222,73 @@
             });
         }
 
-        // AÇÕES DAS ABAS
+        // ==========================================
+        // NOVAS FUNÇÕES: RENOMEAR E CRIAR COM NOME
+        // ==========================================
+
+        function abrirNovoDia() {
+            // Pergunta ao usuário qual o nome da guia/competência
+            let nomeDia = prompt("Digite o nome ou data do novo caixa (Ex: 14/03 ou Fechamento):");
+            if (!nomeDia || nomeDia.trim() === "") return; // Cancelou ou enviou vazio
+            nomeDia = nomeDia.trim();
+
+            if (diasCadastrados.includes(nomeDia)) {
+                alert("Esta guia já está aberta na tela.");
+                mudarDia(nomeDia);
+                return;
+            }
+
+            salvarEstado(); // Salva o dia atual antes de mudar
+            
+            // Se o dia não existe no banco, cria herdando do diaAtivo
+            if(!dadosPorDia[nomeDia]) {
+                dadosPorDia[nomeDia] = {};
+                if(diaAtivo && dadosPorDia[diaAtivo]) {
+                    contas.forEach((c, idx) => {
+                        dadosPorDia[nomeDia][idx] = {};
+                        let calcHoje = dadosPorDia[diaAtivo][idx]['calc'] || "0,00";
+                        dadosPorDia[nomeDia][idx]['si'] = calcHoje;
+                    });
+                }
+            }
+
+            diasCadastrados.push(nomeDia);
+            diaAtivo = nomeDia;
+            carregarEstado();
+            renderTabsDias();
+        }
+
+        function renomearDia(nomeAtual) {
+            let novoNome = prompt(`Renomear guia [${nomeAtual}] para:`, nomeAtual);
+            if (!novoNome || novoNome.trim() === "" || novoNome === nomeAtual) return;
+            novoNome = novoNome.trim();
+
+            // Verifica colisão no banco
+            if (dadosPorDia[novoNome] || diasCadastrados.includes(novoNome)) {
+                alert("Já existe uma guia ou registro no banco com esse nome. Escolha outro.");
+                return;
+            }
+
+            salvarEstado(); // Garante que a digitação mais recente tá salva
+
+            // Transfere os dados no objeto central (Banco de Dados)
+            dadosPorDia[novoNome] = dadosPorDia[nomeAtual];
+            delete dadosPorDia[nomeAtual];
+
+            // Atualiza o array de visualização das abas
+            let index = diasCadastrados.indexOf(nomeAtual);
+            if (index !== -1) {
+                diasCadastrados[index] = novoNome;
+            }
+
+            // Se a aba renomeada era a ativa, atualiza a referência
+            if (diaAtivo === nomeAtual) {
+                diaAtivo = novoNome;
+            }
+
+            renderTabsDias();
+        }
+
         function mudarDia(novoDia) {
             salvarEstado();
             diaAtivo = novoDia;
@@ -231,34 +296,11 @@
             renderTabsDias();
         }
 
-        function abrirNovoDia(nextDayStr) {
-            salvarEstado();
-            
-            // Se o dia já existe, apenas abre
-            if(!dadosPorDia[nextDayStr]) {
-                dadosPorDia[nextDayStr] = {};
-                // Herda o Saldo Inicial do último dia ativo
-                if(diaAtivo && dadosPorDia[diaAtivo]) {
-                    contas.forEach((c, idx) => {
-                        dadosPorDia[nextDayStr][idx] = {};
-                        let calcHoje = dadosPorDia[diaAtivo][idx]['calc'] || "0,00";
-                        dadosPorDia[nextDayStr][idx]['si'] = calcHoje;
-                    });
-                }
-            }
-
-            if(!diasCadastrados.includes(nextDayStr)) diasCadastrados.push(nextDayStr);
-            diaAtivo = nextDayStr;
-            carregarEstado();
-            renderTabsDias();
-        }
-
         function fecharAba(diaParaFechar) {
-            salvarEstado(); // Garante que está salvo
-            diasCadastrados = diasCadastrados.filter(d => d !== diaParaFechar); // Remove da barra visual
+            salvarEstado(); 
+            diasCadastrados = diasCadastrados.filter(d => d !== diaParaFechar); 
             
             if (diaAtivo === diaParaFechar) {
-                // Se fechou a aba que estava aberta, vai para a última disponível
                 diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null;
                 carregarEstado();
             }
@@ -266,9 +308,9 @@
         }
 
         function excluirDiaDoBanco() {
-            if(confirm(`ATENÇÃO!\nTem certeza que deseja EXCLUIR DEFINITIVAMENTE todos os registros e lançamentos do dia ${diaAtivo}?`)) {
-                delete dadosPorDia[diaAtivo]; // Remove do banco simulado
-                diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo); // Remove da barra visual
+            if(confirm(`ATENÇÃO!\nTem certeza que deseja EXCLUIR DEFINITIVAMENTE todos os registros da competência [${diaAtivo}] do banco de dados?`)) {
+                delete dadosPorDia[diaAtivo]; 
+                diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
                 
                 diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null;
                 carregarEstado();
@@ -323,47 +365,37 @@
         }
 
         function recalcularColuna(idx) {
-            // SOMAS ENTRADAS
             let sc = getV('c1',idx) + getV('c2',idx) + getV('c3',idx) + getV('c4',idx) + getV('c5',idx); setV('sc', idx, sc);
             let sco = getV('co1',idx) + getV('co2',idx); setV('sco', idx, sco);
             let so = getV('o1',idx) + getV('o2',idx) + getV('o3',idx) + getV('o4',idx) + getV('o5',idx) + getV('o6',idx) + getV('o7',idx) + getV('o8',idx); setV('so', idx, so);
             let sf = getV('f1',idx) + getV('f2',idx); setV('sf', idx, sf);
             let sint = getV('i1',idx) + getV('i2',idx) + getV('i3',idx); setV('sint', idx, sint);
             
-            let te = sc + sco + so + sf + sint + getV('m1',idx) + getV('a1',idx) + getV('tr',idx);
-            setV('te', idx, te);
+            let te = sc + sco + so + sf + sint + getV('m1',idx) + getV('a1',idx) + getV('tr',idx); setV('te', idx, te);
 
-            // SOMAS SAÍDAS
             let sfor = getV('s1',idx) + getV('s2',idx) + getV('s3',idx) + getV('s4',idx) + getV('s5',idx) + getV('s6',idx) + getV('s7',idx); setV('sfor', idx, sfor);
             let ssal = getV('sa1',idx) + getV('sa2',idx); setV('ssal', idx, ssal);
             let ssout = getV('so1',idx) + getV('so2',idx) + getV('so3',idx) + getV('so4',idx) + getV('so5',idx) + getV('so6',idx) + getV('so7',idx) + getV('so8',idx); setV('ssout', idx, ssout);
             let ssfin = getV('sfi1',idx) + getV('sfi2',idx) + getV('sfi3',idx) + getV('sfi4',idx) + getV('sfi5',idx); setV('ssfin', idx, ssfin);
             let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx); setV('ssint', idx, ssint);
 
-            let tsai = sfor + ssal + ssout + ssfin + ssint + getV('smut',idx) + getV('sapo',idx) + getV('sviv',idx) + getV('scri',idx) + getV('stenv',idx);
-            setV('tsai', idx, tsai);
+            let tsai = sfor + ssal + ssout + ssfin + ssint + getV('smut',idx) + getV('sapo',idx) + getV('sviv',idx) + getV('scri',idx) + getV('stenv',idx); setV('tsai', idx, tsai);
 
-            // SALDOS GERAIS
             let si = getV('si', idx);
-            let calc = si + te - tsai;
-            setV('calc', idx, calc);
+            let calc = si + te - tsai; setV('calc', idx, calc);
             
             let marg = getV('marg', idx);
-            let seg = calc - marg;
-            setV('seg', idx, seg); 
+            let seg = calc - marg; setV('seg', idx, seg); 
         }
 
         function lancar(e, lid, cidx) {
             if(e.key === 'Enter') {
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v)) return;
-                
                 setV(lid, cidx, getV(lid, cidx) + v);
-                
                 e.target.parentElement.parentElement.classList.add('flash');
                 setTimeout(() => e.target.parentElement.parentElement.classList.remove('flash'), 500);
                 e.target.value = "";
-                
                 recalcularColuna(cidx); 
                 salvarEstado();
             }
@@ -374,7 +406,6 @@
                 const selectDestino = document.getElementById(`sel-${lid}-${fromIdx}`);
                 const toIdx = selectDestino.value;
                 if(toIdx === "") { alert("Selecione o destino primeiro."); return; }
-
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v) || v <= 0) return;
                 
@@ -390,17 +421,14 @@
                 }, 800);
                 
                 e.target.value = ""; selectDestino.value = "";
-                
-                recalcularColuna(fromIdx);
-                recalcularColuna(toIdx);
+                recalcularColuna(fromIdx); recalcularColuna(toIdx);
                 salvarEstado();
             }
         }
 
         // START
         renderTabela();
-        dadosPorDia['12/03'] = {}; // Inicializa os dias base simulando o banco
-        dadosPorDia['13/03'] = {};
+        dadosPorDia['12/03'] = {}; dadosPorDia['13/03'] = {}; 
         renderTabsDias();
         carregarEstado();
 
