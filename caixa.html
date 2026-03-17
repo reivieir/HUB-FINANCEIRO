@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Cash Pooling - Dexco</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
             --primary: #002b45; 
@@ -22,6 +23,10 @@
             height: 45px; box-sizing: border-box; font-size: 13px;
         }
 
+        .header-btns { display: flex; gap: 10px; }
+        .btn-export { background: white; color: black; border: 1px solid #ccc; padding: 4px 10px; cursor: pointer; font-size: 11px; border-radius: 2px; }
+        .btn-logout { background: var(--danger); color: white; border: none; padding: 4px 12px; cursor: pointer; font-size: 11px; border-radius: 4px; font-weight: bold; }
+
         /* ABAS (EMPRESAS) */
         .nav-empresas {
             display: flex; background: white; border-bottom: 1px solid var(--border);
@@ -40,23 +45,24 @@
         /* GRUPO DE COLUNAS (GRID) */
         .grid-container { height: calc(100vh - 85px); overflow: auto; padding: 10px; }
 
-        table { border-collapse: separate; border-spacing: 0; background: white; font-size: 10px; table-layout: fixed; }
-        th, td { border: 1px solid var(--border); padding: 4px; min-width: 130px; box-sizing: border-box; }
+        table { border-collapse: separate; border-spacing: 0; background: white; font-size: 10px; table-layout: fixed; min-width: 100%; }
+        th, td { border: 1px solid var(--border); padding: 4px; min-width: 140px; box-sizing: border-box; }
 
         /* Coluna Categorias Fixa */
         .col-categoria {
             position: sticky; left: 0; z-index: 11; background: #f8fafc;
-            width: 180px; font-weight: bold; text-align: left; color: #475569;
+            width: 200px; font-weight: bold; text-align: left; color: #475569;
+            border-right: 2px solid var(--border) !important;
         }
 
         /* Cabeçalho de Contas Fixo */
         thead th {
             background: #f1f5f9; position: sticky; top: 0; z-index: 10;
             text-align: center; color: var(--primary); font-size: 11px;
+            border-bottom: 2px solid var(--border);
         }
-        thead tr:nth-child(2) th { top: 25px; font-weight: normal; font-size: 10px; } /* Agência/Conta */
 
-        /* CÉLULA DE LANÇAMENTO */
+        /* CÉLULA DE LANÇAMENTO (COMBO) */
         .cell-acumulado { display: block; font-weight: bold; font-size: 12px; text-align: right; margin-bottom: 2px; }
         .input-lancar {
             width: 100%; border: 1px solid #e2e8f0; border-radius: 3px;
@@ -64,197 +70,176 @@
         }
         .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
 
-        /* TOTAIS E SALDOS */
-        .row-total-grupo { background: #f1f5f9; font-weight: bold; }
-        .row-total-grupo td { color: var(--primary); }
-        
-        .row-saldo-final { background: var(--primary); color: white; font-weight: bold; font-size: 12px; }
-        .row-saldo-final .cell-acumulado { color: white; }
+        /* SUBTÍTULOS E TOTAIS */
+        .row-subtitle { background: #f1f5f9; font-weight: bold; font-size: 11px; text-transform: uppercase; }
+        .row-total-grupo { background: #f8fafc; font-weight: bold; }
+        .row-saldo-calculado { background: #0ea5e9; color: white; font-weight: bold; }
+        .row-saldo-calculado .cell-acumulado { color: white; }
+        .row-saldo-seguro { background: var(--primary); color: white; font-weight: bold; }
+        .row-saldo-seguro .cell-acumulado { color: white; }
 
-        /* Linhas de Subtítulo (Entradas, Saídas, TED D) */
-        .row-subtitle { background: #f8fafc; font-weight: bold; font-size: 11px; }
         .text-success { color: var(--success); }
         .text-danger { color: var(--danger); }
 
-        /* Efeito de confirmação */
-        .flash-success { animation: flash 0.5s; }
+        /* Efeito visual de salvamento */
+        .flash-success { animation: flash 0.6s; }
         @keyframes flash { from { background: #dcfce7; } to { background: transparent; } }
     </style>
 </head>
 <body>
 
     <div class="header-blue">
-        <div>Dexco S.A - Cash Pooling (Equalização Diária)</div>
-        <div>Data: 17/03/2026</div>
+        <div>Dexco S.A - Cash Pooling (Gestão de Tesouraria)</div>
+        <div class="header-btns">
+            <button class="btn-export" onclick="exportarCSV()">Exportar CSV</button>
+            <button class="btn-logout" onclick="window.parent.location.reload()">Sair / Bloquear</button>
+        </div>
     </div>
 
-    <div class="nav-empresas" id="tabs">
-        <div class="tab-btn active" onclick="loadEmpresa('brdx', this)">BRDX</div>
-        <div class="tab-btn" onclick="loadEmpresa('brdf', this)">BRDF</div>
+    <div class="nav-empresas" id="tabs-container">
+        <div class="tab-btn active" onclick="carregarEmpresa('BRDX', this)">BRDX</div>
+        <div class="tab-btn" onclick="carregarEmpresa('BRDF', this)">BRDF</div>
         <div class="tab-btn">FLORESTAL</div>
         <div class="tab-btn">DECORTILES</div>
+        <div class="tab-btn">DURATEX</div>
     </div>
 
     <div class="grid-container">
         <table id="table-pooling">
-            <thead id="thead-contas">
+            <thead id="header-contas">
                 </thead>
-            <tbody id="tbody-caixa">
-                <tr class="row-total-grupo">
-                    <td class="col-categoria">SALDO INICIAL</td>
-                    </tr>
-
-                <tr class="row-subtitle text-success"><td colspan="20">[+] ENTRADAS</td></tr>
-                
-                <tr class="row-total-grupo"><td class="col-categoria">Clientes</td></tr>
-                <tr><td class="col-categoria">&nbsp;&nbsp;- Cobrança</td></tr>
-                <tr><td class="col-categoria">&nbsp;&nbsp;- TED D</td></tr>
-
-                <tr class="row-subtitle text-success"><td colspan="20">[+] TED D (RECEBIMENTO TRANSF.)</td></tr>
-                <tr><td class="col-categoria">&nbsp;&nbsp;- De 0262/17847-8</td></tr>
-                <tr><td class="col-categoria">&nbsp;&nbsp;- De 7307/50311-5</td></tr>
-                <tr class="row-subtitle text-danger"><td colspan="20">[-] SAÍDAS</td></tr>
-                
-                <tr class="row-total-grupo"><td class="col-categoria">Fornecedores</td></tr>
-                <tr><td class="col-categoria">&nbsp;&nbsp;- SAP</td></tr>
-                <tr><td class="col-categoria">&nbsp;&nbsp;- Complemento</td></tr>
-
-                <tr><td class="col-categoria">&nbsp;&nbsp;- Tarifas</td></tr>
-                <tr><td class="col-categoria">&nbsp;&nbsp;- Impostos</td></tr>
-
-                <tr class="row-subtitle text-danger"><td colspan="20">[-] TED D (ENVIO TRANSF.)</td></tr>
-                <tr><td class="col-categoria">&nbsp;&nbsp;- Para 1893-7/343329-3</td></tr>
-                <tr><td class="col-categoria">&nbsp;&nbsp;- Para 2008/130000413</td></tr>
-                <tr class="row-saldo-final">
-                    <td class="col-categoria">SALDO FINAL CALCULADO</td>
-                    </tr>
-            </tbody>
+            <tbody id="corpo-caixa">
+                </tbody>
         </table>
     </div>
 
     <script>
-        // Dados Simulados para Teste de Navegabilidade
-        const contasBancarias = {
-            brdx: [
-                { banco: 'ITAÚ', agc: '0262', conta: '17847-8', margem: 5000, saldo: 5063.18 },
-                { banco: 'ITAÚ', agc: '7307', conta: '50311-5', margem: 5000, saldo: 5067.11 },
-                { banco: 'ITAÚ', agc: '7307', conta: '50312-3', margem: 500, saldo: 1099.45 }
+        // --- ESTRUTURA DE DADOS PARA TESTE DE NAVEGABILIDADE ---
+        const planoContas = [
+            { id: 'si', nome: 'SALDO INICIAL :', tipo: 'header' },
+            { id: 'ent', nome: 'Entradas', tipo: 'subtitle', cor: 'text-success' },
+            { id: 'clie', nome: 'Clientes', tipo: 'grupo' },
+            { id: 'clie_cob', nome: '  Cobrança', tipo: 'item' },
+            { id: 'clie_dep', nome: '  Deposito Clientes', tipo: 'item' },
+            { id: 'ted_d_e', nome: 'TED D (Recebimento)', tipo: 'grupo' },
+            { id: 'sai', nome: 'Saídas', tipo: 'subtitle', cor: 'text-danger' },
+            { id: 'forn', nome: 'Fornecedores', tipo: 'grupo' },
+            { id: 'forn_sap', nome: '  SAP', tipo: 'item' },
+            { id: 'sal', nome: 'Salários', tipo: 'grupo' },
+            { id: 'out', nome: 'Outros (Tarifas/Tarifas)', tipo: 'item' },
+            { id: 'ted_d_s', nome: 'TED D (Envio / Transferências)', tipo: 'grupo' },
+            { id: 'res_calc', nome: 'SALDO CALCULADO', tipo: 'resumo' },
+            { id: 'res_marg', nome: 'MARGEM SEGURA', tipo: 'resumo' },
+            { id: 'res_segu', nome: 'SALDO SEGURO', tipo: 'final' }
+        ];
+
+        // Simulação de contas (BRDX e BRDF)
+        const empresas = {
+            'BRDX': [
+                { banco: 'ITAÚ', id: '17847-8', agc: '0262' },
+                { banco: 'ITAÚ', id: '50311-5', agc: '7307' },
+                { banco: 'ITAÚ', id: '50312-3', agc: '7307' },
+                { banco: 'ITAÚ', id: '59363-7', agc: '0350' }
             ],
-            brdf: [
-                { banco: 'BB', agc: '1234', conta: '99999-9', margem: 2000, saldo: 10000.00 },
-                { banco: 'SANTANDER', agc: '5678', conta: '88888-8', margem: 1000, saldo: 25000.00 }
+            'BRDF': [
+                { banco: 'BB', id: '343329-3', agc: '1893-7' },
+                { banco: 'SANTANDER', id: '130000413', agc: '2008' },
+                { banco: 'BRADESCO', id: '89300-5', agc: '2372-8' }
             ]
         };
 
-        // Categorias que possuem input de digitação
-        const categoriasLancaveis = [
-            'clientes-cobranca', 'clientes-tedd',
-            'forn-sap', 'forn-complemento', 'tarifas', 'impostos',
-            'tedd-origem-17847', 'tedd-origem-50311',
-            'tedd-destino-343329', 'tedd-destino-130000'
-        ];
+        let empresaAtiva = 'BRDX';
 
-        // Função para carregar a empresa selecionada
-        function loadEmpresa(empresaId, btn) {
-            // Ajuste das Abas
+        // --- FUNÇÕES DE RENDERIZAÇÃO ---
+
+        function carregarEmpresa(nome, btn) {
+            empresaAtiva = nome;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-
-            const contas = contasBancarias[empresaId];
-            if (!contas) return;
-
-            renderHeaderContas(contas);
-            renderBodyCaixa(contas);
+            renderizarGrade();
         }
 
-        // Gera o cabeçalho dinâmico das contas
-        function renderHeaderContas(contas) {
-            const thead = document.getElementById('thead-contas');
+        function renderizarGrade() {
+            const contas = empresas[empresaAtiva];
+            const thead = document.getElementById('header-contas');
+            const tbody = document.getElementById('corpo-caixa');
+
+            // Render Header
             thead.innerHTML = `
                 <tr>
-                    <th rowspan="2" class="col-categoria">CATEGORIA</th>
-                    ${contas.map(c => `<th>${c.banco}</th>`).join('')}
-                </tr>
-                <tr>
-                    ${contas.map(c => `<th>${c.agc} / ${c.conta}</th>`).join('')}
+                    <th class="col-categoria">CATEGORIA</th>
+                    ${contas.map(c => `<th>${c.banco}<br><span style="font-weight:normal; font-size:9px">${c.agc} / ${c.id}</span></th>`).join('')}
                 </tr>
             `;
+
+            // Render Body
+            tbody.innerHTML = planoContas.map(cat => {
+                let rowClass = "";
+                if (cat.tipo === 'subtitle') rowClass = "row-subtitle " + cat.cor;
+                if (cat.tipo === 'header' || cat.tipo === 'grupo') rowClass = "row-total-grupo";
+                if (cat.tipo === 'resumo') rowClass = "row-saldo-calculado";
+                if (cat.tipo === 'final') rowClass = "row-saldo-seguro";
+
+                return `
+                    <tr class="${rowClass}">
+                        <td class="col-categoria">${cat.nome}</td>
+                        ${contas.map(c => {
+                            if (cat.tipo === 'subtitle') return `<td></td>`;
+                            
+                            // Define se a célula tem input ou é apenas exibição
+                            const temInput = (cat.tipo === 'item' || cat.nome.includes('TED D'));
+                            
+                            return `
+                                <td>
+                                    <span class="cell-acumulado" id="val-${cat.id}-${c.id}">0,00</span>
+                                    ${temInput ? `<input type="text" class="input-lancar" placeholder="+ / -" onkeypress="executarLancamento(event, '${cat.id}', '${c.id}')">` : ''}
+                                </td>
+                            `;
+                        }).join('')}
+                    </tr>
+                `;
+            }).join('');
         }
 
-        // Gera o corpo do caixa (linhas de lançamento) para as contas da empresa
-        function renderBodyCaixa(contas) {
-            const tbody = document.getElementById('tbody-caixa');
-            const numContas = contas.length;
+        // --- LÓGICA DE LANÇAMENTO (ENTER) ---
 
-            // Ajusta colspans dos subtítulos
-            tbody.querySelectorAll('.row-subtitle td').forEach(td => td.colSpan = numContas + 1);
-
-            // Preenche as linhas que não são subtítulos
-            tbody.querySelectorAll('tr:not(.row-subtitle)').forEach((tr, indexRow) => {
-                const isTotalGrupo = tr.classList.contains('row-total-grupo');
-                const isSaldoFinal = tr.classList.contains('row-saldo-final');
-                
-                // Limpa inputs anteriores
-                tr.querySelectorAll('td:not(.col-categoria)').forEach(td => td.remove());
-
-                contas.forEach((conta, indexConta) => {
-                    const td = document.createElement('td');
-                    let html = '';
-
-                    if (indexRow === 0) { // Saldo Inicial
-                        html = `<span class="cell-acumulado">${conta.saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>`;
-                    } else if (isSaldoFinal) { // Saldo Final
-                        html = `<span class="cell-acumulado" id="saldo-final-${indexConta}">---</span>`;
-                    } else if (!isTotalGrupo) { // Linhas de lançamento (Entradas/Saídas)
-                        // Atribui um ID para acumular o valor (simulado neste teste)
-                        const idLancamento = `${indexConta}-${indexRow}`; 
-                        html = `
-                            <span class="cell-acumulado" id="acumulado-${idLancamento}">0,00</span>
-                            <input type="password" class="input-lancar" placeholder="+ / -" onkeypress="processarEnter(event, '${idLancamento}', ${indexConta})">
-                        `;
-                    } else { // Linhas de Totalização de Grupo
-                         html = `<span class="cell-acumulado" id="total-grupo-${indexRow}-${indexConta}">0,00</span>`;
-                    }
-
-                    td.innerHTML = html;
-                    tr.appendChild(td);
-                });
-            });
-        }
-
-        // Função que simula o comportamento do Enter e Password Input
-        function processarEnter(event, idLancamento, indexConta) {
+        function executarLancamento(event, catId, contaId) {
             if (event.key === 'Enter') {
                 const input = event.target;
-                const valorDigitado = parseFloat(input.value.replace(',', '.'));
-                
-                if (isNaN(valorDigitado)) return;
+                const valorInformado = parseFloat(input.value.replace(',', '.'));
 
-                const displayAcumulado = document.getElementById('acumulado-' + idLancamento);
-                let valorAtual = parseFloat(displayAcumulado.innerText.replace('.', '').replace(',', '.'));
+                if (isNaN(valorInformado)) return;
+
+                const display = document.getElementById(`val-${catId}-${contaId}`);
+                let valorAtual = parseFloat(display.innerText.replace(/\./g, '').replace(',', '.'));
+
+                // Soma ao acumulado
+                let novoTotal = valorAtual + valorInformado;
+
+                // Atualiza tela (Simulação de salvamento)
+                display.innerText = novoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
                 
-                // Soma/Subtrai
-                let novoValor = valorAtual + valorDigitado;
-                
-                // Atualiza o acumulado na tela (simulação)
-                displayAcumulado.innerText = novoValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-                
-                // Efeito visual de sucesso
+                // Feedback visual
                 input.parentElement.classList.add('flash-success');
-                setTimeout(() => input.parentElement.classList.remove('flash-success'), 500);
-
-                // Limpa o input
-                input.value = '';
-
-                // Simulação: Recalcula o saldo final da conta (Neste teste é fixo, mas no real virá do banco)
-                document.getElementById('saldo-final-' + indexConta).innerText = "Calculando...";
+                setTimeout(() => input.parentElement.classList.remove('flash-success'), 600);
+                
+                input.value = ''; // Limpa para o próximo
+                recalcularSaldos(contaId);
             }
         }
 
-        // Carrega BRDX ao iniciar
-        document.addEventListener('DOMContentLoaded', () => {
-            loadEmpresa('brdx', document.querySelector('.tab-btn.active'));
-        });
+        function recalcularSaldos(contaId) {
+            // Aqui futuramente entrará a lógica que soma todas as entradas e subtrai as saídas 
+            // e atualiza as linhas de SALDO CALCULADO e SALDO SEGURO.
+            console.log("Recalculando conta: " + contaId);
+        }
+
+        function exportarCSV() {
+            alert("Gerando exportação das empresas selecionadas...");
+        }
+
+        // Inicialização
+        window.onload = renderizarGrade;
     </script>
 </body>
 </html>
