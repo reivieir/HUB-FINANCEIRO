@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cash Pooling - Dexco</title>
+    <style>
+        :root { 
+            --primary: #002b45; 
+            --success: #10b981; 
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --border: #e2e8f0;
+            --text-main: #334155;
+        }
+        
+        body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text-main); overflow: hidden; }
+
+        /* HEADER */
+        .header-blue {
+            background-color: var(--primary); color: white;
+            padding: 10px 20px; display: flex; justify-content: space-between; align-items: center;
+            height: 45px; box-sizing: border-box; font-size: 13px;
+        }
+
+        /* ABAS (EMPRESAS) */
+        .nav-empresas {
+            display: flex; background: white; border-bottom: 1px solid var(--border);
+            overflow-x: auto; white-space: nowrap; padding: 5px 15px 0 15px; height: 40px;
+        }
+        .tab-btn {
+            padding: 8px 18px; cursor: pointer; border: 1px solid transparent;
+            border-bottom: none; border-radius: 5px 5px 0 0;
+            font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase;
+        }
+        .tab-btn.active {
+            background: var(--bg); border-color: var(--border);
+            color: var(--primary); border-bottom: 2px solid var(--primary);
+        }
+
+        /* GRUPO DE COLUNAS (GRID) */
+        .grid-container { height: calc(100vh - 85px); overflow: auto; padding: 10px; }
+
+        table { border-collapse: separate; border-spacing: 0; background: white; font-size: 10px; table-layout: fixed; }
+        th, td { border: 1px solid var(--border); padding: 4px; min-width: 130px; box-sizing: border-box; }
+
+        /* Coluna Categorias Fixa */
+        .col-categoria {
+            position: sticky; left: 0; z-index: 11; background: #f8fafc;
+            width: 180px; font-weight: bold; text-align: left; color: #475569;
+        }
+
+        /* Cabeçalho de Contas Fixo */
+        thead th {
+            background: #f1f5f9; position: sticky; top: 0; z-index: 10;
+            text-align: center; color: var(--primary); font-size: 11px;
+        }
+        thead tr:nth-child(2) th { top: 25px; font-weight: normal; font-size: 10px; } /* Agência/Conta */
+
+        /* CÉLULA DE LANÇAMENTO */
+        .cell-acumulado { display: block; font-weight: bold; font-size: 12px; text-align: right; margin-bottom: 2px; }
+        .input-lancar {
+            width: 100%; border: 1px solid #e2e8f0; border-radius: 3px;
+            padding: 3px; box-sizing: border-box; text-align: right; font-size: 10px; outline: none;
+        }
+        .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
+
+        /* TOTAIS E SALDOS */
+        .row-total-grupo { background: #f1f5f9; font-weight: bold; }
+        .row-total-grupo td { color: var(--primary); }
+        
+        .row-saldo-final { background: var(--primary); color: white; font-weight: bold; font-size: 12px; }
+        .row-saldo-final .cell-acumulado { color: white; }
+
+        /* Linhas de Subtítulo (Entradas, Saídas, TED D) */
+        .row-subtitle { background: #f8fafc; font-weight: bold; font-size: 11px; }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+
+        /* Efeito de confirmação */
+        .flash-success { animation: flash 0.5s; }
+        @keyframes flash { from { background: #dcfce7; } to { background: transparent; } }
+    </style>
+</head>
+<body>
+
+    <div class="header-blue">
+        <div>Dexco S.A - Cash Pooling (Equalização Diária)</div>
+        <div>Data: 17/03/2026</div>
+    </div>
+
+    <div class="nav-empresas" id="tabs">
+        <div class="tab-btn active" onclick="loadEmpresa('brdx', this)">BRDX</div>
+        <div class="tab-btn" onclick="loadEmpresa('brdf', this)">BRDF</div>
+        <div class="tab-btn">FLORESTAL</div>
+        <div class="tab-btn">DECORTILES</div>
+    </div>
+
+    <div class="grid-container">
+        <table id="table-pooling">
+            <thead id="thead-contas">
+                </thead>
+            <tbody id="tbody-caixa">
+                <tr class="row-total-grupo">
+                    <td class="col-categoria">SALDO INICIAL</td>
+                    </tr>
+
+                <tr class="row-subtitle text-success"><td colspan="20">[+] ENTRADAS</td></tr>
+                
+                <tr class="row-total-grupo"><td class="col-categoria">Clientes</td></tr>
+                <tr><td class="col-categoria">&nbsp;&nbsp;- Cobrança</td></tr>
+                <tr><td class="col-categoria">&nbsp;&nbsp;- TED D</td></tr>
+
+                <tr class="row-subtitle text-success"><td colspan="20">[+] TED D (RECEBIMENTO TRANSF.)</td></tr>
+                <tr><td class="col-categoria">&nbsp;&nbsp;- De 0262/17847-8</td></tr>
+                <tr><td class="col-categoria">&nbsp;&nbsp;- De 7307/50311-5</td></tr>
+                <tr class="row-subtitle text-danger"><td colspan="20">[-] SAÍDAS</td></tr>
+                
+                <tr class="row-total-grupo"><td class="col-categoria">Fornecedores</td></tr>
+                <tr><td class="col-categoria">&nbsp;&nbsp;- SAP</td></tr>
+                <tr><td class="col-categoria">&nbsp;&nbsp;- Complemento</td></tr>
+
+                <tr><td class="col-categoria">&nbsp;&nbsp;- Tarifas</td></tr>
+                <tr><td class="col-categoria">&nbsp;&nbsp;- Impostos</td></tr>
+
+                <tr class="row-subtitle text-danger"><td colspan="20">[-] TED D (ENVIO TRANSF.)</td></tr>
+                <tr><td class="col-categoria">&nbsp;&nbsp;- Para 1893-7/343329-3</td></tr>
+                <tr><td class="col-categoria">&nbsp;&nbsp;- Para 2008/130000413</td></tr>
+                <tr class="row-saldo-final">
+                    <td class="col-categoria">SALDO FINAL CALCULADO</td>
+                    </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Dados Simulados para Teste de Navegabilidade
+        const contasBancarias = {
+            brdx: [
+                { banco: 'ITAÚ', agc: '0262', conta: '17847-8', margem: 5000, saldo: 5063.18 },
+                { banco: 'ITAÚ', agc: '7307', conta: '50311-5', margem: 5000, saldo: 5067.11 },
+                { banco: 'ITAÚ', agc: '7307', conta: '50312-3', margem: 500, saldo: 1099.45 }
+            ],
+            brdf: [
+                { banco: 'BB', agc: '1234', conta: '99999-9', margem: 2000, saldo: 10000.00 },
+                { banco: 'SANTANDER', agc: '5678', conta: '88888-8', margem: 1000, saldo: 25000.00 }
+            ]
+        };
+
+        // Categorias que possuem input de digitação
+        const categoriasLancaveis = [
+            'clientes-cobranca', 'clientes-tedd',
+            'forn-sap', 'forn-complemento', 'tarifas', 'impostos',
+            'tedd-origem-17847', 'tedd-origem-50311',
+            'tedd-destino-343329', 'tedd-destino-130000'
+        ];
+
+        // Função para carregar a empresa selecionada
+        function loadEmpresa(empresaId, btn) {
+            // Ajuste das Abas
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const contas = contasBancarias[empresaId];
+            if (!contas) return;
+
+            renderHeaderContas(contas);
+            renderBodyCaixa(contas);
+        }
+
+        // Gera o cabeçalho dinâmico das contas
+        function renderHeaderContas(contas) {
+            const thead = document.getElementById('thead-contas');
+            thead.innerHTML = `
+                <tr>
+                    <th rowspan="2" class="col-categoria">CATEGORIA</th>
+                    ${contas.map(c => `<th>${c.banco}</th>`).join('')}
+                </tr>
+                <tr>
+                    ${contas.map(c => `<th>${c.agc} / ${c.conta}</th>`).join('')}
+                </tr>
+            `;
+        }
+
+        // Gera o corpo do caixa (linhas de lançamento) para as contas da empresa
+        function renderBodyCaixa(contas) {
+            const tbody = document.getElementById('tbody-caixa');
+            const numContas = contas.length;
+
+            // Ajusta colspans dos subtítulos
+            tbody.querySelectorAll('.row-subtitle td').forEach(td => td.colSpan = numContas + 1);
+
+            // Preenche as linhas que não são subtítulos
+            tbody.querySelectorAll('tr:not(.row-subtitle)').forEach((tr, indexRow) => {
+                const isTotalGrupo = tr.classList.contains('row-total-grupo');
+                const isSaldoFinal = tr.classList.contains('row-saldo-final');
+                
+                // Limpa inputs anteriores
+                tr.querySelectorAll('td:not(.col-categoria)').forEach(td => td.remove());
+
+                contas.forEach((conta, indexConta) => {
+                    const td = document.createElement('td');
+                    let html = '';
+
+                    if (indexRow === 0) { // Saldo Inicial
+                        html = `<span class="cell-acumulado">${conta.saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>`;
+                    } else if (isSaldoFinal) { // Saldo Final
+                        html = `<span class="cell-acumulado" id="saldo-final-${indexConta}">---</span>`;
+                    } else if (!isTotalGrupo) { // Linhas de lançamento (Entradas/Saídas)
+                        // Atribui um ID para acumular o valor (simulado neste teste)
+                        const idLancamento = `${indexConta}-${indexRow}`; 
+                        html = `
+                            <span class="cell-acumulado" id="acumulado-${idLancamento}">0,00</span>
+                            <input type="password" class="input-lancar" placeholder="+ / -" onkeypress="processarEnter(event, '${idLancamento}', ${indexConta})">
+                        `;
+                    } else { // Linhas de Totalização de Grupo
+                         html = `<span class="cell-acumulado" id="total-grupo-${indexRow}-${indexConta}">0,00</span>`;
+                    }
+
+                    td.innerHTML = html;
+                    tr.appendChild(td);
+                });
+            });
+        }
+
+        // Função que simula o comportamento do Enter e Password Input
+        function processarEnter(event, idLancamento, indexConta) {
+            if (event.key === 'Enter') {
+                const input = event.target;
+                const valorDigitado = parseFloat(input.value.replace(',', '.'));
+                
+                if (isNaN(valorDigitado)) return;
+
+                const displayAcumulado = document.getElementById('acumulado-' + idLancamento);
+                let valorAtual = parseFloat(displayAcumulado.innerText.replace('.', '').replace(',', '.'));
+                
+                // Soma/Subtrai
+                let novoValor = valorAtual + valorDigitado;
+                
+                // Atualiza o acumulado na tela (simulação)
+                displayAcumulado.innerText = novoValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                
+                // Efeito visual de sucesso
+                input.parentElement.classList.add('flash-success');
+                setTimeout(() => input.parentElement.classList.remove('flash-success'), 500);
+
+                // Limpa o input
+                input.value = '';
+
+                // Simulação: Recalcula o saldo final da conta (Neste teste é fixo, mas no real virá do banco)
+                document.getElementById('saldo-final-' + indexConta).innerText = "Calculando...";
+            }
+        }
+
+        // Carrega BRDX ao iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEmpresa('brdx', document.querySelector('.tab-btn.active'));
+        });
+    </script>
+</body>
+</html>
