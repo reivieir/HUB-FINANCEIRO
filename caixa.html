@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Cash Pooling - Dexco</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
             --primary: #002b45; --success: #10b981; --danger: #ef4444;
             --bg: #f8fafc; --border: #e2e8f0; --text: #334155;
+            --accent: #f59e0b;
         }
         
         body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
@@ -45,7 +47,7 @@
         /* GRID */
         .grid-container { height: calc(100vh - 113px); overflow: auto; padding: 5px; }
         table { border-collapse: separate; border-spacing: 0; background: white; font-size: 9px; table-layout: fixed; }
-        th, td { border: 1px solid var(--border); padding: 3px; min-width: 140px; box-sizing: border-box; }
+        th, td { border: 1px solid var(--border); padding: 3px; min-width: 135px; box-sizing: border-box; }
 
         .col-categoria {
             position: sticky; left: 0; z-index: 11; background: #f8fafc;
@@ -62,13 +64,17 @@
         }
         .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
 
-        /* ESTILIZAÇÃO DE LINHAS */
+        /* ESTILIZAÇÃO DE LINHAS - FIEL AO PRINT */
+        .row-header { background: #002b45; color: white; }
         .row-subtitle { background: #e2e8f0; font-weight: bold; text-transform: uppercase; }
         .row-total { background: #f1f5f9; font-weight: bold; }
+        .row-total td { color: var(--primary); }
+        
         .row-saldo-calc { background: #0284c7; color: white; }
         .row-saldo-segu { background: #1e293b; color: white; }
         
         .indent { padding-left: 20px !important; font-weight: normal; }
+        .indent-total { padding-left: 20px !important; font-weight: bold; }
         .text-success { color: var(--success); }
         .text-danger { color: var(--danger); }
         .flash { animation: flash 0.5s; }
@@ -78,7 +84,7 @@
 <body>
 
     <div class="header-blue">
-        <div>Dexco S.A - Cash Pooling</div>
+        <div>Dexco S.A - Cash Pooling (Equalização Financeira)</div>
         <button onclick="window.parent.location.reload()" style="background:var(--danger); color:white; border:none; padding:3px 10px; border-radius:3px; cursor:pointer;">Bloquear</button>
     </div>
 
@@ -104,24 +110,29 @@
     </div>
 
     <script>
-        const contas = [
-            { b: 'ITAÚ', c: '0262/17843-7' }, { b: 'ITAÚ', c: '0262/29500-9' },
-            { b: 'ITAÚ', c: '0262/11079-4' }, { b: 'ITAÚ', c: '7307/50310-7' },
-            { b: 'BB', c: '1893-7/343329-3' }, { b: 'SAN', c: '2008/130000413' }
+        // Configuração de Contas (Simulação BRDX baseada nos prints)
+        const contasBRDX = [
+            { banco: 'ITAÚ', conta: '0262/17843-7' }, { banco: 'ITAÚ', conta: '0262/29500-9' },
+            { banco: 'ITAÚ', conta: '0262/11079-4' }, { banco: 'ITAÚ', conta: '7307/50310-7' },
+            { banco: 'BB', conta: '1893-7/343329-3' }, { banco: 'SAN', conta: '2008/130000413' }
         ];
 
-        const plano = [
-            { id: 'si', nome: 'SALDO INICIAL (ONTEM) :', tipo: 'total' },
-            { nome: 'Entradas', tipo: 'sub', cor: 'text-success' },
+        // --- PLANO DE CONTAS FIEL À IMAGEM image_03b80a.png ---
+        const planoContas = [
+            { id: 'si', nome: 'SALDO INICIAL (ONTEM) :', tipo: 'total-principal' },
+            { id: 'te', nome: 'TOTAL ENTRADAS', tipo: 'sub', cor: 'text-success' },
+            
             { nome: 'Clientes', tipo: 'grupo' },
             { id: 'c1', nome: 'Cobrança', tipo: 'item' },
             { id: 'c2', nome: 'Deposito Clientes', tipo: 'item' },
             { id: 'c3', nome: 'Rede Card/Cielo', tipo: 'item' },
             { id: 'c4', nome: 'Entradas outras', tipo: 'item' },
             { id: 'c5', nome: 'Exportação', tipo: 'item' },
+            
             { nome: 'Colaboradores', tipo: 'grupo' },
             { id: 'co1', nome: 'Concur', tipo: 'item' },
             { id: 'co2', nome: 'Salários', tipo: 'item' },
+            
             { nome: 'Outros', tipo: 'grupo' },
             { id: 'o1', nome: 'Deposito Outros', tipo: 'item' },
             { id: 'o2', nome: 'Desbloqueio Judicial', tipo: 'item' },
@@ -131,19 +142,25 @@
             { id: 'o6', nome: 'Venda de Ativos - Facilities', tipo: 'item' },
             { id: 'o7', nome: 'CCEE - ENERGIA', tipo: 'item' },
             { id: 'o8', nome: 'NDF', tipo: 'item' },
+            
             { nome: 'Financiamento', tipo: 'grupo' },
             { id: 'f1', nome: 'Financiamento', tipo: 'item' },
             { id: 'f2', nome: 'SWAP', tipo: 'item' },
+            
             { nome: 'Intercias', tipo: 'grupo' },
             { id: 'i1', nome: 'Intercias', tipo: 'item' },
             { id: 'i2', nome: 'Faturamento', tipo: 'item' },
             { id: 'i3', nome: "Faturamento SCP's", tipo: 'item' },
+            
             { id: 'm1', nome: 'MUTUO', tipo: 'total' },
             { id: 'a1', nome: 'APORTE / AFAC / CAP. INT.', tipo: 'total' },
+            
             { nome: 'TED D (Entrada)', tipo: 'grupo' },
-            { id: 'te1', nome: 'TED D', tipo: 'item' },
+            { id: 't1', nome: 'TED D', tipo: 'item' },
 
-            { nome: 'Saídas', tipo: 'sub', cor: 'text-danger' },
+            // --- SAÍDAS ---
+            { id: 'ts', nome: 'TOTAL SAÍDAS', tipo: 'sub', cor: 'text-danger' },
+            
             { nome: 'Fornecedores', tipo: 'grupo' },
             { id: 's1', nome: 'SAP', tipo: 'item' },
             { id: 's2', nome: 'Complemento', tipo: 'item' },
@@ -152,9 +169,11 @@
             { id: 's5', nome: 'CCEE - ENERGIA', tipo: 'item' },
             { id: 's6', nome: 'Câmbio', tipo: 'item' },
             { id: 's7', nome: 'Marinha Mercante', tipo: 'item' },
+            
             { nome: 'Salários', tipo: 'grupo' },
             { id: 'sa1', nome: 'Salários', tipo: 'item' },
             { id: 'sa2', nome: 'Débito de Consignado', tipo: 'item' },
+            
             { nome: 'Outros', tipo: 'grupo' },
             { id: 'ou1', nome: 'Cartão de Crédito', tipo: 'item' },
             { id: 'ou2', nome: 'Tarifas', tipo: 'item' },
@@ -165,6 +184,24 @@
             { id: 'ou7', nome: 'Aplicação', tipo: 'item' },
             { id: 'ou8', nome: 'NDF', tipo: 'item' },
 
+            { nome: 'Financiamento', tipo: 'grupo' },
+            { id: 'fi1', nome: 'Financiamentos Principal', tipo: 'item' },
+            { id: 'fi2', nome: 'Financiamentos Juros', tipo: 'item' },
+            { id: 'fi3', nome: 'SWAP Principal', tipo: 'item' },
+            { id: 'fi4', nome: 'SWAP Juros', tipo: 'item' },
+            { id: 'fi5', nome: 'Dividendos', tipo: 'item' },
+
+            { nome: 'Intercias', tipo: 'grupo' },
+            { id: 'in1', nome: 'Intercias', tipo: 'item' },
+            { id: 'in2', nome: 'Faturamento DF', tipo: 'item' },
+            { id: 'in3', nome: "Faturamento SCP's", tipo: 'item' },
+
+            { id: 'mu1', nome: 'MUTUO', tipo: 'total' },
+            { nome: 'APORTE / AFAC / CAP. INT.', tipo: 'grupo' },
+            { id: 'ap1', nome: 'VIVA DECORA', tipo: 'item' },
+            { id: 'ap2', nome: 'CRI SUMA', tipo: 'item' },
+
+            // --- SEÇÃO TED D (Saída) DETALHADA ---
             { nome: 'TED D (Saída / Transferência)', tipo: 'grupo' },
             { id: 'ts1', nome: '0262 / 29500-9', tipo: 'item' },
             { id: 'ts2', nome: '0262 / 11079-4', tipo: 'item' },
@@ -181,6 +218,7 @@
             { id: 'ts13', nome: '0001-9 / 2.331.908-0', tipo: 'item' },
             { id: 'ts14', nome: '0001 / 001516474-0', tipo: 'item' },
 
+            // --- TOTAIS FINAIS ---
             { id: 'sc', nome: 'SALDO CALCULADO', tipo: 'total-azul' },
             { id: 'ms', nome: 'MARGEM SEGURA', tipo: 'item' },
             { id: 'ss', nome: 'SALDO SEGURO', tipo: 'total-preto' }
@@ -189,22 +227,26 @@
         function render() {
             const h = document.getElementById('h-contas');
             const b = document.getElementById('b-caixa');
-            h.innerHTML = `<tr><th class="col-categoria">CATEGORIA / DATA</th>${contas.map(c => `<th>${c.b}<br>${c.c}</th>`).join('')}</tr>`;
-            b.innerHTML = plano.map(l => {
-                let cls = "";
-                if(l.tipo === 'sub') cls = "row-subtitle " + l.cor;
-                if(l.tipo === 'total-azul') cls = "row-saldo-calc";
-                if(l.tipo === 'total-preto') cls = "row-saldo-segu";
-                if(l.tipo === 'grupo' || l.tipo === 'total') cls = "row-total";
+            h.innerHTML = `<tr><th class="col-categoria">CATEGORIA / DATA</th>${contasBRDX.map(c => `<th>${c.banco}</th>`).join('')}</tr>
+                               <tr><th class="col-categoria">CONTAS</th>${contasBRDX.map(c => `<th style="font-weight:normal">${c.conta}</th>`).join('')}</tr>`;
 
-                return `<tr class="${cls}">
-                    <td class="col-categoria ${l.tipo === 'item' ? 'indent' : ''}">${l.nome}</td>
-                    ${contas.map((c, i) => {
-                        if(l.tipo === 'sub') return `<td></td>`;
-                        const input = (l.tipo === 'item' || l.id === 'si');
+            b.innerHTML = planoContas.map(linha => {
+                let trClass = "";
+                if(linha.tipo === 'sub') trClass = "row-subtitle " + linha.cor;
+                if(linha.tipo === 'grupo' || linha.tipo === 'total') trClass = "row-total";
+                if(linha.tipo === 'total-principal') trClass = "row-total";
+                if(linha.tipo === 'total-azul') trClass = "row-saldo-calc";
+                if(linha.tipo === 'total-preto') trClass = "row-saldo-segu";
+
+                return `<tr class="${trClass}">
+                    <td class="col-categoria ${linha.tipo === 'item' ? 'indent' : ''}">${linha.nome}</td>
+                    ${contasBRDX.map((c, i) => {
+                        if(linha.tipo === 'sub') return `<td></td>`;
+                        // Apenas categorias com input de digitação
+                        const showInput = (linha.tipo === 'item' || linha.id === 'si' || linha.tipo === 'total');
                         return `<td>
-                            <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
-                            ${input ? `<input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})">` : ''}
+                            <span class="cell-acumulado" id="val-${linha.id}-${i}">0,00</span>
+                            ${showInput ? `<input type="text" class="input-lancar" placeholder="+" onkeypress="lancar(event, '${linha.id}', ${i})">` : ''}
                         </td>`;
                     }).join('')}
                 </tr>`;
@@ -213,11 +255,11 @@
 
         function lancar(e, lid, cidx) {
             if(e.key === 'Enter') {
-                const v = parseFloat(e.target.value.replace(',', '.'));
-                if(isNaN(v)) return;
-                const sp = document.getElementById(`val-${lid}-${cidx}`);
-                let at = parseFloat(sp.innerText.replace(/\./g, '').replace(',', '.'));
-                sp.innerText = (at + v).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                const val = parseFloat(e.target.value.replace(',', '.'));
+                if(isNaN(val)) return;
+                const span = document.getElementById(`val-${lid}-${cidx}`);
+                let atual = parseFloat(span.innerText.replace(/\./g, '').replace(',', '.'));
+                span.innerText = (atual + val).toLocaleString('pt-BR', {minimumFractionDigits: 2});
                 e.target.parentElement.classList.add('flash');
                 setTimeout(() => e.target.parentElement.classList.remove('flash'), 500);
                 e.target.value = "";
