@@ -22,7 +22,7 @@
             height: 40px; box-sizing: border-box; font-size: 12px;
         }
 
-        /* NAVEGAÇÃO DE DIAS */
+        /* NAVEGAÇÃO DE DIAS E EMPRESAS */
         .nav-dias {
             background: #e2e8f0; display: flex; align-items: center;
             padding: 5px 15px; gap: 8px; height: 38px; border-bottom: 1px solid var(--border);
@@ -46,9 +46,9 @@
         .dia-btn.active .btn-acao.fechar:hover { color: #fca5a5; }
 
         .btn-novo-dia { background: #10b981; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; }
-        .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; }
+        .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
+        .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
 
-        /* ABAS EMPRESAS */
         .nav-empresas {
             display: flex; background: white; border-bottom: 1px solid var(--border);
             overflow-x: auto; padding: 5px 15px 0 15px; height: 35px;
@@ -107,8 +107,8 @@
         </div>
 
     <div class="nav-empresas">
-        <div class="tab-btn active">BRDX</div>
-        <div class="tab-btn">BRDF</div>
+        <div class="tab-btn active" id="tab-BRDX" onclick="mudarEmpresa('BRDX')">BRDX</div>
+        <div class="tab-btn" id="tab-BRDF" onclick="mudarEmpresa('BRDF')">BRDF</div>
     </div>
 
     <div class="grid-container">
@@ -119,12 +119,23 @@
     </div>
 
     <script>
-        // CONTAS
-        const contas = [
-            { b: 'ITAÚ', c: '0262 / 17843-7' }, { b: 'ITAÚ', c: '0262 / 29500-9' },
-            { b: 'ITAÚ', c: '0262 / 11079-4' }, { b: 'ITAÚ', c: '7307 / 50310-7' },
-            { b: 'BB', c: '1893-7 / 343329-3' }, { b: 'SANTANDER', c: '2008 / 130000413' }
-        ];
+        // CONTAS POR EMPRESA
+        const empresasConfig = {
+            'BRDX': [
+                { b: 'ITAÚ', c: '0262 / 17843-7' }, { b: 'ITAÚ', c: '0262 / 29500-9' },
+                { b: 'ITAÚ', c: '0262 / 11079-4' }, { b: 'ITAÚ', c: '7307 / 50310-7' },
+                { b: 'BB', c: '1893-7 / 343329-3' }, { b: 'SANTANDER', c: '2008 / 130000413' }
+            ],
+            'BRDF': [
+                { b: 'BRADESCO', c: '2372-8 / 89300-5' }, { b: 'SAFRA', c: '115 / 000.330-5' },
+                { b: 'BANRISUL', c: '0413 / 60157510-3' }, { b: 'CAIXA', c: '3337 / 577246689-1' },
+                { b: 'BNB', c: '0031 / 55843-6' }
+            ]
+        };
+
+        // Estado Global
+        let empresaAtiva = 'BRDX';
+        let contas = empresasConfig[empresaAtiva];
 
         // PLANO DE CONTAS
         const plano = [
@@ -139,7 +150,7 @@
             { id: 'sf', nome: 'SOMA FINANCIAMENTO', tipo: 'grupo-soma', readOnly: true },
             { id: 'f1', nome: 'Financiamento', tipo: 'item' }, { id: 'f2', nome: 'SWAP', tipo: 'item' },
             { id: 'sint', nome: 'SOMA INTERCOMPANY', tipo: 'grupo-soma', readOnly: true },
-            { id: 'i1', nome: 'Intercias', tipo: 'item' }, { id: 'i2', nome: 'Faturamento', item: 'item' }, { id: 'i3', nome: "Faturamento SCP's", tipo: 'item' },
+            { id: 'i1', nome: 'Intercias', tipo: 'item' }, { id: 'i2', nome: 'Faturamento', tipo: 'item' }, { id: 'i3', nome: "Faturamento SCP's", tipo: 'item' },
             { id: 'm1', nome: 'Mutuo', tipo: 'item-root' }, { id: 'a1', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item-root' },
             { id: 'tr', nome: 'SOMA TED RECEBIDA', tipo: 'linha-destaque', readOnly: true },
             
@@ -165,7 +176,11 @@
         // GESTÃO DO BANCO E ABAS
         let diasCadastrados = ['12/03', '13/03'];
         let diaAtivo = '13/03';
-        let dadosPorDia = {}; // O objeto central que simula o Banco de Dados
+        // A Estrutura agora abraça as empresas: dadosPorDia[dia][empresa][conta][linha]
+        let dadosPorDia = {
+            '12/03': { 'BRDX': {}, 'BRDF': {} },
+            '13/03': { 'BRDX': {}, 'BRDF': {} }
+        };
 
         function renderTabsDias() {
             const container = document.getElementById('nav-dias-container');
@@ -179,6 +194,7 @@
             `).join('');
             
             html += `<button class="btn-novo-dia" onclick="abrirNovoDia()">+ ABRIR NOVO DIA</button>`;
+            html += `<button class="btn-guias-ocultas" onclick="abrirGuiaOculta()">📁 GUIAS OCULTAS</button>`;
 
             if(diaAtivo) {
                 html += `<button class="btn-excluir-dia" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}] DO BANCO</button>`;
@@ -187,9 +203,28 @@
             container.innerHTML = html;
         }
 
-        // SALVA O QUE ESTÁ NA TELA NA CHAVE (NOME DA ABA) DO BANCO
+        // ==========================================
+        // LÓGICA DE TROCA DE EMPRESAS E SALVAMENTO
+        // ==========================================
+
+        function mudarEmpresa(novaEmpresa) {
+            salvarEstado(); // Salva os dados da empresa atual antes de trocar
+            empresaAtiva = novaEmpresa;
+            contas = empresasConfig[empresaAtiva]; // Atualiza as contas que vão aparecer
+            
+            // Atualiza os botões visuais
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${novaEmpresa}`).classList.add('active');
+
+            renderTabela(); // Remonta a tabela com as colunas dos novos bancos
+            carregarEstado(); // Carrega os valores dessa nova empresa
+        }
+
         function salvarEstado() {
             if(!diaAtivo) return;
+            if(!dadosPorDia[diaAtivo]) dadosPorDia[diaAtivo] = {};
+            if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
+
             let estado = {};
             contas.forEach((c, idx) => {
                 estado[idx] = {};
@@ -198,16 +233,18 @@
                     if(el) estado[idx][l.id] = el.innerText;
                 });
             });
-            dadosPorDia[diaAtivo] = estado;
+            dadosPorDia[diaAtivo][empresaAtiva] = estado;
         }
 
         function carregarEstado() {
             if(!diaAtivo) { zerarTabela(); return; }
-            let estado = dadosPorDia[diaAtivo] || {};
+            let estadoDia = dadosPorDia[diaAtivo] || {};
+            let estadoEmpresa = estadoDia[empresaAtiva] || {};
+
             contas.forEach((c, idx) => {
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${idx}`);
-                    if(el) el.innerText = (estado[idx] && estado[idx][l.id]) ? estado[idx][l.id] : "0,00";
+                    if(el) el.innerText = (estadoEmpresa[idx] && estadoEmpresa[idx][l.id]) ? estadoEmpresa[idx][l.id] : "0,00";
                 });
                 recalcularColuna(idx);
             });
@@ -223,13 +260,12 @@
         }
 
         // ==========================================
-        // NOVAS FUNÇÕES: RENOMEAR E CRIAR COM NOME
+        // FUNÇÕES DAS ABAS (CRIAR, RENOMEAR, RESTAURAR)
         // ==========================================
 
         function abrirNovoDia() {
-            // Pergunta ao usuário qual o nome da guia/competência
             let nomeDia = prompt("Digite o nome ou data do novo caixa (Ex: 14/03 ou Fechamento):");
-            if (!nomeDia || nomeDia.trim() === "") return; // Cancelou ou enviou vazio
+            if (!nomeDia || nomeDia.trim() === "") return;
             nomeDia = nomeDia.trim();
 
             if (diasCadastrados.includes(nomeDia)) {
@@ -238,18 +274,22 @@
                 return;
             }
 
-            salvarEstado(); // Salva o dia atual antes de mudar
+            salvarEstado(); 
             
-            // Se o dia não existe no banco, cria herdando do diaAtivo
             if(!dadosPorDia[nomeDia]) {
                 dadosPorDia[nomeDia] = {};
-                if(diaAtivo && dadosPorDia[diaAtivo]) {
-                    contas.forEach((c, idx) => {
-                        dadosPorDia[nomeDia][idx] = {};
-                        let calcHoje = dadosPorDia[diaAtivo][idx]['calc'] || "0,00";
-                        dadosPorDia[nomeDia][idx]['si'] = calcHoje;
+                
+                // Copia o Saldo Calculado de todas as empresas para o Saldo Inicial do novo dia
+                Object.keys(empresasConfig).forEach(emp => {
+                    dadosPorDia[nomeDia][emp] = {};
+                    let estadoAntigo = (dadosPorDia[diaAtivo] && dadosPorDia[diaAtivo][emp]) ? dadosPorDia[diaAtivo][emp] : {};
+                    
+                    empresasConfig[emp].forEach((c, idx) => {
+                        dadosPorDia[nomeDia][emp][idx] = {};
+                        let calcHoje = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
+                        dadosPorDia[nomeDia][emp][idx]['si'] = calcHoje;
                     });
-                }
+                });
             }
 
             diasCadastrados.push(nomeDia);
@@ -263,28 +303,19 @@
             if (!novoNome || novoNome.trim() === "" || novoNome === nomeAtual) return;
             novoNome = novoNome.trim();
 
-            // Verifica colisão no banco
             if (dadosPorDia[novoNome] || diasCadastrados.includes(novoNome)) {
                 alert("Já existe uma guia ou registro no banco com esse nome. Escolha outro.");
                 return;
             }
 
-            salvarEstado(); // Garante que a digitação mais recente tá salva
-
-            // Transfere os dados no objeto central (Banco de Dados)
+            salvarEstado(); 
             dadosPorDia[novoNome] = dadosPorDia[nomeAtual];
             delete dadosPorDia[nomeAtual];
 
-            // Atualiza o array de visualização das abas
             let index = diasCadastrados.indexOf(nomeAtual);
-            if (index !== -1) {
-                diasCadastrados[index] = novoNome;
-            }
+            if (index !== -1) diasCadastrados[index] = novoNome;
 
-            // Se a aba renomeada era a ativa, atualiza a referência
-            if (diaAtivo === nomeAtual) {
-                diaAtivo = novoNome;
-            }
+            if (diaAtivo === nomeAtual) diaAtivo = novoNome;
 
             renderTabsDias();
         }
@@ -307,6 +338,32 @@
             renderTabsDias();
         }
 
+        function abrirGuiaOculta() {
+            let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
+            
+            if(guiasOcultas.length === 0) {
+                alert("Não há nenhuma guia oculta salva no banco no momento.");
+                return;
+            }
+            
+            let lista = guiasOcultas.map((d, i) => `${i + 1} - ${d}`).join('\n');
+            let escolha = prompt(`Qual guia você quer restaurar? Digite o NÚMERO correspondente:\n\n${lista}`);
+            
+            if(!escolha) return;
+            
+            let nomeParaRestaurar = guiasOcultas.find(d => d === escolha || (guiasOcultas.indexOf(d) + 1).toString() === escolha);
+            
+            if(nomeParaRestaurar) {
+                salvarEstado(); 
+                diasCadastrados.push(nomeParaRestaurar); 
+                diaAtivo = nomeParaRestaurar;
+                carregarEstado();
+                renderTabsDias();
+            } else {
+                alert("Opção inválida. Nenhuma guia restaurada.");
+            }
+        }
+
         function excluirDiaDoBanco() {
             if(confirm(`ATENÇÃO!\nTem certeza que deseja EXCLUIR DEFINITIVAMENTE todos os registros da competência [${diaAtivo}] do banco de dados?`)) {
                 delete dadosPorDia[diaAtivo]; 
@@ -318,7 +375,10 @@
             }
         }
 
-        // RENDERIZAÇÃO DA TABELA
+        // ==========================================
+        // RENDERIZAÇÃO DA TABELA E CÁLCULOS
+        // ==========================================
+
         function renderTabela() {
             const h = document.getElementById('h-contas');
             const b = document.getElementById('b-caixa');
@@ -353,7 +413,6 @@
             }).join('');
         }
 
-        // LANÇAMENTOS E CÁLCULOS
         function getV(id, cidx) {
             let el = document.getElementById(`val-${id}-${cidx}`);
             return el ? parseFloat(el.innerText.replace(/\./g, '').replace(',', '.')) || 0 : 0;
@@ -401,13 +460,15 @@
             }
         }
 
+        // LÓGICA DE TRANSFERÊNCIA ATUALIZADA (ACEITA NEGATIVOS PARA REVERSÃO)
         function lancarTransferencia(e, fromIdx, lid) {
             if(e.key === 'Enter') {
                 const selectDestino = document.getElementById(`sel-${lid}-${fromIdx}`);
                 const toIdx = selectDestino.value;
                 if(toIdx === "") { alert("Selecione o destino primeiro."); return; }
+                
                 const v = parseFloat(e.target.value.replace(',', '.'));
-                if(isNaN(v) || v <= 0) return;
+                if(isNaN(v) || v === 0) return; // Removida a trava de <= 0. Aceita negativos agora!
                 
                 setV(lid, fromIdx, getV(lid, fromIdx) + v);
                 setV('tr', toIdx, getV('tr', toIdx) + v);
@@ -428,7 +489,6 @@
 
         // START
         renderTabela();
-        dadosPorDia['12/03'] = {}; dadosPorDia['13/03'] = {}; 
         renderTabsDias();
         carregarEstado();
 
