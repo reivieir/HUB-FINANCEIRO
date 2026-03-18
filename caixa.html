@@ -22,7 +22,7 @@
             height: 40px; box-sizing: border-box; font-size: 12px;
         }
 
-        /* NAVEGAÇÃO DE DIAS */
+        /* NAVEGAÇÃO DE DIAS E EMPRESAS */
         .nav-dias {
             background: #e2e8f0; display: flex; align-items: center;
             padding: 5px 15px; gap: 8px; height: 38px; border-bottom: 1px solid var(--border);
@@ -49,7 +49,6 @@
         .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
         .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
 
-        /* ABAS EMPRESAS */
         .nav-empresas {
             display: flex; background: white; border-bottom: 1px solid var(--border);
             overflow-x: auto; padding: 5px 15px 0 15px; height: 35px;
@@ -60,24 +59,34 @@
         }
         .tab-btn.active { background: var(--bg); border-color: var(--border); color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* GRID */
-        .grid-container { height: calc(100vh - 113px); overflow: auto; padding: 5px; background: white; }
-        table { border-collapse: collapse; width: 100%; font-size: 10px; table-layout: fixed; }
-        th, td { border: 1px solid var(--border); padding: 3px 5px; min-width: 140px; box-sizing: border-box; vertical-align: middle; }
+        /* GRID E CABEÇALHOS CORRIGIDOS (Z-INDEX) */
+        .grid-container { height: calc(100vh - 113px); overflow: auto; padding: 5px; background: white; position: relative; }
+        table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 10px; table-layout: fixed; }
+        
+        th, td { border: 1px solid var(--border); padding: 3px 5px; min-width: 140px; box-sizing: border-box; vertical-align: middle; background: white; }
 
         .col-categoria {
             position: sticky; left: 0; z-index: 11; background: white;
             width: 250px; text-align: left; border-right: 2px solid var(--border) !important;
         }
 
-        thead th { background: white; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border); color: var(--primary); }
+        /* O CABEÇALHO AGORA FICA ACIMA DAS CÉLULAS E COM FUNDO CINZA CLARO */
+        thead th { 
+            background: #f1f5f9; 
+            position: sticky; top: 0; z-index: 10; 
+            border-bottom: 2px solid var(--border); 
+            color: var(--primary); 
+        }
+
+        /* O canto superior esquerdo (Categorias/Contas) precisa do maior z-index para não ser sobreposto */
+        thead th.col-categoria { z-index: 12; background: #e2e8f0; text-align: center; }
 
         /* INPUTS E VALORES */
         .cell-wrapper { display: flex; flex-direction: column; align-items: flex-end; }
         .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 2px; }
         .input-lancar {
             width: 100%; border: 1px solid #e2e8f0; border-radius: 2px;
-            padding: 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc;
+            padding: 3px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc;
         }
         .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
 
@@ -95,13 +104,24 @@
         @keyframes flash { from { background: #dcfce7; } to { background: transparent; } }
         .flash-in { animation: flash-in 0.8s ease-out; }
         @keyframes flash-in { 0% { background: #bfdbfe; } 100% { background: transparent; } }
+
+        /* MODAL DE RESUMO */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 800px; border-radius: 8px; max-height: 80vh; overflow-y: auto;}
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .resumo-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
+        .resumo-table th, .resumo-table td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+        .resumo-table th { background-color: #f1f5f9; color: var(--primary); }
     </style>
 </head>
 <body>
 
     <div class="header-blue">
         <div>Dexco S.A - Cash Pooling (Gestão Diária)</div>
-        <button onclick="window.parent.location.reload()" style="background:#ef4444; color:white; border:none; padding:3px 10px; border-radius:3px; cursor:pointer;">Sair / Bloquear</button>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="abrirResumo()" style="background:#f59e0b; color:white; border:none; padding:3px 10px; border-radius:3px; cursor:pointer; font-weight:bold;">📊 RESUMO DO DIA</button>
+            <button onclick="window.parent.location.reload()" style="background:#ef4444; color:white; border:none; padding:3px 10px; border-radius:3px; cursor:pointer;">Sair / Bloquear</button>
+        </div>
     </div>
 
     <div class="nav-dias" id="nav-dias-container">
@@ -117,8 +137,16 @@
         </table>
     </div>
 
+    <div id="modal-resumo" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('modal-resumo').style.display='none'">&times;</span>
+            <h2 style="color:var(--primary); margin-top:0;">Resumo da Competência: <span id="resumo-dia-titulo"></span></h2>
+            <div id="resumo-content"></div>
+        </div>
+    </div>
+
     <script>
-        // CONTAS POR EMPRESA (Extraído rigorosamente da planilha)
+        // CONTAS POR EMPRESA
         const empresasConfig = {
             'BRDX': [
                 { b: 'ITAÚ', c: '0262 / 17843-7' }, { b: 'ITAÚ', c: '0262 / 29500-9' }, { b: 'ITAÚ', c: '0262 / 11079-4' }, 
@@ -150,11 +178,10 @@
             ]
         };
 
-        // Estado Global
         let empresaAtiva = 'BRDX';
         let contas = empresasConfig[empresaAtiva];
 
-        // PLANO DE CONTAS
+        // PLANO DE CONTAS ATUALIZADO (Aportes/Mútuo viraram "item" dentro de Intercompany)
         const plano = [
             { id: 'si', nome: 'SALDO INICIAL :', tipo: 'linha-destaque', readOnly: false },
             { id: 'te', nome: 'TOTAL ENTRADAS', tipo: 'bg-total-entradas', readOnly: true },
@@ -163,12 +190,20 @@
             { id: 'sco', nome: 'SOMA COLABORADORES', tipo: 'grupo-soma', readOnly: true },
             { id: 'co1', nome: 'Concur', tipo: 'item' }, { id: 'co2', nome: 'Salários', tipo: 'item' },
             { id: 'so', nome: 'SOMA OUTROS', tipo: 'grupo-soma', readOnly: true },
-            { id: 'o1', nome: 'Deposito Outros', tipo: 'item' }, { id: 'o2', nome: 'Desbloqueio Judicial', tipo: 'item' }, { id: 'o3', nome: 'Resgate', tipo: 'item' }, { id: 'o4', nome: 'Pagamento Fundação', tipo: 'item' }, { id: 'o5', nome: 'Rateio de Condominio - CRCC', tipo: 'item' }, { id: 'o6', nome: 'Venda de Ativos - Facilities', tipo: 'item' }, { id: 'o7', nome: 'CCEE - Energia', tipo: 'item' }, { id: 'o8', nome: 'NDF', tipo: 'item' },
+            { id: 'o1', nome: 'Deposito Outros', tipo: 'item' }, { id: 'o2', nome: 'Desbloqueio Judicial', tipo: 'item' }, 
+            
+            // LINHA RESGATE COM DROPDOWN
+            { id: 'o3', nome: 'Resgate', tipo: 'linha-banco' }, 
+            
+            { id: 'o4', nome: 'Pagamento Fundação', tipo: 'item' }, { id: 'o5', nome: 'Rateio de Condominio - CRCC', tipo: 'item' }, { id: 'o6', nome: 'Venda de Ativos - Facilities', tipo: 'item' }, { id: 'o7', nome: 'CCEE - Energia', tipo: 'item' }, { id: 'o8', nome: 'NDF', tipo: 'item' },
             { id: 'sf', nome: 'SOMA FINANCIAMENTO', tipo: 'grupo-soma', readOnly: true },
             { id: 'f1', nome: 'Financiamento', tipo: 'item' }, { id: 'f2', nome: 'SWAP', tipo: 'item' },
+            
+            // SOMA INTERCOMPANY - AGORA RECEBE MÚTUO E APORTE
             { id: 'sint', nome: 'SOMA INTERCOMPANY', tipo: 'grupo-soma', readOnly: true },
             { id: 'i1', nome: 'Intercias', tipo: 'item' }, { id: 'i2', nome: 'Faturamento', tipo: 'item' }, { id: 'i3', nome: "Faturamento SCP's", tipo: 'item' },
-            { id: 'm1', nome: 'Mutuo', tipo: 'item-root' }, { id: 'a1', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item-root' },
+            { id: 'm1', nome: 'Mutuo', tipo: 'item' }, { id: 'a1', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item' },
+            
             { id: 'tr', nome: 'SOMA TED RECEBIDA', tipo: 'linha-destaque', readOnly: true },
             
             { id: 'tsai', nome: 'TOTAL SAÍDAS', tipo: 'bg-total-saidas', readOnly: true },
@@ -177,12 +212,23 @@
             { id: 'ssal', nome: 'SOMA SALARIOS', tipo: 'grupo-soma', readOnly: true },
             { id: 'sa1', nome: 'Salários', tipo: 'item' }, { id: 'sa2', nome: 'Débito de Consignado', tipo: 'item' },
             { id: 'ssout', nome: 'SOMA OUTROS', tipo: 'grupo-soma', readOnly: true },
-            { id: 'so1', nome: 'Cartão de Crédito', tipo: 'item' }, { id: 'so2', nome: 'Tarifas', tipo: 'item' }, { id: 'so3', nome: 'Comissão / Fiança', tipo: 'item' }, { id: 'so4', nome: 'Bloqueio judicial', tipo: 'item' }, { id: 'so5', nome: 'Sem Parar', tipo: 'item' }, { id: 'so6', nome: 'CRCC', tipo: 'item' }, { id: 'so7', nome: 'Aplicação', tipo: 'item' }, { id: 'so8', nome: 'NDF', tipo: 'item' },
+            { id: 'so1', nome: 'Cartão de Crédito', tipo: 'item' }, { id: 'so2', nome: 'Tarifas', tipo: 'item' }, { id: 'so3', nome: 'Comissão / Fiança', tipo: 'item' }, { id: 'so4', nome: 'Bloqueio judicial', tipo: 'item' }, { id: 'so5', nome: 'Sem Parar', tipo: 'item' }, { id: 'so6', nome: 'CRCC', tipo: 'item' }, 
+            
+            // LINHA APLICAÇÃO COM DROPDOWN
+            { id: 'so7', nome: 'Aplicação', tipo: 'linha-banco' }, 
+            
+            { id: 'so8', nome: 'NDF', tipo: 'item' },
             { id: 'ssfin', nome: 'SOMA FINANCIAMENTOS', tipo: 'grupo-soma', readOnly: true },
             { id: 'sfi1', nome: 'Financiamentos Principal', tipo: 'item' }, { id: 'sfi2', nome: 'Financiamentos Juros', tipo: 'item' }, { id: 'sfi3', nome: 'SWAP Principal', tipo: 'item' }, { id: 'sfi4', nome: 'SWAP Juros', tipo: 'item' }, { id: 'sfi5', nome: 'Dividendos', tipo: 'item' },
+            
+            // SOMA INTERCOMPANY (SAÍDA) - AGORA RECEBE MÚTUO E APORTE
             { id: 'ssint', nome: 'SOMA INTERCOMPANY', tipo: 'grupo-soma', readOnly: true },
             { id: 'sin1', nome: 'Intercias', tipo: 'item' }, { id: 'sin2', nome: 'Faturamento DF', tipo: 'item' }, { id: 'sin3', nome: "Faturamento SCP's", tipo: 'item' },
-            { id: 'smut', nome: 'Mutuo', tipo: 'item-root' }, { id: 'sapo', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item-root' }, { id: 'sviv', nome: 'VIVA DECORA', tipo: 'item-root' }, { id: 'scri', nome: 'CRI SOMA', tipo: 'item-root' },
+            { id: 'smut', nome: 'Mutuo', tipo: 'item' }, { id: 'sapo', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item' },
+            
+            // Estes dois ficam fora de intercompany pois são específicos? (Manti como root se precisar, mas coloquei como item pra identar)
+            { id: 'sviv', nome: 'VIVA DECORA', tipo: 'item' }, { id: 'scri', nome: 'CRI SOMA', tipo: 'item' },
+            
             { id: 'stenv', nome: 'SOMA TED D ENVIADA', tipo: 'linha-transferencia' },
             
             { id: 'calc', nome: 'SALDO CALCULADO', tipo: 'linha-destaque', readOnly: true },
@@ -190,15 +236,11 @@
             { id: 'seg', nome: 'SALDO SEGURO', tipo: 'linha-destaque', readOnly: true }
         ];
 
-        // GESTÃO DO BANCO E ABAS
         let diasCadastrados = ['Hoje'];
         let diaAtivo = 'Hoje';
-        
-        // Estrutura atualizada abraça dinamicamente as empresas
         let dadosPorDia = { 'Hoje': {} };
         Object.keys(empresasConfig).forEach(e => dadosPorDia['Hoje'][e] = {});
 
-        // RENDERIZAÇÃO DAS ABAS DE EMPRESAS
         function renderTabsEmpresas() {
             const container = document.getElementById('nav-empresas-container');
             let html = '';
@@ -210,7 +252,6 @@
 
         function renderTabsDias() {
             const container = document.getElementById('nav-dias-container');
-            
             let html = diasCadastrados.map(d => `
                 <div class="dia-btn ${d === diaAtivo ? 'active' : ''}" onclick="mudarDia('${d}')">
                     <span ondblclick="event.stopPropagation(); renomearDia('${d}')">${d}</span>
@@ -228,10 +269,6 @@
 
             container.innerHTML = html;
         }
-
-        // ==========================================
-        // LÓGICA DE TROCA DE EMPRESAS E SALVAMENTO
-        // ==========================================
 
         function mudarEmpresa(novaEmpresa) {
             salvarEstado(); 
@@ -256,6 +293,12 @@
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${idx}`);
                     if(el) estado[idx][l.id] = el.innerText;
+                    
+                    // Salva também o banco escolhido na aplicação/resgate
+                    if(l.tipo === 'linha-banco') {
+                        let sel = document.getElementById(`banco-${l.id}-${idx}`);
+                        if(sel) estado[idx][`banco-${l.id}`] = sel.value;
+                    }
                 });
             });
             dadosPorDia[diaAtivo][empresaAtiva] = estado;
@@ -270,6 +313,11 @@
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${idx}`);
                     if(el) el.innerText = (estadoEmpresa[idx] && estadoEmpresa[idx][l.id]) ? estadoEmpresa[idx][l.id] : "0,00";
+                    
+                    if(l.tipo === 'linha-banco') {
+                        let sel = document.getElementById(`banco-${l.id}-${idx}`);
+                        if(sel) sel.value = (estadoEmpresa[idx] && estadoEmpresa[idx][`banco-${l.id}`]) ? estadoEmpresa[idx][`banco-${l.id}`] : "";
+                    }
                 });
                 recalcularColuna(idx);
             });
@@ -280,57 +328,47 @@
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${idx}`);
                     if(el) el.innerText = "0,00";
+                    if(l.tipo === 'linha-banco') {
+                        let sel = document.getElementById(`banco-${l.id}-${idx}`);
+                        if(sel) sel.value = "";
+                    }
                 });
             });
         }
 
         // ==========================================
-        // FUNÇÕES DAS ABAS (CRIAR, RENOMEAR, RESTAURAR)
+        // FUNÇÕES DAS ABAS
         // ==========================================
 
         function abrirNovoDia() {
-            let nomeDia = prompt("Digite o nome ou data do novo caixa (Ex: 14/03 ou Fechamento):");
+            let nomeDia = prompt("Digite o nome ou data do novo caixa:");
             if (!nomeDia || nomeDia.trim() === "") return;
             nomeDia = nomeDia.trim();
 
-            if (diasCadastrados.includes(nomeDia)) {
-                alert("Esta guia já está aberta na tela.");
-                mudarDia(nomeDia);
-                return;
-            }
+            if (diasCadastrados.includes(nomeDia)) { alert("Guia já aberta."); mudarDia(nomeDia); return; }
 
             salvarEstado(); 
-            
             if(!dadosPorDia[nomeDia]) {
                 dadosPorDia[nomeDia] = {};
-                
                 Object.keys(empresasConfig).forEach(emp => {
                     dadosPorDia[nomeDia][emp] = {};
                     let estadoAntigo = (dadosPorDia[diaAtivo] && dadosPorDia[diaAtivo][emp]) ? dadosPorDia[diaAtivo][emp] : {};
-                    
                     empresasConfig[emp].forEach((c, idx) => {
                         dadosPorDia[nomeDia][emp][idx] = {};
-                        let calcHoje = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
-                        dadosPorDia[nomeDia][emp][idx]['si'] = calcHoje;
+                        dadosPorDia[nomeDia][emp][idx]['si'] = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
                     });
                 });
             }
 
-            diasCadastrados.push(nomeDia);
-            diaAtivo = nomeDia;
-            carregarEstado();
-            renderTabsDias();
+            diasCadastrados.push(nomeDia); diaAtivo = nomeDia;
+            carregarEstado(); renderTabsDias();
         }
 
         function renomearDia(nomeAtual) {
             let novoNome = prompt(`Renomear guia [${nomeAtual}] para:`, nomeAtual);
             if (!novoNome || novoNome.trim() === "" || novoNome === nomeAtual) return;
             novoNome = novoNome.trim();
-
-            if (dadosPorDia[novoNome] || diasCadastrados.includes(novoNome)) {
-                alert("Já existe uma guia ou registro no banco com esse nome. Escolha outro.");
-                return;
-            }
+            if (dadosPorDia[novoNome] || diasCadastrados.includes(novoNome)) { alert("Nome já existe."); return; }
 
             salvarEstado(); 
             dadosPorDia[novoNome] = dadosPorDia[nomeAtual];
@@ -338,23 +376,15 @@
 
             let index = diasCadastrados.indexOf(nomeAtual);
             if (index !== -1) diasCadastrados[index] = novoNome;
-
             if (diaAtivo === nomeAtual) diaAtivo = novoNome;
-
             renderTabsDias();
         }
 
-        function mudarDia(novoDia) {
-            salvarEstado();
-            diaAtivo = novoDia;
-            carregarEstado();
-            renderTabsDias();
-        }
+        function mudarDia(novoDia) { salvarEstado(); diaAtivo = novoDia; carregarEstado(); renderTabsDias(); }
 
         function fecharAba(diaParaFechar) {
             salvarEstado(); 
             diasCadastrados = diasCadastrados.filter(d => d !== diaParaFechar); 
-            
             if (diaAtivo === diaParaFechar) {
                 diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null;
                 carregarEstado();
@@ -364,38 +394,20 @@
 
         function abrirGuiaOculta() {
             let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
-            
-            if(guiasOcultas.length === 0) {
-                alert("Não há nenhuma guia oculta salva no banco no momento.");
-                return;
-            }
-            
+            if(guiasOcultas.length === 0) { alert("Nenhuma guia oculta."); return; }
             let lista = guiasOcultas.map((d, i) => `${i + 1} - ${d}`).join('\n');
-            let escolha = prompt(`Qual guia você quer restaurar? Digite o NÚMERO correspondente:\n\n${lista}`);
-            
+            let escolha = prompt(`Qual guia restaurar? Digite o NÚMERO:\n\n${lista}`);
             if(!escolha) return;
-            
             let nomeParaRestaurar = guiasOcultas.find(d => d === escolha || (guiasOcultas.indexOf(d) + 1).toString() === escolha);
-            
-            if(nomeParaRestaurar) {
-                salvarEstado(); 
-                diasCadastrados.push(nomeParaRestaurar); 
-                diaAtivo = nomeParaRestaurar;
-                carregarEstado();
-                renderTabsDias();
-            } else {
-                alert("Opção inválida. Nenhuma guia restaurada.");
-            }
+            if(nomeParaRestaurar) { salvarEstado(); diasCadastrados.push(nomeParaRestaurar); diaAtivo = nomeParaRestaurar; carregarEstado(); renderTabsDias(); }
         }
 
         function excluirDiaDoBanco() {
-            if(confirm(`ATENÇÃO!\nTem certeza que deseja EXCLUIR DEFINITIVAMENTE todos os registros da competência [${diaAtivo}] do banco de dados?`)) {
+            if(confirm(`ATENÇÃO! Excluir a competência [${diaAtivo}]?`)) {
                 delete dadosPorDia[diaAtivo]; 
                 diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
-                
                 diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null;
-                carregarEstado();
-                renderTabsDias();
+                carregarEstado(); renderTabsDias();
             }
         }
 
@@ -403,24 +415,41 @@
         // RENDERIZAÇÃO DA TABELA E CÁLCULOS
         // ==========================================
 
+        const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
+
         function renderTabela() {
             const h = document.getElementById('h-contas');
             const b = document.getElementById('b-caixa');
-            h.innerHTML = `<tr><th class="col-categoria"></th>${contas.map(c => `<th>${c.b}<br>${c.c}</th>`).join('')}</tr>`;
+            
+            // CABEÇALHO CORRIGIDO COM NOME CATEGORIAS
+            h.innerHTML = `<tr><th class="col-categoria">Categorias / Contas</th>${contas.map(c => `<th>${c.b}<br><span style="font-weight:normal;">${c.c}</span></th>`).join('')}</tr>`;
             
             b.innerHTML = plano.map(l => {
                 const isBgLine = (l.tipo === 'bg-total-entradas' || l.tipo === 'bg-total-saidas');
-                const isIndent = (l.tipo === 'item');
+                const isIndent = (l.tipo === 'item' || l.tipo === 'linha-banco');
                 const noInputClass = l.readOnly ? 'no-input' : '';
                 
                 return `<tr>
                     <td class="col-categoria ${l.tipo} ${isIndent ? 'indent' : ''}">${l.nome}</td>
                     ${contas.map((c, i) => {
+                        
+                        // LINHA APLICAÇÃO OU RESGATE (COM SELECT DO BANCO)
+                        if (l.tipo === 'linha-banco') {
+                            return `<td><div class="cell-wrapper">
+                                    <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
+                                    <select id="banco-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;" onchange="salvarEstado()">
+                                        <option value="">Banco Destino/Origem...</option>
+                                        ${listaBancosPadrao.map(bco => `<option value="${bco}">${bco}</option>`).join('')}
+                                    </select>
+                                    <input type="text" class="input-lancar" placeholder="Valor" onkeypress="lancar(event, '${l.id}', ${i})">
+                                </div></td>`;
+                        }
+                        
                         if (l.tipo === 'linha-transferencia') {
                             return `<td><div class="cell-wrapper">
                                     <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
                                     <select id="sel-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;">
-                                        <option value="">Destino...</option>
+                                        <option value="">Conta Destino...</option>
                                         ${contas.map((ct, idx) => idx !== i ? `<option value="${idx}">${ct.b} ${ct.c.split('/')[1]}</option>` : '').join('')}
                                     </select>
                                     <input type="text" class="input-lancar" placeholder="Valor + Enter" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
@@ -448,21 +477,28 @@
         }
 
         function recalcularColuna(idx) {
+            // SOMAS ENTRADAS
             let sc = getV('c1',idx) + getV('c2',idx) + getV('c3',idx) + getV('c4',idx) + getV('c5',idx); setV('sc', idx, sc);
             let sco = getV('co1',idx) + getV('co2',idx); setV('sco', idx, sco);
             let so = getV('o1',idx) + getV('o2',idx) + getV('o3',idx) + getV('o4',idx) + getV('o5',idx) + getV('o6',idx) + getV('o7',idx) + getV('o8',idx); setV('so', idx, so);
             let sf = getV('f1',idx) + getV('f2',idx); setV('sf', idx, sf);
-            let sint = getV('i1',idx) + getV('i2',idx) + getV('i3',idx); setV('sint', idx, sint);
             
-            let te = sc + sco + so + sf + sint + getV('m1',idx) + getV('a1',idx) + getV('tr',idx); setV('te', idx, te);
+            // MÚTUO E APORTE AGORA COMPÕEM O SINT
+            let sint = getV('i1',idx) + getV('i2',idx) + getV('i3',idx) + getV('m1',idx) + getV('a1',idx); setV('sint', idx, sint);
+            
+            // 'm1' e 'a1' removidos da raiz pois já estão no sint
+            let te = sc + sco + so + sf + sint + getV('tr',idx); setV('te', idx, te);
 
+            // SOMAS SAÍDAS
             let sfor = getV('s1',idx) + getV('s2',idx) + getV('s3',idx) + getV('s4',idx) + getV('s5',idx) + getV('s6',idx) + getV('s7',idx); setV('sfor', idx, sfor);
             let ssal = getV('sa1',idx) + getV('sa2',idx); setV('ssal', idx, ssal);
             let ssout = getV('so1',idx) + getV('so2',idx) + getV('so3',idx) + getV('so4',idx) + getV('so5',idx) + getV('so6',idx) + getV('so7',idx) + getV('so8',idx); setV('ssout', idx, ssout);
             let ssfin = getV('sfi1',idx) + getV('sfi2',idx) + getV('sfi3',idx) + getV('sfi4',idx) + getV('sfi5',idx); setV('ssfin', idx, ssfin);
-            let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx); setV('ssint', idx, ssint);
+            
+            // MÚTUO E APORTE AGORA COMPÕEM O SSINT
+            let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx) + getV('smut',idx) + getV('sapo',idx); setV('ssint', idx, ssint);
 
-            let tsai = sfor + ssal + ssout + ssfin + ssint + getV('smut',idx) + getV('sapo',idx) + getV('sviv',idx) + getV('scri',idx) + getV('stenv',idx); setV('tsai', idx, tsai);
+            let tsai = sfor + ssal + ssout + ssfin + ssint + getV('sviv',idx) + getV('scri',idx) + getV('stenv',idx); setV('tsai', idx, tsai);
 
             let si = getV('si', idx);
             let calc = si + te - tsai; setV('calc', idx, calc);
@@ -475,7 +511,13 @@
             if(e.key === 'Enter') {
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v)) return;
-                setV(lid, cidx, getV(lid, cidx) + v);
+                
+                if (lid === 'marg') {
+                    setV(lid, cidx, v); // Substitui a margem
+                } else {
+                    setV(lid, cidx, getV(lid, cidx) + v); // Acumula o resto
+                }
+                
                 e.target.parentElement.parentElement.classList.add('flash');
                 setTimeout(() => e.target.parentElement.parentElement.classList.remove('flash'), 500);
                 e.target.value = "";
@@ -484,15 +526,13 @@
             }
         }
 
-        // LÓGICA DE TRANSFERÊNCIA (ACEITA NEGATIVOS PARA REVERSÃO)
         function lancarTransferencia(e, fromIdx, lid) {
             if(e.key === 'Enter') {
                 const selectDestino = document.getElementById(`sel-${lid}-${fromIdx}`);
                 const toIdx = selectDestino.value;
                 if(toIdx === "") { alert("Selecione o destino primeiro."); return; }
-                
                 const v = parseFloat(e.target.value.replace(',', '.'));
-                if(isNaN(v) || v === 0) return; // Agora aceita números negativos sem travar
+                if(isNaN(v) || v === 0) return; 
                 
                 setV(lid, fromIdx, getV(lid, fromIdx) + v);
                 setV('tr', toIdx, getV('tr', toIdx) + v);
@@ -509,6 +549,91 @@
                 recalcularColuna(fromIdx); recalcularColuna(toIdx);
                 salvarEstado();
             }
+        }
+
+        // ==========================================
+        // FUNÇÃO DE RESUMO DO DIA (APLICAÇÕES/RESGATES)
+        // ==========================================
+        function abrirResumo() {
+            salvarEstado(); // Garante cálculos recentes
+            document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
+            
+            let html = '';
+            let diaDados = dadosPorDia[diaAtivo];
+            if(!diaDados) return;
+
+            // Varre todas as empresas do dia
+            Object.keys(empresasConfig).forEach(emp => {
+                let empDados = diaDados[emp];
+                if(!empDados) return;
+
+                let totalEntradas = 0;
+                let totalSaidas = 0;
+                let operacoes = [];
+
+                empresasConfig[emp].forEach((c, idx) => {
+                    let contaDados = empDados[idx] || {};
+                    
+                    // Pega Totais gerais
+                    let te = parseFloat((contaDados['te'] || '0').replace(/\./g,'').replace(',','.')) || 0;
+                    let ts = parseFloat((contaDados['tsai'] || '0').replace(/\./g,'').replace(',','.')) || 0;
+                    totalEntradas += te;
+                    totalSaidas += ts;
+
+                    // Verifica Resgate (Entrada, id='o3')
+                    let valResgate = parseFloat((contaDados['o3'] || '0').replace(/\./g,'').replace(',','.')) || 0;
+                    if(valResgate !== 0) {
+                        operacoes.push({
+                            op: 'Resgate (Entrada)', 
+                            contaOrigem: c.b + ' ' + c.c.split('/')[1],
+                            bancoDestino: contaDados['banco-o3'] || 'Não selecionado',
+                            valor: valResgate
+                        });
+                    }
+
+                    // Verifica Aplicação (Saída, id='so7')
+                    let valAplic = parseFloat((contaDados['so7'] || '0').replace(/\./g,'').replace(',','.')) || 0;
+                    if(valAplic !== 0) {
+                        operacoes.push({
+                            op: 'Aplicação (Saída)', 
+                            contaOrigem: c.b + ' ' + c.c.split('/')[1],
+                            bancoDestino: contaDados['banco-so7'] || 'Não selecionado',
+                            valor: valAplic
+                        });
+                    }
+                });
+
+                // Só mostra a empresa se ela teve alguma movimentação
+                if (totalEntradas > 0 || totalSaidas > 0 || operacoes.length > 0) {
+                    html += `
+                        <h3 style="color:var(--primary); margin-bottom: 5px;">🏢 Empresa: ${emp}</h3>
+                        <div style="display:flex; gap: 20px; font-weight:bold; margin-bottom: 15px;">
+                            <span style="color:var(--azul-entrada)">Total Entradas: R$ ${totalEntradas.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+                            <span style="color:var(--vermelho-saida)">Total Saídas: R$ ${totalSaidas.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+                        </div>
+                    `;
+                    
+                    if (operacoes.length > 0) {
+                        html += `<table class="resumo-table">
+                                    <tr><th>Ref. Conta (Sua)</th><th>Operação</th><th>Banco Alvo</th><th>Valor R$</th></tr>`;
+                        operacoes.forEach(o => {
+                            html += `<tr>
+                                        <td>${o.contaOrigem}</td>
+                                        <td><strong>${o.op}</strong></td>
+                                        <td>${o.bancoDestino}</td>
+                                        <td>R$ ${o.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                                     </tr>`;
+                        });
+                        html += `</table>`;
+                    } else {
+                        html += `<p style="font-size:11px; color:#666;">* Nenhuma aplicação ou resgate registrado para esta empresa.</p>`;
+                    }
+                    html += `<hr style="border:0; border-top:1px dashed #ccc; margin: 20px 0;">`;
+                }
+            });
+
+            document.getElementById('resumo-content').innerHTML = html || "<p>Nenhuma movimentação ou saldo neste dia.</p>";
+            document.getElementById('modal-resumo').style.display = 'block';
         }
 
         // START
