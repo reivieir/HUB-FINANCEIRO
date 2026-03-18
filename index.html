@@ -96,9 +96,9 @@
 
 /* 1. Conciliação e Gestão de Bancos em 70% */
 #conciliacao iframe, #bancos iframe {
-    width: 142.85% !important; /* 100 / 0.7 = 142.85% (Compensa o encolhimento) */
+    width: 142.85% !important; /* 100 / 0.85 = 142.85% (Compensa o encolhimento) */
     height: calc((100vh - 120px) * 1.4285) !important; /* Compensa a altura */
-    transform: scale(0.7);
+    transform: scale(0.85);
     transform-origin: top left; /* Garante que o zoom encolha em direção ao topo esquerdo */
     border: none;
     border-radius: 12px; /* Ajuste visual para a borda não ficar pontiaguda no scale */
@@ -106,8 +106,8 @@
 
 /* 2. Gestão de Caixa em 100% (Sem redução) */
 .tab-caixa iframe {
-    width: 100% !important;
-    height: 100% !important;
+    width: 90% !important;
+    height: 90% !important;
     transform: none !important; /* Garante que não sofra nenhuma alteração */
 }
     </style>
