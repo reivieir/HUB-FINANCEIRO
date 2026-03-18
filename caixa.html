@@ -15,31 +15,30 @@
             --vermelho-saida: #ef4444;
         }
         
-        /* ESTRATÉGIA DEFINITIVA PARA TELA CHEIA */
-        html, body { 
+        /* ESTRUTURA À PROVA DE FALHAS (100vh) */
+        body { 
             margin: 0; padding: 0;
-            width: 100%; height: 100%; /* Força a ocupar 100% da janela real */
+            height: 100vh; width: 100%; 
             font-family: 'Segoe UI', Arial, sans-serif; 
             background: var(--bg); color: var(--text); 
-            display: flex; flex-direction: column; 
-            overflow: hidden; /* Trava a rolagem na página inteira, liberando só na tabela */
+            overflow: hidden; /* Trava a rolagem externa */
         }
 
-        /* BARRAS SUPERIORES (Tamanhos travados com flex: 0 0) */
+        /* BARRAS FIXAS */
         .header-blue {
             background-color: var(--primary); color: white;
             padding: 0 20px; display: flex; justify-content: space-between; align-items: center;
-            flex: 0 0 38px; box-sizing: border-box; font-size: 12px;
+            height: 40px; box-sizing: border-box; font-size: 12px;
         }
 
         .nav-dias {
             background: #e2e8f0; display: flex; align-items: center;
-            padding: 0 15px; gap: 8px; flex: 0 0 35px; border-bottom: 1px solid var(--border);
-            overflow-x: auto;
+            padding: 0 15px; gap: 8px; height: 36px; border-bottom: 1px solid var(--border);
+            overflow-x: auto; box-sizing: border-box;
         }
         .dia-btn {
             display: flex; align-items: center; gap: 6px;
-            padding: 2px 8px; border-radius: 4px; background: white; border: 1px solid var(--border);
+            padding: 3px 8px; border-radius: 4px; background: white; border: 1px solid var(--border);
             font-size: 11px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s; white-space: nowrap;
         }
         .dia-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -56,40 +55,38 @@
 
         .nav-empresas {
             display: flex; background: white; border-bottom: 1px solid var(--border);
-            overflow-x: auto; padding: 3px 15px 0 15px; flex: 0 0 32px; box-sizing: border-box;
+            overflow-x: auto; padding: 0 15px; height: 34px; align-items: center; box-sizing: border-box;
         }
         .tab-btn {
-            padding: 4px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0;
+            padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0;
             font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase;
         }
         .tab-btn.active { background: var(--bg); border-color: var(--border); color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* GRID CONTAINER (Forçado a esticar até embaixo) */
+        /* GRID CONTAINER (Cálculo matemático exato do espaço restante: 100vh - 110px) */
         .grid-container { 
-            flex: 1 1 100%; /* Empurra até o rodapé da tela */
-            overflow: auto; /* Rolagem liberada aqui dentro */
-            background: white; position: relative; 
+            height: calc(100vh - 110px); 
+            overflow: auto; background: white; position: relative; 
         }
         
+        /* TABELA COM ROLAGEM HORIZONTAL E LINHAS COMPACTAS */
         table { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; font-size: 10px; }
         
-        /* CÉLULAS MAIS COMPACTAS (Reduzido o padding vertical para caber mais linhas) */
         th, td { 
-            border: 1px solid var(--border); padding: 1px 4px; 
-            min-width: 130px; box-sizing: border-box; vertical-align: middle; background: white; 
-            height: 22px; /* Altura mínima reduzida */
+            border: 1px solid var(--border); padding: 2px 4px; 
+            min-width: 135px; box-sizing: border-box; vertical-align: middle; background: white; 
         }
 
         .col-categoria {
             position: sticky; left: 0; z-index: 11; background: white;
             min-width: 250px; text-align: left; border-right: 2px solid var(--border) !important;
         }
-        thead th { background: #f1f5f9; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border); color: var(--primary); padding: 3px; }
+        thead th { background: #f1f5f9; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border); color: var(--primary); padding: 4px; }
         thead th.col-categoria { z-index: 12; background: #e2e8f0; text-align: center; }
 
         .cell-wrapper { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
-        .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 0px; line-height: 1.2; }
-        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 1px 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc; margin-top: 1px; }
+        .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 1px; }
+        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc; }
         .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
 
         .bg-total-entradas { background-color: var(--azul-entrada) !important; color: white !important; font-weight: bold; }
@@ -296,6 +293,7 @@
                     let el = document.getElementById(`val-${l.id}-${idx}`);
                     if(el) {
                         estado[idx][l.id] = el.innerText;
+                        
                         if(l.id === 'o3' || l.id === 'so7') {
                             estado[idx][`pendente-${l.id}`] = el.getAttribute('data-pendente') || "0";
                         }
