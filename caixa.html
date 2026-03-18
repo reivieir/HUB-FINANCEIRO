@@ -15,17 +15,16 @@
             --vermelho-saida: #ef4444;
         }
         
-        /* ESTRUTURA À PROVA DE FALHAS PARA O HUB FINANCEIRO */
+        /* O body interno também estica até 100% do iframe */
         html, body { 
             margin: 0; padding: 0;
             height: 100%; width: 100%; 
             font-family: 'Segoe UI', Arial, sans-serif; 
             background: var(--bg); color: var(--text); 
             display: flex; flex-direction: column; 
-            overflow: hidden; /* Trava a rolagem externa */
+            overflow: hidden; 
         }
 
-        /* BARRAS FIXAS NO TOPO */
         .header-blue {
             background-color: var(--primary); color: white;
             padding: 0 20px; display: flex; justify-content: space-between; align-items: center;
@@ -64,20 +63,16 @@
         }
         .tab-btn.active { background: var(--bg); border-color: var(--border); color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* A MÁGICA ACONTECE AQUI: flex: 1 com min-height: 0 estica até o limite exato sem quebrar iframes */
+        /* CONTAINER DA TABELA: Ocupa todo o resto da tela verticalmente! */
         .grid-container { 
-            flex: 1; 
-            min-height: 0; 
-            overflow: auto; background: white; position: relative; 
+            flex: 1; /* Estica magicamente sem calcular alturas */
+            min-height: 0; /* Previne estouro do layout flex */
+            overflow: auto; 
+            background: white; position: relative; 
         }
         
-        /* TABELA COMPACTA E ROLÁVEL */
         table { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; font-size: 10px; }
-        
-        th, td { 
-            border: 1px solid var(--border); padding: 2px 4px; 
-            min-width: 135px; box-sizing: border-box; vertical-align: middle; background: white; 
-        }
+        th, td { border: 1px solid var(--border); padding: 2px 4px; min-width: 135px; box-sizing: border-box; vertical-align: middle; background: white; }
 
         .col-categoria {
             position: sticky; left: 0; z-index: 11; background: white;
@@ -295,7 +290,6 @@
                     let el = document.getElementById(`val-${l.id}-${idx}`);
                     if(el) {
                         estado[idx][l.id] = el.innerText;
-                        
                         if(l.id === 'o3' || l.id === 'so7') {
                             estado[idx][`pendente-${l.id}`] = el.getAttribute('data-pendente') || "0";
                         }
