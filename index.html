@@ -1,183 +1,138 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hub Financeiro - Dexco</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Financeiro - Dexco</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* AJUSTE DE VISUALIZAÇÃO CORRIGIDO */
+        html {
+            height: 100%;
+            overflow: hidden; 
+        }
 
-<style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            zoom: 0.8; 
+            display: flex;
+            background-color: #f8fafc;
+        }
 
-html, body {
-    height: 100%;
-}
+        /* Garante que o conteúdo ocupe o espaço correto e os iframes fiquem limpos */
+        .tab-content iframe {
+            width: 100%;
+            height: calc(100vh - 120px);
+            border: none;
+            border-radius: 8px;
+            background-color: #f8fafc;
+        }
+        
+        .tab-content { 
+            display: none; 
+            padding: 10px; 
+            width: 100%; 
+            box-sizing: border-box;
+            height: 100%; /* Adicionado para preencher o container */
+        }
+        
+        .tab-content.active { 
+            display: block; 
+        }
 
-body {
-    display: flex;
-    background-color: #f8fafc;
-}
+        /* AJUSTE ESPECÍFICO PARA O CHAT NÃO CORTAR */
+        #chat-tab.active {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px); /* Ajuste para o zoom de 80% */
+        }
 
-/* SIDEBAR */
-.sidebar {
-    width: 250px;
-    background-color: #1e293b;
-    color: white;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-}
+        .chat-messages-full {
+            flex: 1; /* Faz as mensagens ocuparem o espaço central */
+            overflow-y: auto; /* Habilita a rolagem se o texto for longo */
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
 
-.sidebar h2 {
-    margin-bottom: 30px;
-    border-bottom: 1px solid #334155;
-    padding-bottom: 10px;
-}
+        .chat-header-full {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
 
-.nav-btn {
-    background: none;
-    border: none;
-    color: #cbd5e1;
-    padding: 12px;
-    text-align: left;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
+        .chat-input-full {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
 
-.nav-btn:hover,
-.nav-btn.active {
-    background-color: #334155;
-    color: white;
-}
+        .chat-input-full input {
+            flex: 1;
+        }
 
-/* CONTEÚDO */
-.content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-}
-
-/* TABS */
-.tab-content {
-    display: none;
-    flex: 1;
-    width: 100%;
-    height: 100%;
-}
-
-.tab-content.active {
-    display: flex;
-}
-
-/* IFRAME */
-.tab-content iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-/* CHAT */
-.chat-layout {
-    display: none;
-    flex-direction: column;
-    height: 100%;
-}
-
-.chat-layout.active {
-    display: flex;
-}
-
-.chat-header {
-    padding: 20px;
-    background: white;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.chat-messages {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-}
-
-.chat-input {
-    display: flex;
-    padding: 10px;
-    background: white;
-    border-top: 1px solid #e2e8f0;
-}
-
-.chat-input input {
-    flex: 1;
-    padding: 10px;
-}
-
-.chat-input button {
-    padding: 10px;
-    background: #2563eb;
-    color: white;
-    border: none;
-}
-</style>
+        .content {
+            flex: 1;
+            overflow-x: hidden; 
+        }
+    </style>
 </head>
-
 <body>
 
-<aside class="sidebar">
-    <h2>Hub Financeiro</h2>
+    <aside class="sidebar">
+        <h2>Hub Financeiro</h2>
+        <nav>
+            <button class="nav-btn active" onclick="showTab('conciliacao')">Conciliação Bancária</button>
+            <button class="nav-btn" onclick="showTab('bancos')">Gestão de Bancos</button>
+            <button class="nav-btn" onclick="showTab('caixa')">Gestão de Caixa</button>
+            <button class="nav-btn" onclick="showTab('protestos')">Protestos</button>
+            <hr style="border: 0; border-top: 1px solid #334155; margin: 15px 0;">
+            <button class="nav-btn" onclick="showTab('chat-tab')">🤖 Assistente IA</button>
+        </nav>
+    </aside>
 
-    <button class="nav-btn active" onclick="showTab('conciliacao')">Conciliação</button>
-    <button class="nav-btn" onclick="showTab('bancos')">Bancos</button>
-    <button class="nav-btn" onclick="showTab('caixa')">Caixa</button>
-    <button class="nav-btn" onclick="showTab('chat')">Chat IA</button>
-</aside>
-
-<main class="content">
-
-    <div id="conciliacao" class="tab-content active">
-        <iframe src="conciliacao.html"></iframe>
-    </div>
-
-    <div id="bancos" class="tab-content">
-        <iframe src="https://bank-management-lime.vercel.app/"></iframe>
-    </div>
-
-    <div id="caixa" class="tab-content">
-        <iframe src="caixa.html"></iframe>
-    </div>
-
-    <div id="chat" class="tab-content chat-layout">
-        <div class="chat-header">Assistente IA</div>
-        <div class="chat-messages">Olá! Como posso ajudar?</div>
-        <div class="chat-input">
-            <input type="text">
-            <button>Enviar</button>
+    <main class="content">
+        
+        <div id="conciliacao" class="tab-content active">
+            <iframe src="conciliacao.html"></iframe>
         </div>
-    </div>
 
-</main>
+        <div id="bancos" class="tab-content">
+            <iframe src="https://bank-management-lime.vercel.app/"></iframe>
+        </div>
 
-<script>
-function showTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
+       <div id="caixa" class="tab-content tab-caixa">
+    <iframe src="caixa.html"></iframe>
+</div>
 
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+        <div id="protestos" class="tab-content">
+            <h1>Protestos</h1>
+            <p>Procedimentos para baixas, cartas de anuência e negociações.</p>
+        </div>
 
-    document.getElementById(tabId).classList.add('active');
+        <div id="chat-tab" class="tab-content">
+            <div class="chat-header-full">
+                <h2>Assistente Financeiro IA</h2>
+                <button class="new-chat-btn" onclick="novoChat()">+ Novo Chat</button>
+            </div>
+            <div id="chatMessages" class="chat-messages-full">
+                <p class="ai-message">Olá! Sou o assistente do Hub. Como posso ajudar hoje?</p>
+            </div>
+            <div class="chat-input-full">
+                <input type="text" id="userInput" placeholder="Digite sua dúvida..." onkeypress="enviarComEnter(event)">
+                <button onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
 
-    event.target.classList.add('active');
-}
-</script>
+    </main>
 
+    <script src="js/app.js"></script>
 </body>
 </html>
