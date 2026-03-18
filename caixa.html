@@ -70,7 +70,7 @@
             width: 250px; text-align: left; border-right: 2px solid var(--border) !important;
         }
 
-        /* O CABEÇALHO AGORA FICA ACIMA DAS CÉLULAS E COM FUNDO CINZA CLARO */
+        /* Cabeçalho passa por cima das linhas */
         thead th { 
             background: #f1f5f9; 
             position: sticky; top: 0; z-index: 10; 
@@ -78,7 +78,6 @@
             color: var(--primary); 
         }
 
-        /* O canto superior esquerdo (Categorias/Contas) precisa do maior z-index para não ser sobreposto */
         thead th.col-categoria { z-index: 12; background: #e2e8f0; text-align: center; }
 
         /* INPUTS E VALORES */
@@ -93,6 +92,12 @@
         /* ESTILOS FIÉIS À PLANILHA */
         .bg-total-entradas { background-color: var(--azul-entrada) !important; color: white !important; font-weight: bold; }
         .bg-total-saidas { background-color: var(--vermelho-saida) !important; color: white !important; font-weight: bold; }
+        
+        /* ESTILOS DO RODAPÉ (SALDO E MARGEM) */
+        .bg-saldo-calculado { background-color: #0284c7 !important; color: white !important; font-weight: bold; }
+        .bg-margem-segura { background-color: #f1f5f9 !important; font-weight: bold; }
+        .bg-saldo-seguro { background-color: #1e293b !important; color: white !important; font-weight: bold; }
+        
         .linha-destaque { font-weight: bold; background: white; }
         .grupo-soma { font-weight: normal; text-transform: uppercase; background: white; }
         .indent { padding-left: 20px !important; }
@@ -107,11 +112,13 @@
 
         /* MODAL DE RESUMO */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 800px; border-radius: 8px; max-height: 80vh; overflow-y: auto;}
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 900px; border-radius: 8px; max-height: 80vh; overflow-y: auto;}
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .resumo-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
-        .resumo-table th, .resumo-table td { border: 1px solid #ddd; padding: 6px; text-align: left; }
-        .resumo-table th { background-color: #f1f5f9; color: var(--primary); }
+        
+        .resumo-table-print { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 8px; }
+        .resumo-table-print th { background-color: var(--primary); color: white; }
+        .resumo-table-print tfoot th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -124,11 +131,9 @@
         </div>
     </div>
 
-    <div class="nav-dias" id="nav-dias-container">
-        </div>
+    <div class="nav-dias" id="nav-dias-container"></div>
 
-    <div class="nav-empresas" id="nav-empresas-container">
-        </div>
+    <div class="nav-empresas" id="nav-empresas-container"></div>
 
     <div class="grid-container">
         <table>
@@ -181,7 +186,7 @@
         let empresaAtiva = 'BRDX';
         let contas = empresasConfig[empresaAtiva];
 
-        // PLANO DE CONTAS ATUALIZADO (Aportes/Mútuo viraram "item" dentro de Intercompany)
+        // PLANO DE CONTAS ATUALIZADO 
         const plano = [
             { id: 'si', nome: 'SALDO INICIAL :', tipo: 'linha-destaque', readOnly: false },
             { id: 'te', nome: 'TOTAL ENTRADAS', tipo: 'bg-total-entradas', readOnly: true },
@@ -191,15 +196,12 @@
             { id: 'co1', nome: 'Concur', tipo: 'item' }, { id: 'co2', nome: 'Salários', tipo: 'item' },
             { id: 'so', nome: 'SOMA OUTROS', tipo: 'grupo-soma', readOnly: true },
             { id: 'o1', nome: 'Deposito Outros', tipo: 'item' }, { id: 'o2', nome: 'Desbloqueio Judicial', tipo: 'item' }, 
-            
-            // LINHA RESGATE COM DROPDOWN
             { id: 'o3', nome: 'Resgate', tipo: 'linha-banco' }, 
-            
             { id: 'o4', nome: 'Pagamento Fundação', tipo: 'item' }, { id: 'o5', nome: 'Rateio de Condominio - CRCC', tipo: 'item' }, { id: 'o6', nome: 'Venda de Ativos - Facilities', tipo: 'item' }, { id: 'o7', nome: 'CCEE - Energia', tipo: 'item' }, { id: 'o8', nome: 'NDF', tipo: 'item' },
             { id: 'sf', nome: 'SOMA FINANCIAMENTO', tipo: 'grupo-soma', readOnly: true },
             { id: 'f1', nome: 'Financiamento', tipo: 'item' }, { id: 'f2', nome: 'SWAP', tipo: 'item' },
             
-            // SOMA INTERCOMPANY - AGORA RECEBE MÚTUO E APORTE
+            // SOMA INTERCOMPANY
             { id: 'sint', nome: 'SOMA INTERCOMPANY', tipo: 'grupo-soma', readOnly: true },
             { id: 'i1', nome: 'Intercias', tipo: 'item' }, { id: 'i2', nome: 'Faturamento', tipo: 'item' }, { id: 'i3', nome: "Faturamento SCP's", tipo: 'item' },
             { id: 'm1', nome: 'Mutuo', tipo: 'item' }, { id: 'a1', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item' },
@@ -213,27 +215,24 @@
             { id: 'sa1', nome: 'Salários', tipo: 'item' }, { id: 'sa2', nome: 'Débito de Consignado', tipo: 'item' },
             { id: 'ssout', nome: 'SOMA OUTROS', tipo: 'grupo-soma', readOnly: true },
             { id: 'so1', nome: 'Cartão de Crédito', tipo: 'item' }, { id: 'so2', nome: 'Tarifas', tipo: 'item' }, { id: 'so3', nome: 'Comissão / Fiança', tipo: 'item' }, { id: 'so4', nome: 'Bloqueio judicial', tipo: 'item' }, { id: 'so5', nome: 'Sem Parar', tipo: 'item' }, { id: 'so6', nome: 'CRCC', tipo: 'item' }, 
-            
-            // LINHA APLICAÇÃO COM DROPDOWN
             { id: 'so7', nome: 'Aplicação', tipo: 'linha-banco' }, 
-            
             { id: 'so8', nome: 'NDF', tipo: 'item' },
             { id: 'ssfin', nome: 'SOMA FINANCIAMENTOS', tipo: 'grupo-soma', readOnly: true },
             { id: 'sfi1', nome: 'Financiamentos Principal', tipo: 'item' }, { id: 'sfi2', nome: 'Financiamentos Juros', tipo: 'item' }, { id: 'sfi3', nome: 'SWAP Principal', tipo: 'item' }, { id: 'sfi4', nome: 'SWAP Juros', tipo: 'item' }, { id: 'sfi5', nome: 'Dividendos', tipo: 'item' },
             
-            // SOMA INTERCOMPANY (SAÍDA) - AGORA RECEBE MÚTUO E APORTE
+            // SOMA INTERCOMPANY (SAÍDAS)
             { id: 'ssint', nome: 'SOMA INTERCOMPANY', tipo: 'grupo-soma', readOnly: true },
             { id: 'sin1', nome: 'Intercias', tipo: 'item' }, { id: 'sin2', nome: 'Faturamento DF', tipo: 'item' }, { id: 'sin3', nome: "Faturamento SCP's", tipo: 'item' },
             { id: 'smut', nome: 'Mutuo', tipo: 'item' }, { id: 'sapo', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item' },
             
-            // Estes dois ficam fora de intercompany pois são específicos? (Manti como root se precisar, mas coloquei como item pra identar)
             { id: 'sviv', nome: 'VIVA DECORA', tipo: 'item' }, { id: 'scri', nome: 'CRI SOMA', tipo: 'item' },
             
             { id: 'stenv', nome: 'SOMA TED D ENVIADA', tipo: 'linha-transferencia' },
             
-            { id: 'calc', nome: 'SALDO CALCULADO', tipo: 'linha-destaque', readOnly: true },
-            { id: 'marg', nome: 'MARGEM SEGURA', tipo: 'linha-destaque', readOnly: false },
-            { id: 'seg', nome: 'SALDO SEGURO', tipo: 'linha-destaque', readOnly: true }
+            // CORES E DESTAQUES DO RODAPÉ CORRIGIDOS
+            { id: 'calc', nome: 'SALDO CALCULADO', tipo: 'bg-saldo-calculado', readOnly: true },
+            { id: 'marg', nome: 'MARGEM SEGURA', tipo: 'bg-margem-segura', readOnly: false },
+            { id: 'seg', nome: 'SALDO SEGURO', tipo: 'bg-saldo-seguro', readOnly: true }
         ];
 
         let diasCadastrados = ['Hoje'];
@@ -294,7 +293,6 @@
                     let el = document.getElementById(`val-${l.id}-${idx}`);
                     if(el) estado[idx][l.id] = el.innerText;
                     
-                    // Salva também o banco escolhido na aplicação/resgate
                     if(l.tipo === 'linha-banco') {
                         let sel = document.getElementById(`banco-${l.id}-${idx}`);
                         if(sel) estado[idx][`banco-${l.id}`] = sel.value;
@@ -337,7 +335,7 @@
         }
 
         // ==========================================
-        // FUNÇÕES DAS ABAS
+        // FUNÇÕES DAS ABAS (CRIAR, RENOMEAR, RESTAURAR)
         // ==========================================
 
         function abrirNovoDia() {
@@ -421,11 +419,10 @@
             const h = document.getElementById('h-contas');
             const b = document.getElementById('b-caixa');
             
-            // CABEÇALHO CORRIGIDO COM NOME CATEGORIAS
             h.innerHTML = `<tr><th class="col-categoria">Categorias / Contas</th>${contas.map(c => `<th>${c.b}<br><span style="font-weight:normal;">${c.c}</span></th>`).join('')}</tr>`;
             
             b.innerHTML = plano.map(l => {
-                const isBgLine = (l.tipo === 'bg-total-entradas' || l.tipo === 'bg-total-saidas');
+                const isBgLine = (l.tipo === 'bg-total-entradas' || l.tipo === 'bg-total-saidas' || l.tipo === 'bg-saldo-calculado' || l.tipo === 'bg-saldo-seguro');
                 const isIndent = (l.tipo === 'item' || l.tipo === 'linha-banco');
                 const noInputClass = l.readOnly ? 'no-input' : '';
                 
@@ -433,7 +430,6 @@
                     <td class="col-categoria ${l.tipo} ${isIndent ? 'indent' : ''}">${l.nome}</td>
                     ${contas.map((c, i) => {
                         
-                        // LINHA APLICAÇÃO OU RESGATE (COM SELECT DO BANCO)
                         if (l.tipo === 'linha-banco') {
                             return `<td><div class="cell-wrapper">
                                     <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
@@ -455,7 +451,8 @@
                                     <input type="text" class="input-lancar" placeholder="Valor + Enter" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
                                 </div></td>`;
                         }
-                        return `<td class="${isBgLine ? l.tipo : ''} ${noInputClass}">
+                        
+                        return `<td class="${l.tipo} ${noInputClass}">
                             <div class="cell-wrapper">
                                 <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
                                 <input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})">
@@ -477,25 +474,18 @@
         }
 
         function recalcularColuna(idx) {
-            // SOMAS ENTRADAS
             let sc = getV('c1',idx) + getV('c2',idx) + getV('c3',idx) + getV('c4',idx) + getV('c5',idx); setV('sc', idx, sc);
             let sco = getV('co1',idx) + getV('co2',idx); setV('sco', idx, sco);
             let so = getV('o1',idx) + getV('o2',idx) + getV('o3',idx) + getV('o4',idx) + getV('o5',idx) + getV('o6',idx) + getV('o7',idx) + getV('o8',idx); setV('so', idx, so);
             let sf = getV('f1',idx) + getV('f2',idx); setV('sf', idx, sf);
-            
-            // MÚTUO E APORTE AGORA COMPÕEM O SINT
             let sint = getV('i1',idx) + getV('i2',idx) + getV('i3',idx) + getV('m1',idx) + getV('a1',idx); setV('sint', idx, sint);
             
-            // 'm1' e 'a1' removidos da raiz pois já estão no sint
             let te = sc + sco + so + sf + sint + getV('tr',idx); setV('te', idx, te);
 
-            // SOMAS SAÍDAS
             let sfor = getV('s1',idx) + getV('s2',idx) + getV('s3',idx) + getV('s4',idx) + getV('s5',idx) + getV('s6',idx) + getV('s7',idx); setV('sfor', idx, sfor);
             let ssal = getV('sa1',idx) + getV('sa2',idx); setV('ssal', idx, ssal);
             let ssout = getV('so1',idx) + getV('so2',idx) + getV('so3',idx) + getV('so4',idx) + getV('so5',idx) + getV('so6',idx) + getV('so7',idx) + getV('so8',idx); setV('ssout', idx, ssout);
             let ssfin = getV('sfi1',idx) + getV('sfi2',idx) + getV('sfi3',idx) + getV('sfi4',idx) + getV('sfi5',idx); setV('ssfin', idx, ssfin);
-            
-            // MÚTUO E APORTE AGORA COMPÕEM O SSINT
             let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx) + getV('smut',idx) + getV('sapo',idx); setV('ssint', idx, ssint);
 
             let tsai = sfor + ssal + ssout + ssfin + ssint + getV('sviv',idx) + getV('scri',idx) + getV('stenv',idx); setV('tsai', idx, tsai);
@@ -503,6 +493,7 @@
             let si = getV('si', idx);
             let calc = si + te - tsai; setV('calc', idx, calc);
             
+            // O SALDO SEGURO AGORA RECEBE O CÁLCULO DIRETO DE FORMA EXPLICITA
             let marg = getV('marg', idx);
             let seg = calc - marg; setV('seg', idx, seg); 
         }
@@ -515,7 +506,7 @@
                 if (lid === 'marg') {
                     setV(lid, cidx, v); // Substitui a margem
                 } else {
-                    setV(lid, cidx, getV(lid, cidx) + v); // Acumula o resto
+                    setV(lid, cidx, getV(lid, cidx) + v); // Acumula
                 }
                 
                 e.target.parentElement.parentElement.classList.add('flash');
@@ -552,87 +543,104 @@
         }
 
         // ==========================================
-        // FUNÇÃO DE RESUMO DO DIA (APLICAÇÕES/RESGATES)
+        // FUNÇÃO DE RESUMO DO DIA (IDÊNTICA AO PRINT)
         // ==========================================
         function abrirResumo() {
-            salvarEstado(); // Garante cálculos recentes
+            salvarEstado(); 
             document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
             
-            let html = '';
             let diaDados = dadosPorDia[diaAtivo];
             if(!diaDados) return;
 
-            // Varre todas as empresas do dia
+            // VARIÁVEIS PARA A TABELA (Idêntico ao image_e94815.png)
+            let linhasTabelaPrint = '';
+            let totalResgateGeral = 0;
+            let totalAplicacaoGeral = 0;
+            
+            // CAIXINHAS DE ENTRADA E SAÍDA (Para manter o padrão que estão acostumados)
+            let htmlTotais = '<div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom: 20px;">';
+
             Object.keys(empresasConfig).forEach(emp => {
                 let empDados = diaDados[emp];
                 if(!empDados) return;
 
-                let totalEntradas = 0;
-                let totalSaidas = 0;
-                let operacoes = [];
+                let totEntradas = 0;
+                let totSaidas = 0;
+                let totResgate = 0;
+                let totAplicacao = 0;
+                let bancosSet = new Set();
 
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = empDados[idx] || {};
                     
-                    // Pega Totais gerais
-                    let te = parseFloat((contaDados['te'] || '0').replace(/\./g,'').replace(',','.')) || 0;
-                    let ts = parseFloat((contaDados['tsai'] || '0').replace(/\./g,'').replace(',','.')) || 0;
-                    totalEntradas += te;
-                    totalSaidas += ts;
+                    totEntradas += parseFloat((contaDados['te'] || '0').replace(/\./g,'').replace(',','.')) || 0;
+                    totSaidas += parseFloat((contaDados['tsai'] || '0').replace(/\./g,'').replace(',','.')) || 0;
 
-                    // Verifica Resgate (Entrada, id='o3')
-                    let valResgate = parseFloat((contaDados['o3'] || '0').replace(/\./g,'').replace(',','.')) || 0;
-                    if(valResgate !== 0) {
-                        operacoes.push({
-                            op: 'Resgate (Entrada)', 
-                            contaOrigem: c.b + ' ' + c.c.split('/')[1],
-                            bancoDestino: contaDados['banco-o3'] || 'Não selecionado',
-                            valor: valResgate
-                        });
-                    }
+                    let resg = parseFloat((contaDados['o3'] || '0').replace(/\./g,'').replace(',','.')) || 0;
+                    let aplic = parseFloat((contaDados['so7'] || '0').replace(/\./g,'').replace(',','.')) || 0;
 
-                    // Verifica Aplicação (Saída, id='so7')
-                    let valAplic = parseFloat((contaDados['so7'] || '0').replace(/\./g,'').replace(',','.')) || 0;
-                    if(valAplic !== 0) {
-                        operacoes.push({
-                            op: 'Aplicação (Saída)', 
-                            contaOrigem: c.b + ' ' + c.c.split('/')[1],
-                            bancoDestino: contaDados['banco-so7'] || 'Não selecionado',
-                            valor: valAplic
-                        });
-                    }
+                    totResgate += resg;
+                    totAplicacao += aplic;
+
+                    if(resg > 0 && contaDados['banco-o3']) bancosSet.add(contaDados['banco-o3']);
+                    if(aplic > 0 && contaDados['banco-so7']) bancosSet.add(contaDados['banco-so7']);
                 });
 
-                // Só mostra a empresa se ela teve alguma movimentação
-                if (totalEntradas > 0 || totalSaidas > 0 || operacoes.length > 0) {
-                    html += `
-                        <h3 style="color:var(--primary); margin-bottom: 5px;">🏢 Empresa: ${emp}</h3>
-                        <div style="display:flex; gap: 20px; font-weight:bold; margin-bottom: 15px;">
-                            <span style="color:var(--azul-entrada)">Total Entradas: R$ ${totalEntradas.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
-                            <span style="color:var(--vermelho-saida)">Total Saídas: R$ ${totalSaidas.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
-                        </div>
-                    `;
-                    
-                    if (operacoes.length > 0) {
-                        html += `<table class="resumo-table">
-                                    <tr><th>Ref. Conta (Sua)</th><th>Operação</th><th>Banco Alvo</th><th>Valor R$</th></tr>`;
-                        operacoes.forEach(o => {
-                            html += `<tr>
-                                        <td>${o.contaOrigem}</td>
-                                        <td><strong>${o.op}</strong></td>
-                                        <td>${o.bancoDestino}</td>
-                                        <td>R$ ${o.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-                                     </tr>`;
-                        });
-                        html += `</table>`;
-                    } else {
-                        html += `<p style="font-size:11px; color:#666;">* Nenhuma aplicação ou resgate registrado para esta empresa.</p>`;
-                    }
-                    html += `<hr style="border:0; border-top:1px dashed #ccc; margin: 20px 0;">`;
+                // Cria o Card de Entrada/Saída da empresa
+                if(totEntradas > 0 || totSaidas > 0) {
+                    htmlTotais += `
+                    <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 5px; background: #f8fafc; min-width: 150px;">
+                        <h4 style="margin: 0 0 5px 0; color: var(--primary);">${emp}</h4>
+                        <div style="font-size: 11px; color: var(--azul-entrada);">Entradas: R$ ${totEntradas.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+                        <div style="font-size: 11px; color: var(--vermelho-saida);">Saídas: R$ ${totSaidas.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+                    </div>`;
                 }
-            });
 
-            document.getElementById('resumo-content').innerHTML = html || "<p>Nenhuma movimentação ou saldo neste dia.</p>";
+                // Cria a Linha para a Tabela de Resgate/Aplicação
+                totalResgateGeral += totResgate;
+                totalAplicacaoGeral += totAplicacao;
+                
+                let strResg = totResgate > 0 ? totResgate.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-';
+                let strAplic = totAplicacao > 0 ? totAplicacao.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-';
+                let strBanco = bancosSet.size > 0 ? Array.from(bancosSet).join(', ') : '-';
+
+                linhasTabelaPrint += `
+                    <tr>
+                        <td style="font-weight:bold;">${emp}</td>
+                        <td style="text-align: right;">${strResg}</td>
+                        <td style="text-align: right;">${strAplic}</td>
+                        <td style="text-align: center;">${strBanco}</td>
+                    </tr>
+                `;
+            });
+            htmlTotais += '</div>';
+
+            // TABELA NO FORMATO DO PRINT ENVIADO
+            let htmlTabelaPrint = `
+            <h3 style="color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 5px;">Aplicações e Resgates</h3>
+            <table class="resumo-table-print">
+                <thead>
+                    <tr>
+                        <th>Empresa</th>
+                        <th style="text-align: right;">Resgate</th>
+                        <th style="text-align: right;">Aplicação</th>
+                        <th style="text-align: center;">Banco</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${linhasTabelaPrint}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Total</th>
+                        <th style="text-align: right;">${totalResgateGeral > 0 ? totalResgateGeral.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-'}</th>
+                        <th style="text-align: right;">${totalAplicacaoGeral > 0 ? totalAplicacaoGeral.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-'}</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>`;
+
+            document.getElementById('resumo-content').innerHTML = htmlTotais + htmlTabelaPrint;
             document.getElementById('modal-resumo').style.display = 'block';
         }
 
