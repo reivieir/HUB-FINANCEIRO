@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Cash Pooling - Dexco</title>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
     <style>
         :root { 
             --primary: #002b45; 
@@ -13,35 +15,34 @@
             --vermelho-saida: #ef4444;
         }
         
-        /* Layout Elástico para Tela Cheia */
         body { 
             margin: 0; font-family: 'Segoe UI', Arial, sans-serif; 
             background: var(--bg); color: var(--text); 
-            height: 100vh; display: flex; flex-direction: column; overflow: hidden; 
+            position: absolute; top: 0; bottom: 0; left: 0; right: 0;
+            display: flex; flex-direction: column; overflow: hidden; 
         }
 
         /* HEADER */
         .header-blue {
             background-color: var(--primary); color: white;
             padding: 5px 20px; display: flex; justify-content: space-between; align-items: center;
-            height: 40px; box-sizing: border-box; font-size: 12px; flex-shrink: 0;
+            height: 38px; box-sizing: border-box; font-size: 12px; flex-shrink: 0;
         }
 
         /* NAVEGAÇÃO DE DIAS E EMPRESAS */
         .nav-dias {
             background: #e2e8f0; display: flex; align-items: center;
-            padding: 5px 15px; gap: 8px; height: 38px; border-bottom: 1px solid var(--border);
+            padding: 4px 15px; gap: 8px; height: 35px; border-bottom: 1px solid var(--border);
             overflow-x: auto; flex-shrink: 0;
         }
         .dia-btn {
             display: flex; align-items: center; gap: 6px;
-            padding: 4px 10px; border-radius: 4px; background: white; border: 1px solid var(--border);
+            padding: 3px 8px; border-radius: 4px; background: white; border: 1px solid var(--border);
             font-size: 11px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s;
             white-space: nowrap;
         }
         .dia-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         
-        /* ÍCONES DAS ABAS */
         .btn-acao { color: #94a3b8; font-size: 12px; cursor: pointer; line-height: 1; }
         .btn-acao:hover { color: var(--primary); }
         .btn-acao.fechar:hover { color: #ef4444; }
@@ -50,60 +51,53 @@
         .dia-btn.active .btn-acao:hover { color: white; }
         .dia-btn.active .btn-acao.fechar:hover { color: #fca5a5; }
 
-        .btn-novo-dia { background: #10b981; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; }
-        .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
-        .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
+        .btn-novo-dia { background: #10b981; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; }
+        .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
+        .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
 
         .nav-empresas {
             display: flex; background: white; border-bottom: 1px solid var(--border);
-            overflow-x: auto; padding: 5px 15px 0 15px; height: 35px; flex-shrink: 0;
+            overflow-x: auto; padding: 5px 15px 0 15px; height: 32px; flex-shrink: 0;
         }
         .tab-btn {
-            padding: 6px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0;
+            padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0;
             font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase;
         }
         .tab-btn.active { background: var(--bg); border-color: var(--border); color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* GRID DA TABELA (Ocupa o resto da tela perfeitamente) */
+        /* GRID DA TABELA */
         .grid-container { 
-            flex-grow: 1; overflow: auto; padding: 0; background: white; position: relative; 
+            flex: 1 1 auto; overflow: auto; padding: 0; background: white; position: relative; 
         }
         
-        /* Removida a trava de layout fixo. Agora a tabela rola livremente */
         table { 
             border-collapse: separate; border-spacing: 0; 
-            min-width: 100%; width: max-content; font-size: 11px; 
+            min-width: 100%; width: max-content; font-size: 10px; 
         }
         
-        /* Colunas mais largas e confortáveis */
         th, td { 
-            border: 1px solid var(--border); padding: 5px 8px; 
-            min-width: 160px; box-sizing: border-box; vertical-align: middle; background: white; 
+            border: 1px solid var(--border); padding: 2px 4px; 
+            min-width: 140px; box-sizing: border-box; vertical-align: middle; background: white; 
         }
 
-        /* Coluna da Esquerda (Mais larga para caber os textos) */
         .col-categoria {
             position: sticky; left: 0; z-index: 11; background: white;
-            min-width: 280px; text-align: left; border-right: 2px solid var(--border) !important;
+            min-width: 250px; text-align: left; border-right: 2px solid var(--border) !important;
         }
 
-        /* Cabeçalho passa por cima das linhas */
         thead th { 
-            background: #f1f5f9; 
-            position: sticky; top: 0; z-index: 10; 
-            border-bottom: 2px solid var(--border); 
-            color: var(--primary); 
-            padding-top: 8px; padding-bottom: 8px;
+            background: #f1f5f9; position: sticky; top: 0; z-index: 10; 
+            border-bottom: 2px solid var(--border); color: var(--primary); 
+            padding-top: 4px; padding-bottom: 4px; 
         }
-
         thead th.col-categoria { z-index: 12; background: #e2e8f0; text-align: center; }
 
         /* INPUTS E VALORES */
         .cell-wrapper { display: flex; flex-direction: column; align-items: flex-end; }
-        .cell-acumulado { font-weight: normal; font-size: 12px; margin-bottom: 3px; }
+        .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 1px; }
         .input-lancar {
-            width: 100%; border: 1px solid #e2e8f0; border-radius: 3px;
-            padding: 4px; box-sizing: border-box; text-align: right; font-size: 10px; outline: none; background: #f8fafc;
+            width: 100%; border: 1px solid #e2e8f0; border-radius: 2px;
+            padding: 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc;
         }
         .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
 
@@ -111,17 +105,16 @@
         .bg-total-entradas { background-color: var(--azul-entrada) !important; color: white !important; font-weight: bold; }
         .bg-total-saidas { background-color: var(--vermelho-saida) !important; color: white !important; font-weight: bold; }
         
-        /* ESTILOS DO RODAPÉ (SALDO E MARGEM) */
         .bg-saldo-calculado { background-color: #0284c7 !important; color: white !important; font-weight: bold; }
         .bg-margem-segura { background-color: #f1f5f9 !important; font-weight: bold; }
         .bg-saldo-seguro { background-color: #1e293b !important; color: white !important; font-weight: bold; }
         
         .linha-destaque { font-weight: bold; background: white; }
         .grupo-soma { font-weight: normal; text-transform: uppercase; background: white; }
-        .indent { padding-left: 20px !important; }
+        .indent { padding-left: 15px !important; }
         
         .no-input .input-lancar { display: none; }
-        .no-input .cell-acumulado { font-weight: bold; font-size: 12px; }
+        .no-input .cell-acumulado { font-weight: bold; font-size: 11px; }
 
         .flash { animation: flash 0.5s; }
         @keyframes flash { from { background: #dcfce7; } to { background: transparent; } }
@@ -130,13 +123,20 @@
 
         /* MODAL DE RESUMO */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 3% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 900px; border-radius: 8px; max-height: 85vh; overflow-y: auto;}
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal-content { background-color: #f8fafc; margin: 3% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 900px; border-radius: 8px; max-height: 85vh; overflow-y: auto;}
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 20px;}
         
-        .resumo-table-print { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-        .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 8px; }
+        .resumo-table-print { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; background: white;}
+        .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 6px; }
         .resumo-table-print th { background-color: var(--primary); color: white; }
         .resumo-table-print tfoot th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; }
+
+        .btn-copiar {
+            background: #10b981; color: white; border: none; padding: 6px 15px; border-radius: 4px; 
+            cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px;
+            transition: background 0.2s;
+        }
+        .btn-copiar:hover { background: #059669; }
     </style>
 </head>
 <body>
@@ -162,9 +162,15 @@
 
     <div id="modal-resumo" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="document.getElementById('modal-resumo').style.display='none'">&times;</span>
-            <h2 style="color:var(--primary); margin-top:0;">Resumo de Aplicações e Resgates: <span id="resumo-dia-titulo"></span></h2>
-            <div id="resumo-content"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <button class="btn-copiar" id="btn-copiar-resumo" onclick="copiarResumoImagem()">📋 Copiar como Imagem</button>
+                <span class="close" onclick="document.getElementById('modal-resumo').style.display='none'">&times;</span>
+            </div>
+            
+            <div id="resumo-export-area" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <h2 style="color:var(--primary); margin-top:0;">Resumo de Aplicações e Resgates: <span id="resumo-dia-titulo"></span></h2>
+                <div id="resumo-content"></div>
+            </div>
         </div>
     </div>
 
@@ -280,15 +286,10 @@
         }
 
         function mudarEmpresa(novaEmpresa) {
-            salvarEstado(); 
-            empresaAtiva = novaEmpresa;
-            contas = empresasConfig[empresaAtiva]; 
-            
+            salvarEstado(); empresaAtiva = novaEmpresa; contas = empresasConfig[empresaAtiva]; 
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${novaEmpresa}`).classList.add('active');
-
-            renderTabela(); 
-            carregarEstado(); 
+            renderTabela(); carregarEstado(); 
         }
 
         function salvarEstado() {
@@ -302,7 +303,6 @@
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${idx}`);
                     if(el) estado[idx][l.id] = el.innerText;
-                    
                     if(l.tipo === 'linha-banco') {
                         let sel = document.getElementById(`banco-${l.id}-${idx}`);
                         if(sel) estado[idx][`banco-${l.id}`] = sel.value;
@@ -314,14 +314,12 @@
 
         function carregarEstado() {
             if(!diaAtivo) { zerarTabela(); return; }
-            let estadoDia = dadosPorDia[diaAtivo] || {};
-            let estadoEmpresa = estadoDia[empresaAtiva] || {};
+            let estadoEmpresa = (dadosPorDia[diaAtivo] || {})[empresaAtiva] || {};
 
             contas.forEach((c, idx) => {
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${idx}`);
                     if(el) el.innerText = (estadoEmpresa[idx] && estadoEmpresa[idx][l.id]) ? estadoEmpresa[idx][l.id] : "0,00";
-                    
                     if(l.tipo === 'linha-banco') {
                         let sel = document.getElementById(`banco-${l.id}-${idx}`);
                         if(sel) sel.value = (estadoEmpresa[idx] && estadoEmpresa[idx][`banco-${l.id}`]) ? estadoEmpresa[idx][`banco-${l.id}`] : "";
@@ -344,10 +342,6 @@
             });
         }
 
-        // ==========================================
-        // FUNÇÕES DAS ABAS
-        // ==========================================
-
         function abrirNovoDia() {
             let nomeDia = prompt("Digite o nome ou data do novo caixa:");
             if (!nomeDia || nomeDia.trim() === "") return;
@@ -367,7 +361,6 @@
                     });
                 });
             }
-
             diasCadastrados.push(nomeDia); diaAtivo = nomeDia;
             carregarEstado(); renderTabsDias();
         }
@@ -419,10 +412,6 @@
             }
         }
 
-        // ==========================================
-        // RENDERIZAÇÃO DA TABELA E CÁLCULOS
-        // ==========================================
-
         const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
 
         function renderTabela() {
@@ -439,7 +428,6 @@
                 return `<tr>
                     <td class="col-categoria ${l.tipo} ${isIndent ? 'indent' : ''}">${l.nome}</td>
                     ${contas.map((c, i) => {
-                        
                         if (l.tipo === 'linha-banco') {
                             return `<td><div class="cell-wrapper">
                                     <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
@@ -450,7 +438,6 @@
                                     <input type="text" class="input-lancar" placeholder="Valor" onkeypress="lancar(event, '${l.id}', ${i})">
                                 </div></td>`;
                         }
-                        
                         if (l.tipo === 'linha-transferencia') {
                             return `<td><div class="cell-wrapper">
                                     <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
@@ -461,7 +448,6 @@
                                     <input type="text" class="input-lancar" placeholder="Valor + Enter" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
                                 </div></td>`;
                         }
-                        
                         return `<td class="${l.tipo} ${noInputClass}">
                             <div class="cell-wrapper">
                                 <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
@@ -473,15 +459,8 @@
             }).join('');
         }
 
-        function getV(id, cidx) {
-            let el = document.getElementById(`val-${id}-${cidx}`);
-            return el ? parseFloat(el.innerText.replace(/\./g, '').replace(',', '.')) || 0 : 0;
-        }
-
-        function setV(id, cidx, val) {
-            let el = document.getElementById(`val-${id}-${cidx}`);
-            if(el) el.innerText = val.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-        }
+        function getV(id, cidx) { let el = document.getElementById(`val-${id}-${cidx}`); return el ? parseFloat(el.innerText.replace(/\./g, '').replace(',', '.')) || 0 : 0; }
+        function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = val.toLocaleString('pt-BR', {minimumFractionDigits: 2}); }
 
         function recalcularColuna(idx) {
             let sc = getV('c1',idx) + getV('c2',idx) + getV('c3',idx) + getV('c4',idx) + getV('c5',idx); setV('sc', idx, sc);
@@ -512,17 +491,13 @@
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v)) return;
                 
-                if (lid === 'marg') {
-                    setV(lid, cidx, v); 
-                } else {
-                    setV(lid, cidx, getV(lid, cidx) + v); 
-                }
+                if (lid === 'marg') setV(lid, cidx, v); 
+                else setV(lid, cidx, getV(lid, cidx) + v); 
                 
                 e.target.parentElement.parentElement.classList.add('flash');
                 setTimeout(() => e.target.parentElement.parentElement.classList.remove('flash'), 500);
                 e.target.value = "";
-                recalcularColuna(cidx); 
-                salvarEstado();
+                recalcularColuna(cidx); salvarEstado();
             }
         }
 
@@ -539,11 +514,7 @@
                 
                 e.target.parentElement.parentElement.classList.add('flash');
                 document.getElementById(`val-tr-${toIdx}`).parentElement.parentElement.classList.add('flash-in'); 
-                setTimeout(() => {
-                    document.querySelectorAll('.flash, .flash-in').forEach(el => {
-                        el.classList.remove('flash'); el.classList.remove('flash-in');
-                    });
-                }, 800);
+                setTimeout(() => { document.querySelectorAll('.flash, .flash-in').forEach(el => { el.classList.remove('flash'); el.classList.remove('flash-in'); }); }, 800);
                 
                 e.target.value = ""; selectDestino.value = "";
                 recalcularColuna(fromIdx); recalcularColuna(toIdx);
@@ -551,20 +522,15 @@
             }
         }
 
-        // ==========================================
-        // FUNÇÃO DE RESUMO DO DIA
-        // ==========================================
         function abrirResumo() {
             salvarEstado(); 
             document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
-            
             let diaDados = dadosPorDia[diaAtivo];
             if(!diaDados) return;
 
             let linhasTabelaPrint = '';
             let totalResgateGeral = 0;
             let totalAplicacaoGeral = 0;
-            
             let htmlTotais = '<div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom: 20px;">';
 
             Object.keys(empresasConfig).forEach(emp => {
@@ -577,7 +543,6 @@
 
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = empDados[idx] || {};
-                    
                     let resg = parseFloat((contaDados['o3'] || '0').replace(/\./g,'').replace(',','.')) || 0;
                     let aplic = parseFloat((contaDados['so7'] || '0').replace(/\./g,'').replace(',','.')) || 0;
 
@@ -646,6 +611,50 @@
 
             document.getElementById('resumo-content').innerHTML = htmlTotais + htmlTabelaPrint;
             document.getElementById('modal-resumo').style.display = 'block';
+        }
+
+        // ==========================================
+        // FUNÇÃO DE COPIAR RESUMO COMO IMAGEM
+        // ==========================================
+        async function copiarResumoImagem() {
+            const exportArea = document.getElementById('resumo-export-area');
+            const btn = document.getElementById('btn-copiar-resumo');
+            const textoOriginal = btn.innerHTML;
+            
+            btn.innerHTML = "⏳ Copiando...";
+            btn.style.background = "#64748b"; // Cor de "carregando"
+            
+            try {
+                const canvas = await html2canvas(exportArea, {
+                    backgroundColor: "#ffffff",
+                    scale: 2 // Escala maior para não perder qualidade no WhatsApp/E-mail
+                });
+                
+                canvas.toBlob(async function(blob) {
+                    try {
+                        const item = new ClipboardItem({ "image/png": blob });
+                        await navigator.clipboard.write([item]);
+                        
+                        btn.innerHTML = "✅ Copiado!";
+                        btn.style.background = "#10b981"; // Volta cor de sucesso
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = textoOriginal;
+                        }, 2000);
+                        
+                    } catch (err) {
+                        console.error(err);
+                        alert("Não foi possível copiar para a área de transferência. Tente novamente.");
+                        btn.innerHTML = textoOriginal;
+                        btn.style.background = "#10b981";
+                    }
+                });
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao gerar a imagem.");
+                btn.innerHTML = textoOriginal;
+                btn.style.background = "#10b981";
+            }
         }
 
         // START
