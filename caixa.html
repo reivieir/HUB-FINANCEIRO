@@ -22,7 +22,7 @@
             height: 40px; box-sizing: border-box; font-size: 12px;
         }
 
-        /* NAVEGAÇÃO DE DIAS E EMPRESAS */
+        /* NAVEGAÇÃO DE DIAS */
         .nav-dias {
             background: #e2e8f0; display: flex; align-items: center;
             padding: 5px 15px; gap: 8px; height: 38px; border-bottom: 1px solid var(--border);
@@ -49,6 +49,7 @@
         .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
         .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
 
+        /* ABAS EMPRESAS */
         .nav-empresas {
             display: flex; background: white; border-bottom: 1px solid var(--border);
             overflow-x: auto; padding: 5px 15px 0 15px; height: 35px;
@@ -106,10 +107,8 @@
     <div class="nav-dias" id="nav-dias-container">
         </div>
 
-    <div class="nav-empresas">
-        <div class="tab-btn active" id="tab-BRDX" onclick="mudarEmpresa('BRDX')">BRDX</div>
-        <div class="tab-btn" id="tab-BRDF" onclick="mudarEmpresa('BRDF')">BRDF</div>
-    </div>
+    <div class="nav-empresas" id="nav-empresas-container">
+        </div>
 
     <div class="grid-container">
         <table>
@@ -119,17 +118,35 @@
     </div>
 
     <script>
-        // CONTAS POR EMPRESA
+        // CONTAS POR EMPRESA (Extraído rigorosamente da planilha)
         const empresasConfig = {
             'BRDX': [
-                { b: 'ITAÚ', c: '0262 / 17843-7' }, { b: 'ITAÚ', c: '0262 / 29500-9' },
-                { b: 'ITAÚ', c: '0262 / 11079-4' }, { b: 'ITAÚ', c: '7307 / 50310-7' },
-                { b: 'BB', c: '1893-7 / 343329-3' }, { b: 'SANTANDER', c: '2008 / 130000413' }
+                { b: 'ITAÚ', c: '0262 / 17843-7' }, { b: 'ITAÚ', c: '0262 / 29500-9' }, { b: 'ITAÚ', c: '0262 / 11079-4' }, 
+                { b: 'ITAÚ', c: '7307 / 50310-7' }, { b: 'ITAÚ', c: '7307 / 59362-9' }, { b: 'BB', c: '1893-7/ 343329-3' }, 
+                { b: 'SANTANDER', c: '2008/ 130000413' }, { b: 'BRADESCO', c: '2372-8/ 89300-5' }, { b: 'BRADESCO', c: '0895-8 / 76322-5' }, 
+                { b: 'SAFRA', c: '115/ 000.330-5' }, { b: 'BANRISUL', c: '0413 / 60157510-3' }, { b: 'CAIXA', c: '3337 / 577246689-1' }, 
+                { b: 'BNB', c: '0031 / 55843-6' }, { b: 'ABC BRASIL', c: '0001-9 / 2.331.908-0' }, { b: 'DAYCOVAL', c: '0001 / 001516474-0' }
             ],
             'BRDF': [
-                { b: 'BRADESCO', c: '2372-8 / 89300-5' }, { b: 'SAFRA', c: '115 / 000.330-5' },
-                { b: 'BANRISUL', c: '0413 / 60157510-3' }, { b: 'CAIXA', c: '3337 / 577246689-1' },
-                { b: 'BNB', c: '0031 / 55843-6' }
+                { b: 'ITAÚ', c: '0262 / 17847-8' }, { b: 'ITAÚ', c: '7307 /50311-5' }, { b: 'ITAÚ', c: '7307 /50312-3' }, 
+                { b: 'ITAÚ', c: '0350/ 59363-7' }, { b: 'BB', c: '1893-7 /30001-2' }, { b: 'SANTANDER', c: '2271 / 13003017-5' }, 
+                { b: 'BRADESCO', c: '2374-4  / 35500-3' }, { b: 'SAFRA', c: '115/ 005949-1' }, { b: 'CEF', c: '1679/ 2783-9' }, 
+                { b: 'CEF', c: '3337 / 577246793-6' }, { b: 'ABC BRASIL', c: '0001-9 / 2.331.859-9' }, { b: 'DAYCOVAL', c: '0001/ 001516477-4' }
+            ],
+            'BRHY': [
+                { b: 'ITAÚ', c: '0046 /15601-4' }, { b: 'BB', c: '1893-7 / 32966-5' }, 
+                { b: 'SANTANDER', c: '0728 / 13000535-6' }, { b: 'BRADESCO', c: '2372 / 0038760-6' }
+            ],
+            'BRCF': [
+                { b: 'ITAÚ', c: '7307 / 11112-5' }, { b: 'BB', c: '1893-7/ 106406-1' }, 
+                { b: 'SANTANDER', c: '2271 / 13020743-0' }, { b: 'SAFRA', c: '1150/44941-9' }, 
+                { b: 'BNB', c: '31 / 43636-5' }, { b: 'BNB', c: '31 / 43626-8' }
+            ],
+            'SPE + Controladas': [
+                { b: 'BRS1', c: '7307 / 50645-6' }, { b: 'BRS3 - ITA', c: '7307 / 60438-4' }, { b: 'BRS2 - ITA', c: '7307 / 59899-0' }, 
+                { b: 'BRS2 - SAF', c: '0115 / 00056629-6' }, { b: 'BREM - ITA', c: '0262 / 17856-9' }, { b: 'BRBC - ITA', c: '0262 / 91486-4' }, 
+                { b: 'BRSF - ITA', c: '0262 / 04518-0' }, { b: 'BRIT - ITA', c: '7307/ 59901-4' }, { b: 'DFL II - ITA', c: '7307 / 96675-9' }, 
+                { b: 'BRSD - ITA', c: '7307 /48718-6' }, { b: 'BRTR - ITA', c: '7307/ 08704-4' }
             ]
         };
 
@@ -174,13 +191,22 @@
         ];
 
         // GESTÃO DO BANCO E ABAS
-        let diasCadastrados = ['12/03', '13/03'];
-        let diaAtivo = '13/03';
-        // A Estrutura agora abraça as empresas: dadosPorDia[dia][empresa][conta][linha]
-        let dadosPorDia = {
-            '12/03': { 'BRDX': {}, 'BRDF': {} },
-            '13/03': { 'BRDX': {}, 'BRDF': {} }
-        };
+        let diasCadastrados = ['Hoje'];
+        let diaAtivo = 'Hoje';
+        
+        // Estrutura atualizada abraça dinamicamente as empresas
+        let dadosPorDia = { 'Hoje': {} };
+        Object.keys(empresasConfig).forEach(e => dadosPorDia['Hoje'][e] = {});
+
+        // RENDERIZAÇÃO DAS ABAS DE EMPRESAS
+        function renderTabsEmpresas() {
+            const container = document.getElementById('nav-empresas-container');
+            let html = '';
+            Object.keys(empresasConfig).forEach(emp => {
+                html += `<div class="tab-btn ${emp === empresaAtiva ? 'active' : ''}" id="tab-${emp}" onclick="mudarEmpresa('${emp}')">${emp}</div>`;
+            });
+            container.innerHTML = html;
+        }
 
         function renderTabsDias() {
             const container = document.getElementById('nav-dias-container');
@@ -208,16 +234,15 @@
         // ==========================================
 
         function mudarEmpresa(novaEmpresa) {
-            salvarEstado(); // Salva os dados da empresa atual antes de trocar
+            salvarEstado(); 
             empresaAtiva = novaEmpresa;
-            contas = empresasConfig[empresaAtiva]; // Atualiza as contas que vão aparecer
+            contas = empresasConfig[empresaAtiva]; 
             
-            // Atualiza os botões visuais
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${novaEmpresa}`).classList.add('active');
 
-            renderTabela(); // Remonta a tabela com as colunas dos novos bancos
-            carregarEstado(); // Carrega os valores dessa nova empresa
+            renderTabela(); 
+            carregarEstado(); 
         }
 
         function salvarEstado() {
@@ -279,7 +304,6 @@
             if(!dadosPorDia[nomeDia]) {
                 dadosPorDia[nomeDia] = {};
                 
-                // Copia o Saldo Calculado de todas as empresas para o Saldo Inicial do novo dia
                 Object.keys(empresasConfig).forEach(emp => {
                     dadosPorDia[nomeDia][emp] = {};
                     let estadoAntigo = (dadosPorDia[diaAtivo] && dadosPorDia[diaAtivo][emp]) ? dadosPorDia[diaAtivo][emp] : {};
@@ -460,7 +484,7 @@
             }
         }
 
-        // LÓGICA DE TRANSFERÊNCIA ATUALIZADA (ACEITA NEGATIVOS PARA REVERSÃO)
+        // LÓGICA DE TRANSFERÊNCIA (ACEITA NEGATIVOS PARA REVERSÃO)
         function lancarTransferencia(e, fromIdx, lid) {
             if(e.key === 'Enter') {
                 const selectDestino = document.getElementById(`sel-${lid}-${fromIdx}`);
@@ -468,7 +492,7 @@
                 if(toIdx === "") { alert("Selecione o destino primeiro."); return; }
                 
                 const v = parseFloat(e.target.value.replace(',', '.'));
-                if(isNaN(v) || v === 0) return; // Removida a trava de <= 0. Aceita negativos agora!
+                if(isNaN(v) || v === 0) return; // Agora aceita números negativos sem travar
                 
                 setV(lid, fromIdx, getV(lid, fromIdx) + v);
                 setV('tr', toIdx, getV('tr', toIdx) + v);
@@ -488,6 +512,7 @@
         }
 
         // START
+        renderTabsEmpresas();
         renderTabela();
         renderTabsDias();
         carregarEstado();
