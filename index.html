@@ -6,82 +6,90 @@
     <title>Hub Financeiro - Dexco</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* AJUSTE DE VISUALIZAÇÃO CORRIGIDO */
-        html {
-            height: 100%;
-            overflow: hidden; 
+        /* AJUSTE DE VISUALIZAÇÃO CORRIGIDO E DEFINITIVO */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh; /* Trava a altura na tela real */
+            overflow: hidden; /* Corta rolagem dupla no hub */
+            background-color: #f8fafc;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            zoom: 0.8; 
             display: flex;
-            background-color: #f8fafc;
+            /* SE O ZOOM ESTIVER QUEBRANDO A TELA, EXPERIMENTE REMOVER OU COMENTAR ESTA LINHA: */
+            /* zoom: 0.8; */ 
         }
 
-        /* Garante que o conteúdo ocupe o espaço correto e os iframes fiquem limpos */
-        .tab-content iframe {
-            width: 100%;
-            height: calc(100vh - 120px);
-            border: none;
-            border-radius: 8px;
-            background-color: #f8fafc;
+        /* Sidebar Padrão */
+        .sidebar {
+            width: 250px;
+            background-color: #1e293b;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
         }
-        
+
+        .sidebar h2 { margin-bottom: 30px; font-size: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .nav-btn { background: none; border: none; color: #cbd5e1; padding: 12px; text-align: left; cursor: pointer; border-radius: 5px; margin-bottom: 10px; font-size: 1rem; transition: 0.3s; width: 100%; }
+        .nav-btn:hover, .nav-btn.active { background-color: #334155; color: white; }
+
+        /* AQUI ESTÁ O SEGREDO: O Content como container Flex vertical */
+        .content {
+            flex: 1; /* Ocupa o resto da largura */
+            display: flex;
+            flex-direction: column; /* Organiza os filhos empilhados */
+            height: 100vh;
+            overflow: hidden; /* Impede a rolagem do container pai */
+        }
+
+        /* Containers de Abas Padrões */
         .tab-content { 
             display: none; 
-            padding: 10px; 
-            width: 100%; 
+            flex: 1; /* Estica para preencher toda a altura disponível da .content */
+            padding: 20px; /* Padding geral para o conteúdo não colar nas bordas */
             box-sizing: border-box;
-            height: 100%; /* Adicionado para preencher o container */
+            background-color: #f4f7f6;
+            overflow-y: auto; /* Rolagem interna das abas genéricas */
         }
         
         .tab-content.active { 
-            display: block; 
-        }
-
-        /* AJUSTE ESPECÍFICO PARA O CHAT NÃO CORTAR */
-        #chat-tab.active {
-            display: flex;
+            display: flex; 
             flex-direction: column;
-            height: calc(100vh - 40px); /* Ajuste para o zoom de 80% */
         }
 
-        .chat-messages-full {
-            flex: 1; /* Faz as mensagens ocuparem o espaço central */
-            overflow-y: auto; /* Habilita a rolagem se o texto for longo */
-            padding: 20px;
-            background: white;
+        /* Iframes padrão */
+        .tab-content iframe {
+            width: 100%;
+            flex: 1; /* Estica o Iframe internamente */
+            border: none;
             border-radius: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #e2e8f0;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        .chat-header-full {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+        /* ==========================================================
+           CLASSE EXCLUSIVA PARA A ABA "GESTÃO DE CAIXA"
+           Ignora as bordas (padding: 0) e encosta em todos os lados!
+        ========================================================== */
+        .tab-caixa {
+            padding: 0 !important; /* Retira as bordas da aba */
+            overflow: hidden !important; /* Desativa a rolagem desta aba, o iframe resolve */
+        }
+        
+        .tab-caixa iframe {
+            border-radius: 0 !important; /* Fica quadrado e liso nas bordas */
+            box-shadow: none !important;
         }
 
-        .chat-input-full {
-            display: flex;
-            gap: 10px;
-            background: white;
-            padding: 10px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .chat-input-full input {
-            flex: 1;
-        }
-
-        .content {
-            flex: 1;
-            overflow-x: hidden; 
-        }
+        /* Ajustes do Chat */
+        #chat-tab.active { display: flex; flex-direction: column; height: 100%; }
+        .chat-messages-full { flex: 1; overflow-y: auto; padding: 20px; background: white; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
+        .chat-header-full { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .chat-input-full { display: flex; gap: 10px; background: white; padding: 10px; border-top: 1px solid #e2e8f0; }
+        .chat-input-full input { flex: 1; }
     </style>
 </head>
 <body>
@@ -108,9 +116,9 @@
             <iframe src="https://bank-management-lime.vercel.app/"></iframe>
         </div>
 
-       <div id="caixa" class="tab-content tab-caixa">
-    <iframe src="caixa.html"></iframe>
-</div>
+        <div id="caixa" class="tab-content tab-caixa">
+            <iframe src="caixa.html"></iframe>
+        </div>
 
         <div id="protestos" class="tab-content">
             <h1>Protestos</h1>
