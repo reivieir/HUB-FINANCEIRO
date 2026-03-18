@@ -22,14 +22,12 @@
             display: flex; flex-direction: column; overflow: hidden; 
         }
 
-        /* HEADER */
         .header-blue {
             background-color: var(--primary); color: white;
             padding: 5px 20px; display: flex; justify-content: space-between; align-items: center;
             height: 38px; box-sizing: border-box; font-size: 12px; flex-shrink: 0;
         }
 
-        /* NAVEGAÇÃO DE DIAS E EMPRESAS */
         .nav-dias {
             background: #e2e8f0; display: flex; align-items: center;
             padding: 4px 15px; gap: 8px; height: 35px; border-bottom: 1px solid var(--border);
@@ -38,15 +36,12 @@
         .dia-btn {
             display: flex; align-items: center; gap: 6px;
             padding: 3px 8px; border-radius: 4px; background: white; border: 1px solid var(--border);
-            font-size: 11px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s;
-            white-space: nowrap;
+            font-size: 11px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s; white-space: nowrap;
         }
         .dia-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        
         .btn-acao { color: #94a3b8; font-size: 12px; cursor: pointer; line-height: 1; }
         .btn-acao:hover { color: var(--primary); }
         .btn-acao.fechar:hover { color: #ef4444; }
-        
         .dia-btn.active .btn-acao { color: #93c5fd; }
         .dia-btn.active .btn-acao:hover { color: white; }
         .dia-btn.active .btn-acao.fechar:hover { color: #fca5a5; }
@@ -65,46 +60,24 @@
         }
         .tab-btn.active { background: var(--bg); border-color: var(--border); color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* GRID DA TABELA */
-        .grid-container { 
-            flex: 1 1 auto; overflow: auto; padding: 0; background: white; position: relative; 
-        }
-        
-        table { 
-            border-collapse: separate; border-spacing: 0; 
-            min-width: 100%; width: max-content; font-size: 10px; 
-        }
-        
-        th, td { 
-            border: 1px solid var(--border); padding: 2px 4px; 
-            min-width: 140px; box-sizing: border-box; vertical-align: middle; background: white; 
-        }
+        .grid-container { flex: 1 1 auto; overflow: auto; padding: 0; background: white; position: relative; }
+        table { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; font-size: 10px; }
+        th, td { border: 1px solid var(--border); padding: 2px 4px; min-width: 140px; box-sizing: border-box; vertical-align: middle; background: white; }
 
         .col-categoria {
             position: sticky; left: 0; z-index: 11; background: white;
             min-width: 250px; text-align: left; border-right: 2px solid var(--border) !important;
         }
-
-        thead th { 
-            background: #f1f5f9; position: sticky; top: 0; z-index: 10; 
-            border-bottom: 2px solid var(--border); color: var(--primary); 
-            padding-top: 4px; padding-bottom: 4px; 
-        }
+        thead th { background: #f1f5f9; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border); color: var(--primary); padding: 4px; }
         thead th.col-categoria { z-index: 12; background: #e2e8f0; text-align: center; }
 
-        /* INPUTS E VALORES */
         .cell-wrapper { display: flex; flex-direction: column; align-items: flex-end; }
         .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 1px; }
-        .input-lancar {
-            width: 100%; border: 1px solid #e2e8f0; border-radius: 2px;
-            padding: 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc;
-        }
+        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc; }
         .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
 
-        /* ESTILOS FIÉIS À PLANILHA */
         .bg-total-entradas { background-color: var(--azul-entrada) !important; color: white !important; font-weight: bold; }
         .bg-total-saidas { background-color: var(--vermelho-saida) !important; color: white !important; font-weight: bold; }
-        
         .bg-saldo-calculado { background-color: #0284c7 !important; color: white !important; font-weight: bold; }
         .bg-margem-segura { background-color: #f1f5f9 !important; font-weight: bold; }
         .bg-saldo-seguro { background-color: #1e293b !important; color: white !important; font-weight: bold; }
@@ -112,7 +85,6 @@
         .linha-destaque { font-weight: bold; background: white; }
         .grupo-soma { font-weight: normal; text-transform: uppercase; background: white; }
         .indent { padding-left: 15px !important; }
-        
         .no-input .input-lancar { display: none; }
         .no-input .cell-acumulado { font-weight: bold; font-size: 11px; }
 
@@ -122,8 +94,8 @@
         @keyframes flash-in { 0% { background: #bfdbfe; } 100% { background: transparent; } }
 
         /* MODAL DE RESUMO */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #f8fafc; margin: 3% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 900px; border-radius: 8px; max-height: 85vh; overflow-y: auto;}
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 800px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 20px;}
         
         .resumo-table-print { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; background: white;}
@@ -131,12 +103,11 @@
         .resumo-table-print th { background-color: var(--primary); color: white; }
         .resumo-table-print tfoot th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; }
 
-        .btn-copiar {
-            background: #10b981; color: white; border: none; padding: 6px 15px; border-radius: 4px; 
-            cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px;
-            transition: background 0.2s;
-        }
+        .btn-copiar { background: #10b981; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: background 0.2s; }
         .btn-copiar:hover { background: #059669; }
+        
+        .btn-limpar-lote { background: #3b82f6; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .btn-limpar-lote:hover { background: #2563eb; }
     </style>
 </head>
 <body>
@@ -150,7 +121,6 @@
     </div>
 
     <div class="nav-dias" id="nav-dias-container"></div>
-
     <div class="nav-empresas" id="nav-empresas-container"></div>
 
     <div class="grid-container">
@@ -162,20 +132,27 @@
 
     <div id="modal-resumo" class="modal">
         <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <button class="btn-copiar" id="btn-copiar-resumo" onclick="copiarResumoImagem()">📋 Copiar como Imagem</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;">
+                <div style="display: flex; align-items: center;">
+                    <button class="btn-copiar" id="btn-copiar-resumo" onclick="copiarResumoImagem()">📋 Copiar Imagem</button>
+                    <button class="btn-limpar-lote" onclick="confirmarEnvioLote()">✅ Marcar Lote como Enviado</button>
+                </div>
                 <span class="close" onclick="document.getElementById('modal-resumo').style.display='none'">&times;</span>
             </div>
             
             <div id="resumo-export-area" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                <h2 style="color:var(--primary); margin-top:0;">Resumo de Aplicações e Resgates: <span id="resumo-dia-titulo"></span></h2>
-                <div id="resumo-content"></div>
+                <h2 style="color:var(--primary); margin-top:0;">Novas Aplicações e Resgates: <span id="resumo-dia-titulo"></span></h2>
+                <div id="resumo-content-pendente"></div>
+            </div>
+
+            <div style="margin-top: 25px; padding: 15px; background: #e2e8f0; border-radius: 8px;">
+                <h3 style="margin-top: 0; color: #475569; font-size: 13px; text-transform: uppercase;">Total Consolidado do Dia (Enviados + Pendentes)</h3>
+                <div id="resumo-content-consolidado"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // CONTAS POR EMPRESA
         const empresasConfig = {
             'BRDX': [
                 { b: 'ITAÚ', c: '0262 / 17843-7' }, { b: 'ITAÚ', c: '0262 / 29500-9' }, { b: 'ITAÚ', c: '0262 / 11079-4' }, 
@@ -210,7 +187,6 @@
         let empresaAtiva = 'BRDX';
         let contas = empresasConfig[empresaAtiva];
 
-        // PLANO DE CONTAS
         const plano = [
             { id: 'si', nome: 'SALDO INICIAL :', tipo: 'linha-destaque', readOnly: false },
             { id: 'te', nome: 'TOTAL ENTRADAS', tipo: 'bg-total-entradas', readOnly: true },
@@ -279,14 +255,14 @@
             html += `<button class="btn-guias-ocultas" onclick="abrirGuiaOculta()">📁 GUIAS OCULTAS</button>`;
 
             if(diaAtivo) {
-                html += `<button class="btn-excluir-dia" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}] DO BANCO</button>`;
+                html += `<button class="btn-excluir-dia" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}]</button>`;
             }
-
             container.innerHTML = html;
         }
 
         function mudarEmpresa(novaEmpresa) {
-            salvarEstado(); empresaAtiva = novaEmpresa; contas = empresasConfig[empresaAtiva]; 
+            salvarEstado(); 
+            empresaAtiva = novaEmpresa; contas = empresasConfig[empresaAtiva]; 
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${novaEmpresa}`).classList.add('active');
             renderTabela(); carregarEstado(); 
@@ -297,19 +273,25 @@
             if(!dadosPorDia[diaAtivo]) dadosPorDia[diaAtivo] = {};
             if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
 
-            let estado = {};
+            let estado = dadosPorDia[diaAtivo][empresaAtiva];
             contas.forEach((c, idx) => {
-                estado[idx] = {};
+                if(!estado[idx]) estado[idx] = {};
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${idx}`);
-                    if(el) estado[idx][l.id] = el.innerText;
+                    if(el) {
+                        estado[idx][l.id] = el.innerText;
+                        
+                        // Lógica de Carrinho/Pendências
+                        if(l.id === 'o3' || l.id === 'so7') {
+                            estado[idx][`pendente-${l.id}`] = el.getAttribute('data-pendente') || "0";
+                        }
+                    }
                     if(l.tipo === 'linha-banco') {
                         let sel = document.getElementById(`banco-${l.id}-${idx}`);
                         if(sel) estado[idx][`banco-${l.id}`] = sel.value;
                     }
                 });
             });
-            dadosPorDia[diaAtivo][empresaAtiva] = estado;
         }
 
         function carregarEstado() {
@@ -319,7 +301,13 @@
             contas.forEach((c, idx) => {
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${idx}`);
-                    if(el) el.innerText = (estadoEmpresa[idx] && estadoEmpresa[idx][l.id]) ? estadoEmpresa[idx][l.id] : "0,00";
+                    if(el) {
+                        el.innerText = (estadoEmpresa[idx] && estadoEmpresa[idx][l.id]) ? estadoEmpresa[idx][l.id] : "0,00";
+                        if(l.id === 'o3' || l.id === 'so7') {
+                            el.setAttribute('data-pendente', estadoEmpresa[idx] ? (estadoEmpresa[idx][`pendente-${l.id}`] || "0") : "0");
+                        }
+                    }
+                    
                     if(l.tipo === 'linha-banco') {
                         let sel = document.getElementById(`banco-${l.id}-${idx}`);
                         if(sel) sel.value = (estadoEmpresa[idx] && estadoEmpresa[idx][`banco-${l.id}`]) ? estadoEmpresa[idx][`banco-${l.id}`] : "";
@@ -333,7 +321,10 @@
             contas.forEach((c, idx) => {
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${idx}`);
-                    if(el) el.innerText = "0,00";
+                    if(el) {
+                        el.innerText = "0,00";
+                        if(l.id === 'o3' || l.id === 'so7') el.setAttribute('data-pendente', "0");
+                    }
                     if(l.tipo === 'linha-banco') {
                         let sel = document.getElementById(`banco-${l.id}-${idx}`);
                         if(sel) sel.value = "";
@@ -370,13 +361,9 @@
             if (!novoNome || novoNome.trim() === "" || novoNome === nomeAtual) return;
             novoNome = novoNome.trim();
             if (dadosPorDia[novoNome] || diasCadastrados.includes(novoNome)) { alert("Nome já existe."); return; }
-
             salvarEstado(); 
-            dadosPorDia[novoNome] = dadosPorDia[nomeAtual];
-            delete dadosPorDia[nomeAtual];
-
-            let index = diasCadastrados.indexOf(nomeAtual);
-            if (index !== -1) diasCadastrados[index] = novoNome;
+            dadosPorDia[novoNome] = dadosPorDia[nomeAtual]; delete dadosPorDia[nomeAtual];
+            let index = diasCadastrados.indexOf(nomeAtual); if (index !== -1) diasCadastrados[index] = novoNome;
             if (diaAtivo === nomeAtual) diaAtivo = novoNome;
             renderTabsDias();
         }
@@ -384,12 +371,8 @@
         function mudarDia(novoDia) { salvarEstado(); diaAtivo = novoDia; carregarEstado(); renderTabsDias(); }
 
         function fecharAba(diaParaFechar) {
-            salvarEstado(); 
-            diasCadastrados = diasCadastrados.filter(d => d !== diaParaFechar); 
-            if (diaAtivo === diaParaFechar) {
-                diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null;
-                carregarEstado();
-            }
+            salvarEstado(); diasCadastrados = diasCadastrados.filter(d => d !== diaParaFechar); 
+            if (diaAtivo === diaParaFechar) { diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); }
             renderTabsDias();
         }
 
@@ -405,10 +388,8 @@
 
         function excluirDiaDoBanco() {
             if(confirm(`ATENÇÃO! Excluir a competência [${diaAtivo}]?`)) {
-                delete dadosPorDia[diaAtivo]; 
-                diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
-                diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null;
-                carregarEstado(); renderTabsDias();
+                delete dadosPorDia[diaAtivo]; diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
+                diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); renderTabsDias();
             }
         }
 
@@ -428,9 +409,10 @@
                 return `<tr>
                     <td class="col-categoria ${l.tipo} ${isIndent ? 'indent' : ''}">${l.nome}</td>
                     ${contas.map((c, i) => {
+                        
                         if (l.tipo === 'linha-banco') {
                             return `<td><div class="cell-wrapper">
-                                    <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
+                                    <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente="0">0,00</span>
                                     <select id="banco-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;" onchange="salvarEstado()">
                                         <option value="">Banco Destino/Origem...</option>
                                         ${listaBancosPadrao.map(bco => `<option value="${bco}">${bco}</option>`).join('')}
@@ -448,6 +430,7 @@
                                     <input type="text" class="input-lancar" placeholder="Valor + Enter" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
                                 </div></td>`;
                         }
+                        
                         return `<td class="${l.tipo} ${noInputClass}">
                             <div class="cell-wrapper">
                                 <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
@@ -491,8 +474,18 @@
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v)) return;
                 
-                if (lid === 'marg') setV(lid, cidx, v); 
-                else setV(lid, cidx, getV(lid, cidx) + v); 
+                if (lid === 'marg') {
+                    setV(lid, cidx, v); 
+                } else {
+                    setV(lid, cidx, getV(lid, cidx) + v); 
+                    
+                    // ALIMENTA O LOTE DE PENDÊNCIAS DE RESGATE E APLICAÇÃO
+                    if (lid === 'o3' || lid === 'so7') {
+                        let el = document.getElementById(`val-${lid}-${cidx}`);
+                        let p = parseFloat(el.getAttribute('data-pendente')) || 0;
+                        el.setAttribute('data-pendente', p + v);
+                    }
+                }
                 
                 e.target.parentElement.parentElement.classList.add('flash');
                 setTimeout(() => e.target.parentElement.parentElement.classList.remove('flash'), 500);
@@ -522,139 +515,140 @@
             }
         }
 
+        // ==========================================
+        // FUNÇÃO LOTE PENDENTE - RESUMO
+        // ==========================================
         function abrirResumo() {
             salvarEstado(); 
             document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
             let diaDados = dadosPorDia[diaAtivo];
             if(!diaDados) return;
 
-            let linhasTabelaPrint = '';
-            let totalResgateGeral = 0;
-            let totalAplicacaoGeral = 0;
-            let htmlTotais = '<div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom: 20px;">';
+            let linhasPendente = '';
+            let linhasConsolidado = '';
+            let totPendResgGeral = 0, totPendAplicGeral = 0;
+            let totConsResgGeral = 0, totConsAplicGeral = 0;
+            let htmlCardsPendente = '<div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom: 20px;">';
 
             Object.keys(empresasConfig).forEach(emp => {
                 let empDados = diaDados[emp];
                 if(!empDados) return;
 
-                let totResgate = 0;
-                let totAplicacao = 0;
-                let bancosSet = new Set();
+                let pResg = 0, pAplic = 0, cResg = 0, cAplic = 0;
+                let pBancos = new Set(), cBancos = new Set();
 
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = empDados[idx] || {};
+                    
+                    // Consolidado
                     let resg = parseFloat((contaDados['o3'] || '0').replace(/\./g,'').replace(',','.')) || 0;
                     let aplic = parseFloat((contaDados['so7'] || '0').replace(/\./g,'').replace(',','.')) || 0;
+                    
+                    // Pendente
+                    let pendR = parseFloat(contaDados['pendente-o3']) || 0;
+                    let pendA = parseFloat(contaDados['pendente-so7']) || 0;
 
-                    totResgate += resg;
-                    totAplicacao += aplic;
+                    cResg += resg; cAplic += aplic;
+                    pResg += pendR; pAplic += pendA;
 
-                    if(resg > 0 && contaDados['banco-o3']) bancosSet.add(contaDados['banco-o3']);
-                    if(aplic > 0 && contaDados['banco-so7']) bancosSet.add(contaDados['banco-so7']);
+                    if(resg !== 0 && contaDados['banco-o3']) cBancos.add(contaDados['banco-o3']);
+                    if(aplic !== 0 && contaDados['banco-so7']) cBancos.add(contaDados['banco-so7']);
+                    if(pendR !== 0 && contaDados['banco-o3']) pBancos.add(contaDados['banco-o3']);
+                    if(pendA !== 0 && contaDados['banco-so7']) pBancos.add(contaDados['banco-so7']);
                 });
 
-                if(totResgate > 0 || totAplicacao > 0) {
-                    htmlTotais += `
+                // Tabela e Cards PENDENTES
+                if(pResg !== 0 || pAplic !== 0) {
+                    htmlCardsPendente += `
                     <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 5px; background: #f8fafc; min-width: 150px; flex: 1;">
                         <h4 style="margin: 0 0 5px 0; color: var(--primary); text-align: center;">${emp}</h4>
-                        <div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${totResgate.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
-                        <div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${totAplicacao.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+                        <div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${pResg.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+                        <div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${pAplic.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
                     </div>`;
 
-                    totalResgateGeral += totResgate;
-                    totalAplicacaoGeral += totAplicacao;
-                    
-                    let strResg = totResgate > 0 ? totResgate.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-';
-                    let strAplic = totAplicacao > 0 ? totAplicacao.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-';
-                    let strBanco = bancosSet.size > 0 ? Array.from(bancosSet).join(', ') : '-';
+                    totPendResgGeral += pResg; totPendAplicGeral += pAplic;
+                    let strBancoP = pBancos.size > 0 ? Array.from(pBancos).join(', ') : '-';
+                    linhasPendente += `<tr><td style="font-weight:bold;">${emp}</td><td style="text-align:right; color:#10b981; font-weight:bold;">${pResg !== 0 ? pResg.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:right; color:var(--vermelho-saida); font-weight:bold;">${pAplic !== 0 ? pAplic.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:center;">${strBancoP}</td></tr>`;
+                }
 
-                    linhasTabelaPrint += `
-                        <tr>
-                            <td style="font-weight:bold;">${emp}</td>
-                            <td style="text-align: right; color:#10b981; font-weight:bold;">${strResg}</td>
-                            <td style="text-align: right; color:var(--vermelho-saida); font-weight:bold;">${strAplic}</td>
-                            <td style="text-align: center;">${strBanco}</td>
-                        </tr>
-                    `;
+                // Tabela CONSOLIDADA
+                if(cResg !== 0 || cAplic !== 0) {
+                    totConsResgGeral += cResg; totConsAplicGeral += cAplic;
+                    let strBancoC = cBancos.size > 0 ? Array.from(cBancos).join(', ') : '-';
+                    linhasConsolidado += `<tr><td>${emp}</td><td style="text-align:right;">${cResg !== 0 ? cResg.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:right;">${cAplic !== 0 ? cAplic.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:center;">${strBancoC}</td></tr>`;
                 }
             });
-            htmlTotais += '</div>';
+            htmlCardsPendente += '</div>';
 
-            if (linhasTabelaPrint === '') {
-                document.getElementById('resumo-content').innerHTML = "<p style='padding: 20px; text-align: center; color: #64748b; font-size: 14px;'>Nenhuma Aplicação ou Resgate registrado para as empresas neste dia.</p>";
-                document.getElementById('modal-resumo').style.display = 'block';
-                return;
+            // Monta Área Pendente
+            if (linhasPendente === '') {
+                document.getElementById('resumo-content-pendente').innerHTML = "<p style='text-align: center; color: #64748b; font-size: 14px;'>Nenhuma nova pendência para enviar.</p>";
+            } else {
+                document.getElementById('resumo-content-pendente').innerHTML = htmlCardsPendente + `
+                <table class="resumo-table-print">
+                    <thead><tr><th style="text-align:left;">Empresa</th><th style="text-align:right;">Resgate</th><th style="text-align:right;">Aplicação</th><th style="text-align:center;">Banco</th></tr></thead>
+                    <tbody>${linhasPendente}</tbody>
+                    <tfoot><tr><th style="text-align:left;">Total a Enviar</th><th style="text-align:right;">${totPendResgGeral !== 0 ? totPendResgGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</th><th style="text-align:right;">${totPendAplicGeral !== 0 ? totPendAplicGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</th><th></th></tr></tfoot>
+                </table>`;
             }
 
-            let htmlTabelaPrint = `
-            <table class="resumo-table-print">
-                <thead>
-                    <tr>
-                        <th style="text-align: left;">Empresa</th>
-                        <th style="text-align: right;">Resgate</th>
-                        <th style="text-align: right;">Aplicação</th>
-                        <th style="text-align: center;">Banco</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${linhasTabelaPrint}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th style="text-align: left;">Total</th>
-                        <th style="text-align: right;">${totalResgateGeral > 0 ? totalResgateGeral.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-'}</th>
-                        <th style="text-align: right;">${totalAplicacaoGeral > 0 ? totalAplicacaoGeral.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-'}</th>
-                        <th></th>
-                    </tr>
-                </tfoot>
-            </table>`;
+            // Monta Área Consolidada
+            if (linhasConsolidado === '') {
+                document.getElementById('resumo-content-consolidado').innerHTML = "<p style='font-size:12px; color:#64748b; margin:0;'>O dia está zerado.</p>";
+            } else {
+                document.getElementById('resumo-content-consolidado').innerHTML = `
+                <table style="width:100%; border-collapse:collapse; font-size:11px; background:white;">
+                    <thead><tr style="background:#cbd5e1; color:#1e293b;"><th style="padding:4px; text-align:left;">Empresa</th><th style="padding:4px; text-align:right;">Resgate</th><th style="padding:4px; text-align:right;">Aplicação</th><th style="padding:4px; text-align:center;">Banco</th></tr></thead>
+                    <tbody>${linhasConsolidado}</tbody>
+                    <tfoot><tr style="font-weight:bold;"><td style="padding:4px;">Total</td><td style="padding:4px; text-align:right;">${totConsResgGeral !== 0 ? totConsResgGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="padding:4px; text-align:right;">${totConsAplicGeral !== 0 ? totConsAplicGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td></td></tr></tfoot>
+                </table>`;
+            }
 
-            document.getElementById('resumo-content').innerHTML = htmlTotais + htmlTabelaPrint;
             document.getElementById('modal-resumo').style.display = 'block';
         }
 
-        // ==========================================
-        // FUNÇÃO DE COPIAR RESUMO COMO IMAGEM
-        // ==========================================
+        // MARCAR LOTE COMO ENVIADO (Limpa pendências, mantém saldo consolidado)
+        function confirmarEnvioLote() {
+            if(!confirm("Confirma que estes valores já foram enviados para a operação?\n\nIsso limpará a tela de Novas Aplicações/Resgates (mas os valores continuarão no Saldo do Caixa normalmente).")) return;
+            
+            let diaDados = dadosPorDia[diaAtivo];
+            if(!diaDados) return;
+
+            Object.keys(empresasConfig).forEach(emp => {
+                if(diaDados[emp]) {
+                    Object.keys(diaDados[emp]).forEach(idx => {
+                        if(diaDados[emp][idx]) {
+                            diaDados[emp][idx]['pendente-o3'] = "0";
+                            diaDados[emp][idx]['pendente-so7'] = "0";
+                        }
+                    });
+                }
+            });
+            
+            carregarEstado(); // Atualiza atributos no DOM da empresa ativa
+            abrirResumo();    // Recarrega o Modal para mostrar vazio
+        }
+
         async function copiarResumoImagem() {
             const exportArea = document.getElementById('resumo-export-area');
             const btn = document.getElementById('btn-copiar-resumo');
             const textoOriginal = btn.innerHTML;
-            
-            btn.innerHTML = "⏳ Copiando...";
-            btn.style.background = "#64748b"; // Cor de "carregando"
+            btn.innerHTML = "⏳ Copiando..."; btn.style.background = "#64748b"; 
             
             try {
-                const canvas = await html2canvas(exportArea, {
-                    backgroundColor: "#ffffff",
-                    scale: 2 // Escala maior para não perder qualidade no WhatsApp/E-mail
-                });
-                
+                const canvas = await html2canvas(exportArea, { backgroundColor: "#ffffff", scale: 2 });
                 canvas.toBlob(async function(blob) {
                     try {
                         const item = new ClipboardItem({ "image/png": blob });
                         await navigator.clipboard.write([item]);
-                        
-                        btn.innerHTML = "✅ Copiado!";
-                        btn.style.background = "#10b981"; // Volta cor de sucesso
-                        
-                        setTimeout(() => {
-                            btn.innerHTML = textoOriginal;
-                        }, 2000);
-                        
+                        btn.innerHTML = "✅ Copiado!"; btn.style.background = "#10b981"; 
+                        setTimeout(() => { btn.innerHTML = textoOriginal; }, 2000);
                     } catch (err) {
-                        console.error(err);
-                        alert("Não foi possível copiar para a área de transferência. Tente novamente.");
-                        btn.innerHTML = textoOriginal;
-                        btn.style.background = "#10b981";
+                        alert("Não foi possível copiar. Verifique se o navegador permite.");
+                        btn.innerHTML = textoOriginal; btn.style.background = "#10b981";
                     }
                 });
-            } catch (err) {
-                console.error(err);
-                alert("Erro ao gerar a imagem.");
-                btn.innerHTML = textoOriginal;
-                btn.style.background = "#10b981";
-            }
+            } catch (err) { alert("Erro ao gerar imagem."); btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; }
         }
 
         // START
