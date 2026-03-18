@@ -14,7 +14,7 @@ body { display: flex; height: 100vh; background-color: #f4f7f6; }
 .tab-content h1 { color: #0f172a; margin-bottom: 15px; }
 .tab-content p { color: #475569; }
 
-/* Layout do Chat em Tela Cheia */
+/* Layout do Chat em Ecrã Inteiro */
 .chat-layout { display: none; flex-direction: column; height: calc(100vh - 80px); padding: 0; overflow: hidden; }
 .chat-layout.active { display: flex; }
 .chat-header-full { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #e2e8f0; background: #ffffff; border-radius: 8px 8px 0 0; }
@@ -46,24 +46,28 @@ body { display: flex; height: 100vh; background-color: #f4f7f6; }
 /* Cores de Status */
 .status-ok { color: #10b981; font-weight: bold; background: #d1fae5; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
 .status-pendente { color: #ef4444; font-weight: bold; background: #fee2e2; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
-/* Modificador exclusivo para a aba que carrega o iframe do Cash Pooling */
+
+/* ==================================================================
+   A MÁGICA DO CAIXA: Margens negativas para furar a barreira do Hub
+================================================================== */
 .tab-caixa {
-    padding: 0 !important; /* Remove o padding para a tabela encostar nas bordas */
-    height: calc(100vh - 80px); /* 100vh menos os 40px de cima e 40px de baixo do .content */
+    padding: 0 !important;
+    margin: -40px !important; /* Anula o padding de 40px da classe .content */
+    width: calc(100% + 80px) !important; /* Estica para as laterais */
+    height: 100vh !important; /* Estica até ao rodapé exato */
+    border-radius: 0 !important;
+    box-shadow: none !important;
     display: none; 
-    flex-direction: column;
-    overflow: hidden; /* Evita barra de rolagem dupla */
+    overflow: hidden; /* Remove barras de rolagem duplas */
 }
 
-/* Quando a aba estiver ativa, usamos flex em vez de block */
 .tab-caixa.active {
-    display: flex !important; 
+    display: block !important; 
 }
 
-/* O iframe estica e preenche todo o espaço calculado */
 .tab-caixa iframe {
     width: 100%;
-    flex: 1; /* Manda o iframe empurrar a tela até o final */
+    height: 100%; /* Agora o iframe consegue ocupar os 100% livremente */
     border: none;
-    border-radius: 8px;
+    display: block;
 }
