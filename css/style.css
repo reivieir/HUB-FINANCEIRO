@@ -46,3 +46,24 @@ body { display: flex; height: 100vh; background-color: #f4f7f6; }
 /* Cores de Status */
 .status-ok { color: #10b981; font-weight: bold; background: #d1fae5; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
 .status-pendente { color: #ef4444; font-weight: bold; background: #fee2e2; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
+/* Modificador exclusivo para a aba que carrega o iframe do Cash Pooling */
+.tab-caixa {
+    padding: 0 !important; /* Remove o padding para a tabela encostar nas bordas */
+    height: calc(100vh - 80px); /* 100vh menos os 40px de cima e 40px de baixo do .content */
+    display: none; 
+    flex-direction: column;
+    overflow: hidden; /* Evita barra de rolagem dupla */
+}
+
+/* Quando a aba estiver ativa, usamos flex em vez de block */
+.tab-caixa.active {
+    display: flex !important; 
+}
+
+/* O iframe estica e preenche todo o espaço calculado */
+.tab-caixa iframe {
+    width: 100%;
+    flex: 1; /* Manda o iframe empurrar a tela até o final */
+    border: none;
+    border-radius: 8px;
+}
