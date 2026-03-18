@@ -145,7 +145,7 @@
     <div id="modal-resumo" class="modal">
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('modal-resumo').style.display='none'">&times;</span>
-            <h2 style="color:var(--primary); margin-top:0;">Resumo da Competência: <span id="resumo-dia-titulo"></span></h2>
+            <h2 style="color:var(--primary); margin-top:0;">Resumo de Aplicações e Resgates: <span id="resumo-dia-titulo"></span></h2>
             <div id="resumo-content"></div>
         </div>
     </div>
@@ -493,7 +493,6 @@
             let si = getV('si', idx);
             let calc = si + te - tsai; setV('calc', idx, calc);
             
-            // O SALDO SEGURO AGORA RECEBE O CÁLCULO DIRETO DE FORMA EXPLICITA
             let marg = getV('marg', idx);
             let seg = calc - marg; setV('seg', idx, seg); 
         }
@@ -543,7 +542,8 @@
         }
 
         // ==========================================
-        // FUNÇÃO DE RESUMO DO DIA (IDÊNTICA AO PRINT)
+        // FUNÇÃO DE RESUMO DO DIA 
+        // Apenas para Aplicações e Resgates
         // ==========================================
         function abrirResumo() {
             salvarEstado(); 
@@ -552,20 +552,16 @@
             let diaDados = dadosPorDia[diaAtivo];
             if(!diaDados) return;
 
-            // VARIÁVEIS PARA A TABELA (Idêntico ao image_e94815.png)
             let linhasTabelaPrint = '';
             let totalResgateGeral = 0;
             let totalAplicacaoGeral = 0;
             
-            // CAIXINHAS DE ENTRADA E SAÍDA (Para manter o padrão que estão acostumados)
             let htmlTotais = '<div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom: 20px;">';
 
             Object.keys(empresasConfig).forEach(emp => {
                 let empDados = diaDados[emp];
                 if(!empDados) return;
 
-                let totEntradas = 0;
-                let totSaidas = 0;
                 let totResgate = 0;
                 let totAplicacao = 0;
                 let bancosSet = new Set();
@@ -573,9 +569,6 @@
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = empDados[idx] || {};
                     
-                    totEntradas += parseFloat((contaDados['te'] || '0').replace(/\./g,'').replace(',','.')) || 0;
-                    totSaidas += parseFloat((contaDados['tsai'] || '0').replace(/\./g,'').replace(',','.')) || 0;
-
                     let resg = parseFloat((contaDados['o3'] || '0').replace(/\./g,'').replace(',','.')) || 0;
                     let aplic = parseFloat((contaDados['so7'] || '0').replace(/\./g,'').replace(',','.')) || 0;
 
@@ -586,34 +579,39 @@
                     if(aplic > 0 && contaDados['banco-so7']) bancosSet.add(contaDados['banco-so7']);
                 });
 
-                // Cria o Card de Entrada/Saída da empresa
-                if(totEntradas > 0 || totSaidas > 0) {
+                // SÓ MOSTRA SE A EMPRESA TEVE APLICAÇÃO OU RESGATE
+                if(totResgate > 0 || totAplicacao > 0) {
                     htmlTotais += `
                     <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 5px; background: #f8fafc; min-width: 150px;">
                         <h4 style="margin: 0 0 5px 0; color: var(--primary);">${emp}</h4>
-                        <div style="font-size: 11px; color: var(--azul-entrada);">Entradas: R$ ${totEntradas.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
-                        <div style="font-size: 11px; color: var(--vermelho-saida);">Saídas: R$ ${totSaidas.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+                        <div style="font-size: 11px; color: var(--azul-entrada);">Resgates: R$ ${totResgate.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+                        <div style="font-size: 11px; color: var(--vermelho-saida);">Aplicações: R$ ${totAplicacao.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
                     </div>`;
+
+                    totalResgateGeral += totResgate;
+                    totalAplicacaoGeral += totAplicacao;
+                    
+                    let strResg = totResgate > 0 ? totResgate.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-';
+                    let strAplic = totAplicacao > 0 ? totAplicacao.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-';
+                    let strBanco = bancosSet.size > 0 ? Array.from(bancosSet).join(', ') : '-';
+
+                    linhasTabelaPrint += `
+                        <tr>
+                            <td style="font-weight:bold;">${emp}</td>
+                            <td style="text-align: right;">${strResg}</td>
+                            <td style="text-align: right;">${strAplic}</td>
+                            <td style="text-align: center;">${strBanco}</td>
+                        </tr>
+                    `;
                 }
-
-                // Cria a Linha para a Tabela de Resgate/Aplicação
-                totalResgateGeral += totResgate;
-                totalAplicacaoGeral += totAplicacao;
-                
-                let strResg = totResgate > 0 ? totResgate.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-';
-                let strAplic = totAplicacao > 0 ? totAplicacao.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '-';
-                let strBanco = bancosSet.size > 0 ? Array.from(bancosSet).join(', ') : '-';
-
-                linhasTabelaPrint += `
-                    <tr>
-                        <td style="font-weight:bold;">${emp}</td>
-                        <td style="text-align: right;">${strResg}</td>
-                        <td style="text-align: right;">${strAplic}</td>
-                        <td style="text-align: center;">${strBanco}</td>
-                    </tr>
-                `;
             });
             htmlTotais += '</div>';
+
+            if (linhasTabelaPrint === '') {
+                document.getElementById('resumo-content').innerHTML = "<p style='padding: 20px; text-align: center; color: #64748b;'>Nenhuma Aplicação ou Resgate registrado para as empresas neste dia.</p>";
+                document.getElementById('modal-resumo').style.display = 'block';
+                return;
+            }
 
             // TABELA NO FORMATO DO PRINT ENVIADO
             let htmlTabelaPrint = `
