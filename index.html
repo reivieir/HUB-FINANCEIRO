@@ -20,15 +20,7 @@
         }
 
         /* Menu Lateral */
-        .sidebar { 
-            width: 250px; 
-            background-color: #1e293b; 
-            color: white; 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            z-index: 200; /* Garante que o menu fique sempre por cima */
-        }
+        .sidebar { width: 250px; background-color: #1e293b; color: white; padding: 20px; display: flex; flex-direction: column; }
         .sidebar h2 { margin-bottom: 30px; font-size: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
         .nav-btn { background: none; border: none; color: #cbd5e1; padding: 12px; text-align: left; cursor: pointer; border-radius: 5px; margin-bottom: 10px; font-size: 1rem; transition: 0.3s; width: 100%; }
         .nav-btn:hover, .nav-btn.active { background-color: #334155; color: white; }
@@ -39,7 +31,6 @@
             padding: 40px; 
             overflow-y: auto; 
             height: 100vh; 
-            position: relative;
         }
 
         .tab-content { display: none; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -49,37 +40,35 @@
         
         .tab-content iframe {
             width: 100%;
-            height: calc(100vh - 120px); /* Padrão para as outras abas */
+            height: calc(100vh - 120px);
             border: none;
             border-radius: 8px;
             background-color: #f8fafc;
         }
 
         /* ==================================================================
-           A MÁGICA DEFINITIVA PARA O CAIXA: POSITION FIXED
+           A MÁGICA DEFINITIVA PARA O CAIXA: MARGENS NEGATIVAS 
+           (Imune ao 'zoom: 0.8' e preenche a tela toda)
         ================================================================== */
         .tab-caixa {
-            position: fixed !important;
-            top: 0 !important;
-            left: 250px !important; /* Pula a largura exata do menu lateral */
-            width: calc(100vw - 250px) !important; /* Ocupa 100% da largura restante */
-            height: 100vh !important; /* Ocupa 100% da altura da tela real */
+            margin: -40px !important; /* Anula perfeitamente o padding de 40px do .content */
+            width: calc(100% + 80px) !important; /* Estica a largura 100% mais as margens anuladas */
+            height: 100vh !important; /* Estica a altura exatamente até o rodapé */
             padding: 0 !important;
-            margin: 0 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
-            z-index: 100 !important; /* Fica por cima de qualquer margem do Hub */
             display: none; 
-            background: #f8fafc;
+            background: transparent;
         }
 
         .tab-caixa.active {
-            display: block !important; 
+            display: flex !important; 
+            flex-direction: column;
         }
 
         .tab-caixa iframe {
+            flex: 1 !important; /* O iframe assume a responsabilidade de preencher o bloco */
             width: 100% !important;
-            height: 100% !important;
             border: none !important;
             display: block !important;
             border-radius: 0 !important;
