@@ -20,20 +20,26 @@
         }
 
         /* Menu Lateral */
-        .sidebar { width: 250px; background-color: #1e293b; color: white; padding: 20px; display: flex; flex-direction: column; z-index: 20; }
+        .sidebar { 
+            width: 250px; 
+            background-color: #1e293b; 
+            color: white; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 200; /* Garante que o menu fique sempre por cima */
+        }
         .sidebar h2 { margin-bottom: 30px; font-size: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
         .nav-btn { background: none; border: none; color: #cbd5e1; padding: 12px; text-align: left; cursor: pointer; border-radius: 5px; margin-bottom: 10px; font-size: 1rem; transition: 0.3s; width: 100%; }
         .nav-btn:hover, .nav-btn.active { background-color: #334155; color: white; }
 
-        /* ==========================================
-           A MÁGICA COMEÇA AQUI: position: relative;
-        ========================================== */
+        /* Conteúdo Padrão */
         .content { 
             flex: 1; 
             padding: 40px; 
             overflow-y: auto; 
             height: 100vh; 
-            position: relative; /* Permite que o caixa "flutue" cobrindo tudo */
+            position: relative;
         }
 
         .tab-content { display: none; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -43,28 +49,28 @@
         
         .tab-content iframe {
             width: 100%;
-            height: calc(100vh - 160px);
+            height: calc(100vh - 120px); /* Padrão para as outras abas */
             border: none;
             border-radius: 8px;
             background-color: #f8fafc;
         }
 
-        /* ==========================================
-           CLASSE EXCLUSIVA DO CAIXA: Ignora o Padding
-        ========================================== */
+        /* ==================================================================
+           A MÁGICA DEFINITIVA PARA O CAIXA: POSITION FIXED
+        ================================================================== */
         .tab-caixa {
-            position: absolute !important;
+            position: fixed !important;
             top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
+            left: 250px !important; /* Pula a largura exata do menu lateral */
+            width: calc(100vw - 250px) !important; /* Ocupa 100% da largura restante */
+            height: 100vh !important; /* Ocupa 100% da altura da tela real */
             padding: 0 !important;
             margin: 0 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
+            z-index: 100 !important; /* Fica por cima de qualquer margem do Hub */
             display: none; 
             background: #f8fafc;
-            z-index: 10;
         }
 
         .tab-caixa.active {
@@ -73,10 +79,10 @@
 
         .tab-caixa iframe {
             width: 100% !important;
-            height: 100% !important; /* Estica o iframe 100% até o fim */
+            height: 100% !important;
             border: none !important;
+            display: block !important;
             border-radius: 0 !important;
-            display: block;
         }
 
         /* Layout do Chat */
@@ -102,6 +108,21 @@
             flex-direction: column;
             height: calc(100vh - 40px);
         }
+
+        /* Tabela e Filtros de Conciliação */
+        .filters-container { display: flex; gap: 15px; margin-bottom: 20px; }
+        .filters-container select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 1rem; outline: none; background-color: white; color: #1e293b; min-width: 200px; cursor: pointer; }
+        .filters-container select:hover { border-color: #94a3b8; }
+
+        .table-container { overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #e2e8f0; }
+        #tabelaConciliacao { width: 100%; border-collapse: collapse; text-align: left; }
+        #tabelaConciliacao th, #tabelaConciliacao td { padding: 15px; border-bottom: 1px solid #e2e8f0; }
+        #tabelaConciliacao th { background-color: #f8fafc; font-weight: 600; color: #475569; }
+        #tabelaConciliacao tbody tr:hover { background-color: #f1f5f9; transition: 0.2s; }
+
+        /* Cores de Status */
+        .status-ok { color: #10b981; font-weight: bold; background: #d1fae5; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
+        .status-pendente { color: #ef4444; font-weight: bold; background: #fee2e2; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
     </style>
 </head>
 <body>
