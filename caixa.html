@@ -15,27 +15,31 @@
             --vermelho-saida: #ef4444;
         }
         
-        body { 
-            margin: 0; font-family: 'Segoe UI', Arial, sans-serif; 
+        /* ESTRATÉGIA DEFINITIVA PARA TELA CHEIA */
+        html, body { 
+            margin: 0; padding: 0;
+            width: 100%; height: 100%; /* Força a ocupar 100% da janela real */
+            font-family: 'Segoe UI', Arial, sans-serif; 
             background: var(--bg); color: var(--text); 
-            position: absolute; top: 0; bottom: 0; left: 0; right: 0;
-            display: flex; flex-direction: column; overflow: hidden; 
+            display: flex; flex-direction: column; 
+            overflow: hidden; /* Trava a rolagem na página inteira, liberando só na tabela */
         }
 
+        /* BARRAS SUPERIORES (Tamanhos travados com flex: 0 0) */
         .header-blue {
             background-color: var(--primary); color: white;
-            padding: 5px 20px; display: flex; justify-content: space-between; align-items: center;
-            height: 38px; box-sizing: border-box; font-size: 12px; flex-shrink: 0;
+            padding: 0 20px; display: flex; justify-content: space-between; align-items: center;
+            flex: 0 0 38px; box-sizing: border-box; font-size: 12px;
         }
 
         .nav-dias {
             background: #e2e8f0; display: flex; align-items: center;
-            padding: 4px 15px; gap: 8px; height: 35px; border-bottom: 1px solid var(--border);
-            overflow-x: auto; flex-shrink: 0;
+            padding: 0 15px; gap: 8px; flex: 0 0 35px; border-bottom: 1px solid var(--border);
+            overflow-x: auto;
         }
         .dia-btn {
             display: flex; align-items: center; gap: 6px;
-            padding: 3px 8px; border-radius: 4px; background: white; border: 1px solid var(--border);
+            padding: 2px 8px; border-radius: 4px; background: white; border: 1px solid var(--border);
             font-size: 11px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s; white-space: nowrap;
         }
         .dia-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -46,34 +50,46 @@
         .dia-btn.active .btn-acao:hover { color: white; }
         .dia-btn.active .btn-acao.fechar:hover { color: #fca5a5; }
 
-        .btn-novo-dia { background: #10b981; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; }
-        .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
-        .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
+        .btn-novo-dia { background: #10b981; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; }
+        .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
+        .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
 
         .nav-empresas {
             display: flex; background: white; border-bottom: 1px solid var(--border);
-            overflow-x: auto; padding: 5px 15px 0 15px; height: 32px; flex-shrink: 0;
+            overflow-x: auto; padding: 3px 15px 0 15px; flex: 0 0 32px; box-sizing: border-box;
         }
         .tab-btn {
-            padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0;
+            padding: 4px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0;
             font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase;
         }
         .tab-btn.active { background: var(--bg); border-color: var(--border); color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        .grid-container { flex: 1 1 auto; overflow: auto; padding: 0; background: white; position: relative; }
+        /* GRID CONTAINER (Forçado a esticar até embaixo) */
+        .grid-container { 
+            flex: 1 1 100%; /* Empurra até o rodapé da tela */
+            overflow: auto; /* Rolagem liberada aqui dentro */
+            background: white; position: relative; 
+        }
+        
         table { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; font-size: 10px; }
-        th, td { border: 1px solid var(--border); padding: 2px 4px; min-width: 140px; box-sizing: border-box; vertical-align: middle; background: white; }
+        
+        /* CÉLULAS MAIS COMPACTAS (Reduzido o padding vertical para caber mais linhas) */
+        th, td { 
+            border: 1px solid var(--border); padding: 1px 4px; 
+            min-width: 130px; box-sizing: border-box; vertical-align: middle; background: white; 
+            height: 22px; /* Altura mínima reduzida */
+        }
 
         .col-categoria {
             position: sticky; left: 0; z-index: 11; background: white;
             min-width: 250px; text-align: left; border-right: 2px solid var(--border) !important;
         }
-        thead th { background: #f1f5f9; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border); color: var(--primary); padding: 4px; }
+        thead th { background: #f1f5f9; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border); color: var(--primary); padding: 3px; }
         thead th.col-categoria { z-index: 12; background: #e2e8f0; text-align: center; }
 
-        .cell-wrapper { display: flex; flex-direction: column; align-items: flex-end; }
-        .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 1px; }
-        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc; }
+        .cell-wrapper { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
+        .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 0px; line-height: 1.2; }
+        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 1px 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc; margin-top: 1px; }
         .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
 
         .bg-total-entradas { background-color: var(--azul-entrada) !important; color: white !important; font-weight: bold; }
@@ -280,8 +296,6 @@
                     let el = document.getElementById(`val-${l.id}-${idx}`);
                     if(el) {
                         estado[idx][l.id] = el.innerText;
-                        
-                        // Lógica de Carrinho/Pendências
                         if(l.id === 'o3' || l.id === 'so7') {
                             estado[idx][`pendente-${l.id}`] = el.getAttribute('data-pendente') || "0";
                         }
@@ -479,7 +493,6 @@
                 } else {
                     setV(lid, cidx, getV(lid, cidx) + v); 
                     
-                    // ALIMENTA O LOTE DE PENDÊNCIAS DE RESGATE E APLICAÇÃO
                     if (lid === 'o3' || lid === 'so7') {
                         let el = document.getElementById(`val-${lid}-${cidx}`);
                         let p = parseFloat(el.getAttribute('data-pendente')) || 0;
@@ -515,9 +528,6 @@
             }
         }
 
-        // ==========================================
-        // FUNÇÃO LOTE PENDENTE - RESUMO
-        // ==========================================
         function abrirResumo() {
             salvarEstado(); 
             document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
@@ -540,11 +550,9 @@
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = empDados[idx] || {};
                     
-                    // Consolidado
                     let resg = parseFloat((contaDados['o3'] || '0').replace(/\./g,'').replace(',','.')) || 0;
                     let aplic = parseFloat((contaDados['so7'] || '0').replace(/\./g,'').replace(',','.')) || 0;
                     
-                    // Pendente
                     let pendR = parseFloat(contaDados['pendente-o3']) || 0;
                     let pendA = parseFloat(contaDados['pendente-so7']) || 0;
 
@@ -557,7 +565,6 @@
                     if(pendA !== 0 && contaDados['banco-so7']) pBancos.add(contaDados['banco-so7']);
                 });
 
-                // Tabela e Cards PENDENTES
                 if(pResg !== 0 || pAplic !== 0) {
                     htmlCardsPendente += `
                     <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 5px; background: #f8fafc; min-width: 150px; flex: 1;">
@@ -571,7 +578,6 @@
                     linhasPendente += `<tr><td style="font-weight:bold;">${emp}</td><td style="text-align:right; color:#10b981; font-weight:bold;">${pResg !== 0 ? pResg.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:right; color:var(--vermelho-saida); font-weight:bold;">${pAplic !== 0 ? pAplic.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:center;">${strBancoP}</td></tr>`;
                 }
 
-                // Tabela CONSOLIDADA
                 if(cResg !== 0 || cAplic !== 0) {
                     totConsResgGeral += cResg; totConsAplicGeral += cAplic;
                     let strBancoC = cBancos.size > 0 ? Array.from(cBancos).join(', ') : '-';
@@ -580,7 +586,6 @@
             });
             htmlCardsPendente += '</div>';
 
-            // Monta Área Pendente
             if (linhasPendente === '') {
                 document.getElementById('resumo-content-pendente').innerHTML = "<p style='text-align: center; color: #64748b; font-size: 14px;'>Nenhuma nova pendência para enviar.</p>";
             } else {
@@ -592,7 +597,6 @@
                 </table>`;
             }
 
-            // Monta Área Consolidada
             if (linhasConsolidado === '') {
                 document.getElementById('resumo-content-consolidado').innerHTML = "<p style='font-size:12px; color:#64748b; margin:0;'>O dia está zerado.</p>";
             } else {
@@ -607,7 +611,6 @@
             document.getElementById('modal-resumo').style.display = 'block';
         }
 
-        // MARCAR LOTE COMO ENVIADO (Limpa pendências, mantém saldo consolidado)
         function confirmarEnvioLote() {
             if(!confirm("Confirma que estes valores já foram enviados para a operação?\n\nIsso limpará a tela de Novas Aplicações/Resgates (mas os valores continuarão no Saldo do Caixa normalmente).")) return;
             
@@ -625,8 +628,8 @@
                 }
             });
             
-            carregarEstado(); // Atualiza atributos no DOM da empresa ativa
-            abrirResumo();    // Recarrega o Modal para mostrar vazio
+            carregarEstado(); 
+            abrirResumo();    
         }
 
         async function copiarResumoImagem() {
