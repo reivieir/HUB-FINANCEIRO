@@ -13,7 +13,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
 
         /* ==========================================
-           MOLDE PADRÃO DEXCO
+           MOLDE PADRÃO DEXCO AJUSTADO (ZOOM 0.8)
         ========================================== */
         html, body {
             margin: 0; padding: 0; height: 100vh; width: 100vw;
@@ -61,6 +61,8 @@
         .dia-btn { display: flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 4px; background: white; border: 1px solid var(--border); font-size: 11px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s; white-space: nowrap; }
         .dia-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-acao { color: #94a3b8; font-size: 12px; cursor: pointer; line-height: 1; }
+        .btn-acao:hover { color: var(--primary); }
+        .btn-acao.fechar:hover { color: #ef4444; }
 
         .btn-novo-dia { background: #10b981; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; }
         .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
@@ -92,6 +94,7 @@
         .bg-total-entradas { background-color: var(--azul-entrada) !important; color: white !important; font-weight: bold; }
         .bg-total-saidas { background-color: var(--vermelho-saida) !important; color: white !important; font-weight: bold; }
         .bg-saldo-calculado { background-color: #0284c7 !important; color: white !important; font-weight: bold; }
+        .bg-margem-segura { background-color: #f1f5f9 !important; font-weight: bold; }
         .bg-saldo-seguro { background-color: #1e293b !important; color: white !important; font-weight: bold; }
         
         .linha-destaque { font-weight: bold; background: white; }
@@ -110,6 +113,7 @@
         .resumo-table-print { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; background: white;}
         .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 6px; }
         .resumo-table-print th { background-color: var(--primary); color: white; }
+        .resumo-table-print tfoot th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -138,8 +142,8 @@
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;">
                 <div style="display: flex; align-items: center;">
-                    <button class="btn-copiar" id="btn-copiar-resumo" onclick="copiarResumoImagem()" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;">📋 Copiar Imagem</button>
-                    <button class="btn-limpar-lote" onclick="confirmarEnvioLote()" style="background: #3b82f6; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px;">✅ Marcar Lote como Enviado</button>
+                    <button class="btn-copiar" id="btn-copiar-resumo" onclick="copiarResumoImagem()" style="background: #10b981; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;">📋 Copiar Imagem</button>
+                    <button class="btn-limpar-lote" onclick="confirmarEnvioLote()" style="background: #3b82f6; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px;">✅ Marcar Lote como Enviado</button>
                 </div>
                 <span class="close" onclick="document.getElementById('modal-resumo').style.display='none'">&times;</span>
             </div>
@@ -156,11 +160,11 @@
 
     <script>
         const empresasConfig = {
-            'BRDX': [{b:'ITAÚ', c:'0262 / 17843-7'},{b:'ITAÚ', c:'0262 / 29500-9'},{b:'ITAÚ', c:'0262 / 11079-4'},{b:'ITAÚ', c:'7307 / 50310-7'},{b:'ITAÚ', c:'7307 / 59362-9'},{b:'BB', c:'1893-7/ 343329-3'},{b:'SANTANDER', c:'2008/ 130000413'},{b:'BRADESCO', c:'2372-8/ 89300-5'},{b:'BRADESCO', c:'0895-8 / 76322-5'},{b:'SAFRA', c:'115/ 000.330-5'},{b:'BANRISUL', c:'0413 / 60157510-3'},{b:'CAIXA', c:'3337 / 577246689-1'},{b:'BNB', c:'0031 / 55843-6'},{b:'ABC BRASIL', c:'0001-9 / 2.331.908-0'},{b:'DAYCOVAL', c:'0001 / 001516474-0'}],
-            'BRDF': [{b:'ITAÚ', c:'0262 / 17847-8'},{b:'ITAÚ', c:'7307 /50311-5'},{b:'ITAÚ', c:'7307 /50312-3'},{b:'ITAÚ', c:'0350/ 59363-7'},{b:'BB', c:'1893-7 /30001-2'},{b:'SANTANDER', c:'2271 / 13003017-5'},{b:'BRADESCO', c:'2374-4 / 35500-3'},{b:'SAFRA', c:'115/ 005949-1'},{b:'CEF', c:'1679/ 2783-9'},{b:'CEF', c:'3337 / 577246793-6'},{b:'ABC BRASIL', c:'0001-9 / 2.331.859-9'},{b:'DAYCOVAL', c:'0001/ 001516477-4'}],
-            'BRHY': [{b:'ITAÚ', c:'0046 /15601-4'},{b:'BB', c:'1893-7 / 32966-5'},{b:'SANTANDER', c:'0728 / 13000535-6'},{b:'BRADESCO', c:'2372 / 0038760-6'}],
-            'BRCF': [{b:'ITAÚ', c:'7307 / 11112-5'},{b:'BB', c:'1893-7/ 106406-1'},{b:'SANTANDER', c:'2271 / 13020743-0'},{b:'SAFRA', c:'1150/44941-9'},{b:'BNB', c:'31 / 43636-5'},{b:'BNB', c:'31 / 43626-8'}],
-            'SPE + Controladas': [{b:'BRS1', c:'7307 / 50645-6'},{b:'BRS3 - ITA', c:'7307 / 60438-4'},{b:'BRS2 - ITA', c:'7307 / 59899-0'},{b:'BRS2 - SAF', c:'0115 / 00056629-6'},{b:'BREM - ITA', c:'0262 / 17856-9'},{b:'BRBC - ITA', c:'0262 / 91486-4'},{b:'BRSF - ITA', c:'0262 / 04518-0'},{b:'BRIT - ITA', c:'7307/ 59901-4'},{b:'DFL II - ITA', c:'7307 / 96675-9'},{b:'BRSD - ITA', c:'7307 /48718-6'},{b:'BRTR - ITA', c:'7307/ 08704-4'}]
+            'BRDX': [{b:'ITAÚ', c:'0262/17843-7'},{b:'ITAÚ', c:'0262/29500-9'},{b:'ITAÚ', c:'0262/11079-4'},{b:'ITAÚ', c:'7307/50310-7'},{b:'ITAÚ', c:'7307/59362-9'},{b:'BB', c:'1893-7/343329-3'},{b:'SANTANDER', c:'2008/130000413'},{b:'BRADESCO', c:'2372-8/89300-5'},{b:'BRADESCO', c:'0895-8 / 76322-5'},{b:'SAFRA', c:'115/000.330-5'},{b:'BANRISUL', c:'0413/60157510-3'},{b:'CAIXA', c:'3337/577246689-1'},{b:'BNB', c:'0031/55843-6'},{b:'ABC BRASIL', c:'0001-9/2.331.908-0'},{b:'DAYCOVAL', c:'0001/001516474-0'}],
+            'BRDF': [{b:'ITAÚ', c:'0262/17847-8'},{b:'ITAÚ', c:'7307/50311-5'},{b:'ITAÚ', c:'7307/50312-3'},{b:'ITAÚ', c:'0350/59363-7'},{b:'BB', c:'1893-7/30001-2'},{b:'SANTANDER', c:'2271/13003017-5'},{b:'BRADESCO', c:'2374-4/35500-3'},{b:'SAFRA', c:'115/005949-1'},{b:'CEF', c:'1679/2783-9'},{b:'CEF', c:'3337/577246793-6'},{b:'ABC BRASIL', c:'0001-9/2.331.859-9'},{b:'DAYCOVAL', c:'0001/001516477-4'}],
+            'BRHY': [{b:'ITAÚ', c:'0046/15601-4'},{b:'BB', c:'1893-7/32966-5'},{b:'SANTANDER', c:'0728/13000535-6'},{b:'BRADESCO', c:'2372/0038760-6'}],
+            'BRCF': [{b:'ITAÚ', c:'7307/11112-5'},{b:'BB', c:'1893-7/106406-1'},{b:'SANTANDER', c:'2271/13020743-0'},{b:'SAFRA', c:'1150/44941-9'},{b:'BNB', c:'31/43636-5'},{b:'BNB', c:'31/43626-8'}],
+            'SPE + Controladas': [{b:'BRS1', c:'7307/50645-6'},{b:'BRS3-ITA', c:'7307/60438-4'},{b:'BRS2-ITA', c:'7307/59899-0'},{b:'BRS2-SAF', c:'0115/00056629-6'},{b:'BREM-ITA', c:'0262/17856-9'},{b:'BRBC-ITA', c:'0262/91486-4'},{b:'BRSF-ITA', c:'0262/04518-0'},{b:'BRIT-ITA', c:'7307/59901-4'},{b:'DFL II-ITA', c:'7307/96675-9'},{b:'BRSD-ITA', c:'7307/48718-6'},{b:'BRTR-ITA', c:'7307/08704-4'}]
         };
 
         const plano = [
@@ -181,7 +185,7 @@
             { id: 'sfor', nome: 'SOMA FORNECEDORES', tipo: 'grupo-soma', readOnly: true },
             { id: 's1', nome: 'SAP', tipo: 'item' }, { id: 's2', nome: 'Complemento', tipo: 'item' }, { id: 's3', nome: 'Siscomex', tipo: 'item' }, { id: 's4', nome: 'Concessionaria', tipo: 'item' }, { id: 's5', nome: 'CCEE - ENERGIA', tipo: 'item' }, { id: 's6', nome: 'Câmbio', tipo: 'item' }, { id: 's7', nome: 'Marinha Mercante', tipo: 'item' },
             { id: 'ssal', nome: 'SOMA SALARIOS', tipo: 'grupo-soma', readOnly: true },
-            { id: 'sa1', nome: 'Salários', tipo: 'item' }, { id: 'sa2', nome: 'Débito Consignado', tipo: 'item' },
+            { id: 'sa1', nome: 'Salários', tipo: 'item' }, { id: 'sa2', nome: 'Débito de Consignado', tipo: 'item' },
             { id: 'ssout', nome: 'SOMA OUTROS', tipo: 'grupo-soma', readOnly: true },
             { id: 'so1', nome: 'Cartão de Crédito', tipo: 'item' }, { id: 'so2', nome: 'Tarifas', tipo: 'item' }, { id: 'so3', nome: 'Comissão / Fiança', tipo: 'item' }, { id: 'so4', nome: 'Bloqueio judicial', tipo: 'item' }, { id: 'so5', nome: 'Sem Parar', tipo: 'item' }, { id: 'so6', nome: 'CRCC', tipo: 'item' }, { id: 'so7', nome: 'Aplicação', tipo: 'linha-banco' }, { id: 'so8', nome: 'NDF', tipo: 'item' },
             { id: 'ssfin', nome: 'SOMA FINANCIAMENTOS', tipo: 'grupo-soma', readOnly: true },
@@ -214,47 +218,41 @@
             document.getElementById('nav-dias-container').innerHTML = html + `<button class="btn-novo-dia" onclick="abrirNovoDia()">+ ABRIR NOVO DIA</button>`;
         }
 
-        function mudarEmpresa(nova) { salvarEstado(); empresaAtiva = nova; contas = empresasConfig[empresaAtiva]; renderTabsEmpresas(); renderTabela(); carregarEstado(); }
+        function mudarEmpresa(nova) { salvarEstado(); empresaAtiva = nova; renderTabsEmpresas(); renderTabela(); carregarEstado(); }
 
         function renderTabela() {
             const h = document.getElementById('h-contas');
             const b = document.getElementById('b-caixa');
             const contas = empresasConfig[empresaAtiva];
-            h.innerHTML = `<tr><th class="col-categoria">Categorias / Contas</th>${contas.map(c => `<th>${c.b}<br><small>${c.c}</small></th>`).join('')}</tr>`;
-            
+            h.innerHTML = `<tr><th class="col-categoria">Categorias</th>${contas.map(c => `<th>${c.b}<br><small>${c.c}</small></th>`).join('')}</tr>`;
             b.innerHTML = plano.map(l => {
                 const noInput = l.readOnly ? 'no-input' : '';
                 const isIndent = (l.tipo === 'item' || l.tipo === 'linha-banco') ? 'indent' : '';
-                
-                return `<tr>
-                    <td class="col-categoria ${l.tipo} ${isIndent}">${l.nome}</td>
-                    ${contas.map((c, i) => {
-                        if (l.tipo === 'linha-banco') {
-                            return `<td><div class="cell-wrapper">
-                                <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente="0">0,00</span>
-                                <select id="banco-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px;" onchange="salvarEstado()">
-                                    <option value="">Banco...</option>
-                                    ${listaBancosPadrao.map(bco => `<option value="${bco}">${bco}</option>`).join('')}
-                                </select>
-                                <input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})">
-                            </div></td>`;
-                        }
-                        if (l.tipo === 'linha-transferencia') {
-                            return `<td><div class="cell-wrapper">
-                                <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
-                                <select id="sel-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px;">
-                                    <option value="">Destino...</option>
-                                    ${contas.map((ct, idx) => idx !== i ? `<option value="${idx}">${ct.b} ${ct.c.split('/')[1] || ''}</option>` : '').join('')}
-                                </select>
-                                <input type="text" class="input-lancar" placeholder="Valor + Enter" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
-                            </div></td>`;
-                        }
-                        return `<td><div class="cell-wrapper ${noInput}">
-                            <span id="val-${l.id}-${i}" class="cell-acumulado" data-pendente="0">0,00</span>
+                return `<tr><td class="col-categoria ${l.tipo} ${isIndent}">${l.nome}</td>
+                ${contas.map((c, i) => {
+                    if (l.tipo === 'linha-banco') {
+                        return `<td><div class="cell-wrapper">
+                            <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente="0">0,00</span>
+                            <select id="banco-${l.id}-${i}" class="input-lancar" onchange="salvarEstado()">
+                                <option value="">Banco...</option>${listaBancosPadrao.map(bco => `<option value="${bco}">${bco}</option>`).join('')}
+                            </select>
                             <input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})">
                         </div></td>`;
-                    }).join('')}
-                </tr>`;
+                    }
+                    if (l.tipo === 'linha-transferencia') {
+                        return `<td><div class="cell-wrapper">
+                            <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
+                            <select id="sel-${l.id}-${i}" class="input-lancar">
+                                <option value="">Destino...</option>${contas.map((ct, idx) => idx !== i ? `<option value="${idx}">${ct.b} ${ct.c.split('/')[1] || ''}</option>` : '').join('')}
+                            </select>
+                            <input type="text" class="input-lancar" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
+                        </div></td>`;
+                    }
+                    return `<td><div class="cell-wrapper ${noInput}">
+                        <span id="val-${l.id}-${i}" class="cell-acumulado" data-pendente="0">0,00</span>
+                        <input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})">
+                    </div></td>`;
+                }).join('')}</tr>`;
             }).join('');
         }
 
@@ -274,8 +272,7 @@
             let ssfin = getV('sfi1',idx)+getV('sfi2',idx)+getV('sfi3',idx)+getV('sfi4',idx)+getV('sfi5',idx); setV('ssfin',idx,ssfin);
             let ssint = getV('sin1',idx)+getV('sin2',idx)+getV('sin3',idx)+getV('smut',idx)+getV('sapo',idx); setV('ssint',idx,ssint);
             let tsai = sfor+ssal+ssout+ssfin+ssint+getV('sviv',idx)+getV('scri',idx)+getV('stenv',idx); setV('tsai',idx,tsai);
-            let si = getV('si',idx);
-            let calc = si+te-tsai; setV('calc',idx,calc);
+            let calc = getV('si',idx)+te-tsai; setV('calc',idx,calc);
             setV('seg',idx, calc - getV('marg',idx));
         }
 
@@ -288,8 +285,6 @@
                     let el = document.getElementById(`val-${lid}-${idx}`);
                     el.setAttribute('data-pendente', (parseFloat(el.getAttribute('data-pendente')) || 0) + v);
                 }
-                e.target.parentElement.classList.add('flash');
-                setTimeout(()=>e.target.parentElement.classList.remove('flash'), 500);
                 e.target.value = ""; recalcularColuna(idx); salvarEstado();
             }
         }
@@ -297,7 +292,7 @@
         function lancarTransferencia(e, fromIdx, lid) {
             if(e.key === 'Enter') {
                 const toIdx = document.getElementById(`sel-${lid}-${fromIdx}`).value;
-                if(toIdx === "") { alert("Selecione o destino!"); return; }
+                if(toIdx === "") return;
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v)) return;
                 setV(lid, fromIdx, getV(lid, fromIdx) + v);
@@ -307,10 +302,8 @@
         }
 
         function salvarEstado() {
-            if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
             let est = dadosPorDia[diaAtivo][empresaAtiva];
-            const contas = empresasConfig[empresaAtiva];
-            contas.forEach((c, i) => {
+            empresasConfig[empresaAtiva].forEach((c, i) => {
                 est[i] = est[i] || {};
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${i}`);
@@ -326,9 +319,8 @@
         }
 
         function carregarEstado() {
-            let est = dadosPorDia[diaAtivo][empresaAtiva] || {};
-            const contas = empresasConfig[empresaAtiva];
-            contas.forEach((c, i) => {
+            let est = dadosPorDia[diaAtivo][empresaAtiva];
+            empresasConfig[empresaAtiva].forEach((c, i) => {
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${i}`);
                     if(el && est[i]) {
@@ -346,28 +338,19 @@
         function abrirResumo() {
             document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
             let diaDados = dadosPorDia[diaAtivo];
-            let linhasPendente = '';
+            let pendente = '';
             Object.keys(empresasConfig).forEach(emp => {
                 let r=0, a=0;
-                Object.values(diaDados[emp] || {}).forEach(d => {
-                    r += parseFloat(d['p-o3']) || 0; a += parseFloat(d['p-so7']) || 0;
-                });
-                if(r>0 || a>0) linhasPendente += `<tr><td>${emp}</td><td>${r.toLocaleString('pt-BR')}</td><td>${a.toLocaleString('pt-BR')}</td></tr>`;
+                Object.values(diaDados[emp] || {}).forEach(d => { r += parseFloat(d['p-o3']) || 0; a += parseFloat(d['p-so7']) || 0; });
+                if(r>0 || a>0) pendente += `<tr><td>${emp}</td><td style="color:#10b981">R$ ${r.toLocaleString('pt-BR')}</td><td style="color:#ef4444">R$ ${a.toLocaleString('pt-BR')}</td></tr>`;
             });
-            document.getElementById('resumo-content-pendente').innerHTML = `<table class="resumo-table-print"><thead><tr><th>Empresa</th><th>Resgate</th><th>Aplicação</th></tr></thead><tbody>${linhasPendente}</tbody></table>`;
+            document.getElementById('resumo-content-pendente').innerHTML = `<table class="resumo-table-print"><thead><tr><th>Empresa</th><th>Resgate</th><th>Aplicação</th></tr></thead><tbody>${pendente}</tbody></table>`;
             document.getElementById('modal-resumo').style.display='block';
         }
 
-        function mudarDia(novoDia) { salvarEstado(); diaAtivo = novoDia; carregarEstado(); renderTabsDias(); }
-        function abrirNovoDia() {
-            let nome = prompt("Nome do novo dia:");
-            if(nome) { 
-                diasCadastrados.push(nome);
-                dadosPorDia[nome] = JSON.parse(JSON.stringify(dadosPorDia[diaAtivo]));
-                mudarDia(nome); 
-            }
-        }
-        function confirmarEnvioLote() { if(confirm("Limpar pendências?")) { Object.keys(empresasConfig).forEach(e => Object.values(dadosPorDia[diaAtivo][e]).forEach(v => { v['p-o3']="0"; v['p-so7']="0"; })); carregarEstado(); abrirResumo(); } }
+        function abrirNovoDia() { let n = prompt("Nome do dia:"); if(n) { diasCadastrados.push(n); dadosPorDia[n] = JSON.parse(JSON.stringify(dadosPorDia[diaAtivo])); mudarDia(n); } }
+        function mudarDia(n) { salvarEstado(); diaAtivo = n; carregarEstado(); renderTabsDias(); }
+        function confirmarEnvioLote() { if(confirm("Limpar?")) { Object.keys(empresasConfig).forEach(e => Object.values(dadosPorDia[diaAtivo][e]).forEach(v => { v['p-o3']="0"; v['p-so7']="0"; })); carregarEstado(); abrirResumo(); } }
         async function copiarResumoImagem() { const canvas = await html2canvas(document.getElementById('resumo-export-area')); canvas.toBlob(b => navigator.clipboard.write([new ClipboardItem({"image/png":b})])); alert("Copiado!"); }
 
         renderTabsEmpresas(); renderTabela(); renderTabsDias(); carregarEstado();
