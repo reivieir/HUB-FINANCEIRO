@@ -13,7 +13,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
 
         /* ==========================================
-           MOLDE PADRÃO DEXCO
+           MOLDE PADRÃO DEXCO - AJUSTADO PARA O HUB
         ========================================== */
         html, body {
             margin: 0; padding: 0; height: 100vh; width: 100vw;
@@ -23,16 +23,16 @@
         }
 
         body {
-            padding: 25px; /* A MARGEM */
+            padding: 25px; /* A MARGEM EXTERNA */
             display: flex;
             flex-direction: column;
-            zoom: 1.25; /* Compensa os 80% do Hub para ficar 100% legível */
+            zoom: 0.8; /* AJUSTE DE ZOOM PARA CABER NA TELA DO HUB */
         }
 
         .app-wrapper {
             flex: 1; 
             background: white;
-            border-radius: 8px; /* BORDAS ARREDONDADAS AQUI */
+            border-radius: 8px; /* BORDAS ARREDONDADAS */
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
@@ -52,13 +52,13 @@
         .btn-exit { background: #c40000; color: white; }
         .btn-exit:hover { background: #a30000; }
 
-        /* ÁREA DE CONTEÚDO (Sem padding para tabela colar na tela) */
+        /* ÁREA DE CONTEÚDO */
         .app-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 0; /* Caixa não tem padding para usar toda a largura */
-            overflow: hidden; /* A tabela lidará com a rolagem */
+            padding: 0; 
+            overflow: hidden; 
         }
 
         /* ==========================================
@@ -529,7 +529,7 @@
                 setV('tr', toIdx, getV('tr', toIdx) + v);
                 
                 e.target.parentElement.parentElement.classList.add('flash');
-                document.getElementById(`val-tr-${toIdx}`).parentElement.parentElement.classList.add('flash-in'); 
+                document.getElementById(`val-tr-${toIdx}`).parentElement.parentElement.classList.add('flash-in');
                 setTimeout(() => { document.querySelectorAll('.flash, .flash-in').forEach(el => { el.classList.remove('flash'); el.classList.remove('flash-in'); }); }, 800);
                 
                 e.target.value = ""; selectDestino.value = "";
@@ -639,7 +639,7 @@
             });
             
             carregarEstado(); 
-            abrirResumo();    
+            abrirResumo();   
         }
 
         async function copiarResumoImagem() {
