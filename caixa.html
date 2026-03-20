@@ -4,43 +4,68 @@
     <meta charset="UTF-8">
     <title>Cash Pooling - Dexco</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    
     <style>
         :root { 
-            --primary: #002b45; 
-            --bg: #f8fafc; 
-            --border: #cbd5e1; 
-            --text: #1e293b;
-            --azul-entrada: #5b9bd5;
-            --vermelho-saida: #ef4444;
+            --primary: #002b45; --bg: #f8fafc; --border: #cbd5e1; --text: #1e293b;
+            --azul-entrada: #5b9bd5; --vermelho-saida: #ef4444;
         }
         
-        /* O body interno também estica até 100% do iframe */
-        html, body { 
-            margin: 0; padding: 0;
-            height: 100%; width: 100%; 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            display: flex; flex-direction: column; 
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+
+        /* ==========================================
+           MOLDE PADRÃO DEXCO
+        ========================================== */
+        html, body {
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            background-color: #f0f2f5; 
+            overflow: hidden; 
+            color: var(--text);
+        }
+
+        body {
+            padding: 25px; /* A MARGEM */
+            display: flex;
+            flex-direction: column;
+            zoom: 1.25; /* Compensa os 80% do Hub para ficar 100% legível */
+        }
+
+        .app-wrapper {
+            flex: 1; 
+            background: white;
+            border-radius: 8px; /* BORDAS ARREDONDADAS AQUI */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
             overflow: hidden; 
         }
 
-        .header-blue {
-            background-color: var(--primary); color: white;
-            padding: 0 20px; display: flex; justify-content: space-between; align-items: center;
-            height: 40px; flex-shrink: 0; box-sizing: border-box; font-size: 12px;
+        /* A BARRA AZUL MARINHO */
+        .header-dexco {
+            background-color: #002b45; color: white; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .header-dexco h1 { font-size: 14px; font-weight: 400; margin: 0; letter-spacing: 0.5px;}
+        .header-actions { display: flex; gap: 10px; }
+        .header-actions button { padding: 6px 15px; border: none; border-radius: 3px; font-weight: bold; font-size: 11px; cursor: pointer; transition: 0.2s; }
+        .btn-export { background: #f59e0b; color: white; }
+        .btn-export:hover { background: #d97706; }
+        .btn-exit { background: #c40000; color: white; }
+        .btn-exit:hover { background: #a30000; }
+
+        /* ÁREA DE CONTEÚDO (Sem padding para tabela colar na tela) */
+        .app-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0; /* Caixa não tem padding para usar toda a largura */
+            overflow: hidden; /* A tabela lidará com a rolagem */
         }
 
-        .nav-dias {
-            background: #e2e8f0; display: flex; align-items: center;
-            padding: 0 15px; gap: 8px; height: 36px; flex-shrink: 0; border-bottom: 1px solid var(--border);
-            overflow-x: auto; box-sizing: border-box;
-        }
-        .dia-btn {
-            display: flex; align-items: center; gap: 6px;
-            padding: 3px 8px; border-radius: 4px; background: white; border: 1px solid var(--border);
-            font-size: 11px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s; white-space: nowrap;
-        }
+        /* ==========================================
+           CONTEÚDO ESPECÍFICO DO CAIXA
+        ========================================== */
+        .nav-dias { background: #e2e8f0; display: flex; align-items: center; padding: 0 15px; gap: 8px; height: 36px; flex-shrink: 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+        .dia-btn { display: flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 4px; background: white; border: 1px solid var(--border); font-size: 11px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s; white-space: nowrap; }
         .dia-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-acao { color: #94a3b8; font-size: 12px; cursor: pointer; line-height: 1; }
         .btn-acao:hover { color: var(--primary); }
@@ -53,31 +78,22 @@
         .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
         .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
 
-        .nav-empresas {
-            display: flex; background: white; border-bottom: 1px solid var(--border);
-            overflow-x: auto; padding: 0 15px; height: 34px; flex-shrink: 0; align-items: center; box-sizing: border-box;
-        }
-        .tab-btn {
-            padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0;
-            font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase;
-        }
+        .nav-empresas { display: flex; background: white; border-bottom: 1px solid var(--border); overflow-x: auto; padding: 0 15px; height: 34px; flex-shrink: 0; align-items: center;}
+        .tab-btn { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; }
         .tab-btn.active { background: var(--bg); border-color: var(--border); color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* CONTAINER DA TABELA: Ocupa todo o resto da tela verticalmente! */
+        /* CONTAINER DA TABELA COM ROLAGEM */
         .grid-container { 
-            flex: 1; /* Estica magicamente sem calcular alturas */
-            min-height: 0; /* Previne estouro do layout flex */
-            overflow: auto; 
+            flex: 1; 
+            min-height: 0; 
+            overflow: auto; /* ATIVA A BARRA HORIZONTAL E VERTICAL */
             background: white; position: relative; 
         }
         
         table { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; font-size: 10px; }
         th, td { border: 1px solid var(--border); padding: 2px 4px; min-width: 135px; box-sizing: border-box; vertical-align: middle; background: white; }
 
-        .col-categoria {
-            position: sticky; left: 0; z-index: 11; background: white;
-            min-width: 250px; text-align: left; border-right: 2px solid var(--border) !important;
-        }
+        .col-categoria { position: sticky; left: 0; z-index: 11; background: white; min-width: 250px; text-align: left; border-right: 2px solid var(--border) !important; }
         thead th { background: #f1f5f9; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border); color: var(--primary); padding: 4px; }
         thead th.col-categoria { z-index: 12; background: #e2e8f0; text-align: center; }
 
@@ -107,37 +123,37 @@
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 800px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 20px;}
-        
         .resumo-table-print { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; background: white;}
         .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 6px; }
         .resumo-table-print th { background-color: var(--primary); color: white; }
         .resumo-table-print tfoot th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; }
-
         .btn-copiar { background: #10b981; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: background 0.2s; }
         .btn-copiar:hover { background: #059669; }
-        
         .btn-limpar-lote { background: #3b82f6; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; }
         .btn-limpar-lote:hover { background: #2563eb; }
     </style>
 </head>
 <body>
+    <div class="app-wrapper">
+        <header class="header-dexco">
+            <h1>Dexco S.A - Gestão Diária de Caixa</h1> 
+            <div class="header-actions">
+                <button class="btn-export" onclick="abrirResumo()">📊 Resumo do Dia</button>
+                <button class="btn-exit" onclick="window.parent.location.reload()">Sair / Bloquear</button>
+            </div>
+        </header>
 
-    <div class="header-blue">
-        <div>Dexco S.A - Cash Pooling (Gestão Diária)</div>
-        <div style="display: flex; gap: 10px;">
-            <button onclick="abrirResumo()" style="background:#f59e0b; color:white; border:none; padding:4px 12px; border-radius:3px; cursor:pointer; font-weight:bold;">📊 RESUMO DO DIA</button>
-            <button onclick="window.parent.location.reload()" style="background:#ef4444; color:white; border:none; padding:4px 12px; border-radius:3px; cursor:pointer;">Sair / Bloquear</button>
+        <div class="app-content">
+            <div class="nav-dias" id="nav-dias-container"></div>
+            <div class="nav-empresas" id="nav-empresas-container"></div>
+
+            <div class="grid-container">
+                <table>
+                    <thead id="h-contas"></thead>
+                    <tbody id="b-caixa"></tbody>
+                </table>
+            </div>
         </div>
-    </div>
-
-    <div class="nav-dias" id="nav-dias-container"></div>
-    <div class="nav-empresas" id="nav-empresas-container"></div>
-
-    <div class="grid-container">
-        <table>
-            <thead id="h-contas"></thead>
-            <tbody id="b-caixa"></tbody>
-        </table>
     </div>
 
     <div id="modal-resumo" class="modal">
