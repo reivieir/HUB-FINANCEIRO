@@ -1,264 +1,371 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub Financeiro - Dexco</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Dexco S.A - Gestão de Bancos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ==================================================================
-           1. VARIÁVEIS E BASE (CORES INSPIRADAS NA REFERÊNCIA)
-        ================================================================== */
-        :root {
-            --bg-color: #f0f2f5;       
-            --topbar-bg: #ffffff;      
-            --text-main: #1e293b;      
-            --text-light: #64748b;     
-            --accent-color: #10b981;   
-            --border-color: #e2e8f0;   
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); 
+        /* ==========================================
+           CORES E DESIGN BASE
+        ========================================== */
+        :root { 
+            --primary: #002b45;       /* Azul marinho Dexco (Idêntico ao print) */
+            --danger: #c40000;        /* Vermelho dos botões de sair */
+            --link: #0056b3;          
+            --bg: #f4f7f6;            
+            --border: #e2e8f0;
+            --text: #334155;
+            --accent: #10b981;        
         }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100vh; 
-            overflow: hidden; 
-            background-color: var(--bg-color);
-            font-family: 'Inter', sans-serif;
-            color: var(--text-main);
+        /* ==========================================
+           TELA DE LOGIN INTERNA
+        ========================================== */
+        #login-screen {
+            position: fixed; inset: 0; background: var(--primary);
+            display: flex; justify-content: center; align-items: center; z-index: 999;
         }
+        .login-card {
+            background: white; padding: 40px; border-radius: 8px;
+            width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .login-card h2 { color: var(--primary); margin-bottom: 5px; font-weight: 700; }
+        .login-card p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+        .login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 4px; outline: none; text-align: center; }
+        .login-card button { width: 100%; padding: 12px; background: var(--link); color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; }
+        .login-card button:hover { background: #004494; }
 
-        body {
+        /* ==========================================
+           APP PRINCIPAL E CABEÇALHOS (PADRÃO DEXCO)
+        ========================================== */
+        #app { display: none; }
+        
+        /* 1. Barra Azul Marinho Superior */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 8px 20px;
             display: flex;
-            flex-direction: column; /* Organiza Topo e Conteúdo verticalmente */
-        }
-
-        /* ==================================================================
-           2. NOVO MENU HORIZONTAL (TOP-NAV)
-        ================================================================== */
-        .top-navbar {
-            background-color: var(--topbar-bg);
-            display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 0 30px;
-            height: 65px;
-            flex-shrink: 0;
-            box-shadow: var(--shadow-sm);
-            border-bottom: 1px solid var(--border-color);
-            z-index: 100;
-        }
-
-        .logo {
-            font-size: 1.2rem;
-            font-weight: 700;
-            display: flex;
             align-items: center;
-            gap: 10px;
-            color: #0f172a;
-        }
-        .logo span { color: var(--accent-color); }
-
-        .nav-links {
-            display: flex;
-            gap: 5px;
-            height: 100%;
-            align-items: center;
-        }
-
-        .nav-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            padding: 8px 14px;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .nav-btn:hover {
-            color: var(--text-main);
-            background-color: #f8fafc;
-        }
-
-        .nav-btn.active {
-            color: #2563eb; /* Azul elegante para aba ativa */
-            background-color: #eff6ff;
-            font-weight: 600;
-        }
-
-        .user-profile {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-        }
-
-        .user-profile div {
-            width: 32px; height: 32px;
-            background-color: var(--accent-color);
-            color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-weight: bold;
-        }
-
-        /* Removendo a antiga sidebar */
-        .sidebar { display: none; } 
-
-        /* ==================================================================
-           3. ÁREA DE CONTEÚDO (MANTÉM A SUA LÓGICA FLEX)
-        ================================================================== */
-        .content {
-            flex: 1; 
-            display: flex;
-            flex-direction: column; 
-            height: 100%;
-            overflow: hidden; 
-            padding: 20px 30px; /* Margem ao redor do conteúdo */
-        }
-
-        /* Containers de Abas Padrões */
-        .tab-content { 
-            display: none; 
-            flex: 1; 
-            padding: 0; /* Removido padding interno para o iframe colar na borda */
-            box-sizing: border-box;
-            background-color: transparent;
-            overflow: hidden; 
-            border-radius: 12px; /* Borda arredondada do dashboard */
         }
         
-        .tab-content.active { 
+        header h1 { 
+            font-size: 13px; 
+            font-weight: 400; 
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+        
+        .header-actions button {
+            padding: 5px 15px; 
+            border: none; 
+            border-radius: 3px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            font-size: 11px; 
+            transition: 0.2s;
+        }
+        .btn-export { background: white; color: #333; }
+        .btn-export:hover { background: #f0f0f0; }
+        .btn-lock { background: var(--danger); color: white; margin-left: 10px; }
+        .btn-lock:hover { background: #a00000; }
+
+        /* 2. Barra Branca de Navegação de Bancos */
+        .nav-bancos {
+            background: white;
             display: flex; 
-            flex-direction: column;
-        }
-
-        /* Iframes padrão */
-        .tab-content iframe {
-            width: 100%;
-            flex: 1; 
-            border: none;
-            border-radius: 12px; /* Suavidade das linhas */
-            background-color: #fff;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.02); /* Sombra elegante */
-        }
-
-        /* ==========================================================
-           CLASSE EXCLUSIVA PARA A ABA "GESTÃO DE CAIXA"
-        ========================================================== */
-        .tab-caixa {
-            padding: 0 !important; 
-            overflow: hidden !important; 
-            border-radius: 0; /* Caixa colado */
+            align-items: center;
+            gap: 10px; 
+            overflow-x: auto; 
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
         }
         
-        .tab-caixa iframe {
-            border-radius: 0 !important; 
-            box-shadow: none !important;
+        .banco-link { 
+            padding: 6px 12px; 
+            cursor: pointer; 
+            color: #64748b; 
+            font-weight: 600; 
+            border-radius: 4px; 
+            font-size: 10px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
         }
+        .banco-link:hover { color: var(--primary); }
+        .banco-link.ativo { background: var(--primary); color: white; }
 
-        /* ==========================================================
-           AJUSTES DO CHAT (Estilo Clean)
-        ========================================================== */
-        #chat-tab.active { display: flex; flex-direction: column; height: 100%; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); overflow: hidden;}
-        .chat-header-full { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; border-bottom: 1px solid var(--border-color); background: #fff;}
-        .chat-header-full h2 { margin: 0; font-size: 1.25rem; font-weight: 600;}
-        .new-chat-btn { background-color: var(--accent-color); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 0.85rem;}
-        .new-chat-btn:hover { background-color: #059669; }
-        .chat-messages-full { flex: 1; overflow-y: auto; padding: 30px; background: #fafafa; display: flex; flex-direction: column; gap: 15px;}
-        .ai-message, .user-message { padding: 12px 18px; border-radius: 8px; max-width: 80%; font-size: 0.95rem; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
-        .ai-message { background: white; align-self: flex-start; color: var(--text-main); border: 1px solid var(--border-color);}
-        .user-message { background: #3b82f6; color: white; align-self: flex-end; }
-        .chat-input-full { display: flex; gap: 10px; background: white; padding: 20px 30px; border-top: 1px solid var(--border-color); }
-        .chat-input-full input { flex: 1; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem; background: var(--bg-color);}
-        .chat-input-full input:focus { border-color: #3b82f6; background: white;}
-        .chat-input-full button { padding: 12px 25px; background: #3b82f6; border: none; cursor: pointer; font-weight: 600; color: white; border-radius: 6px; transition: 0.2s; font-size: 0.95rem;}
-        .chat-input-full button:hover { background: #2563eb; }
+        /* ==========================================
+           CONTEÚDO INTERNO (KPIS E TABELA)
+        ========================================== */
+        .main-container { padding: 20px; }
 
-        /* ==========================================================
-           CONTROLE DE ZOOM INDIVIDUAL DOS IFRAMES (MANTIDO O SEU)
-        ========================================================== */
-        /* 1. Conciliação e Gestão de Bancos em 70% */
-        #conciliacao iframe, #bancos iframe {
-            width: 142.85% !important; 
-            height: calc((100vh - 90px) * 1.4285) !important; 
-            transform: scale(0.70);
-            transform-origin: top left; 
-            border: none;
-            border-radius: 12px; 
+        .kpis { display: flex; gap: 20px; margin-bottom: 20px; }
+        .kpi-card { 
+            background: white; padding: 20px; border-radius: 6px; flex: 1; 
+            border: 1px solid var(--border);
+            font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;
         }
-
-        /* 2. Gestão de Caixa em 100% (Sem redução) */
-        .tab-caixa iframe {
-            width: 100% !important; /* Ajustei de 90% para 100% para não sobrar fundo */
-            height: 100% !important;
-            transform: none !important; 
+        .kpi { font-size: 28px; color: var(--primary); font-weight: 700; display: block; margin-top: 5px; line-height: 1; }
+        
+        .controls { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; }
+        .controls input, .controls select { 
+            padding: 10px; border: 1px solid var(--border); border-radius: 4px; outline: none; font-size: 13px;
         }
+        .controls input:focus, .controls select:focus { border-color: var(--link); }
+        .btn-incluir { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .btn-incluir:hover { background: #218838; }
+
+        .table-container { background: white; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
+        th { background: #f8fafc; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 11px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #f1f5f9; }
+        
+        .action-link { color: var(--link); text-decoration: none; cursor: pointer; font-weight: 600; margin: 0 5px; font-size: 12px; }
+        .action-link:hover { text-decoration: underline; }
+        .link-delete { color: var(--danger); }
+
+        /* ==========================================
+           MODAL
+        ========================================== */
+        .modal {
+            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
+            justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-content h3 { margin-top: 0; margin-bottom: 15px; color: var(--primary); font-size: 15px;}
+        .modal-content input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px; outline: none; font-size: 13px;}
+        .modal-content input:focus { border-color: var(--link); }
+        
+        .modal-btns { display:flex; gap:10px; margin-top: 15px; }
+        .btn-save { flex:1; padding:10px; background: #28a745; color: white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size: 12px;}
+        .btn-save:hover { background: #218838; }
+        .btn-cancel { flex:1; padding:10px; background: #e2e8f0; color: var(--text); border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size: 12px;}
+        .btn-cancel:hover { background: #cbd5e1; }
     </style>
 </head>
+
 <body>
 
-    <header class="top-navbar">
-        <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #10b981;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-            Hub <span>Financeiro</span>
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>DEXCO ASSIST</h2>
+            <p>Gestão de Acessos Bancários</p>
+            <input type="password" id="pass" placeholder="Senha do Sistema" onkeypress="handleEnter(event)">
+            <button onclick="entrar()">ENTRAR NO PAINEL</button>
+            <p id="login-msg" style="color: #c40000; font-size: 12px; margin-top: 15px; height: 15px;"></p>
         </div>
+    </div>
+
+    <div id="app">
         
-        <nav class="nav-links">
-            <button class="nav-btn active" onclick="showTab('conciliacao')">Conciliação Bancária</button>
-            <button class="nav-btn" onclick="showTab('bancos')">Gestão de Bancos</button>
-            <button class="nav-btn" onclick="showTab('caixa')">Gestão de Caixa</button>
-            <button class="nav-btn" onclick="showTab('protestos')">Protestos</button>
-            <div style="width: 1px; height: 20px; background-color: #cbd5e1; margin: 0 5px;"></div>
-            <button class="nav-btn" style="color: #10b981;" onclick="showTab('chat-tab')">✨ Assistente IA</button>
-        </nav>
+        <header>
+            <h1>Dexco S.A - Gestão de Bancos</h1>
+            <div class="header-actions">
+                <button class="btn-export" onclick="exportarExcel()">Exportar CSV</button>
+                <button class="btn-lock" onclick="sair()">Sair / Bloquear</button>
+            </div>
+        </header>
 
-        <div class="user-profile">
-            Olá, Operador
-            <div>O</div>
+        <div class="nav-bancos" id="nav-bancos"></div>
+
+        <div class="main-container">
+            <div class="kpis">
+                <div class="kpi-card">TOTAL GERAL<br><span class="kpi" id="total">0</span></div>
+                <div class="kpi-card"><span id="kpi-label-filtrado">TODOS</span><br><span class="kpi" id="total-banco" style="color: var(--link);">0</span></div>
+            </div>
+
+            <div class="controls">
+                <input type="text" id="busca" placeholder="Buscar por operador ou empresa..." oninput="render()" style="flex: 1;">
+                <select id="filtro-perfil" onchange="filtrarPerfil()"><option value="">Todos os perfis</option></select>
+                <button class="btn-incluir" onclick="abrirModal()">+ INCLUIR NOVO</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operador</th>
+                            <th>Perfil</th>
+                            <th>Usuário</th>
+                            <th>Banco</th>
+                            <th>Empresa</th>
+                            <th style="width: 150px; text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpo-tabela"></tbody>
+                </table>
+            </div>
         </div>
-    </header>
+    </div>
 
-    <main class="content">
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-titulo">Incluir / Editar Acesso</h3>
+            <input type="hidden" id="e-id">
+            <input type="text" id="i-nome" placeholder="Operador">
+            <input type="text" id="i-perfil" placeholder="Perfil (Ex: Master, Consulta)">
+            <input type="text" id="i-user" placeholder="Usuário">
+            <input type="text" id="i-banco" placeholder="Banco">
+            <input type="text" id="i-empresa" placeholder="Empresa">
+            
+            <div class="modal-btns">
+                <button class="btn-save" onclick="salvar()">SALVAR</button>
+                <button class="btn-cancel" onclick="fechar()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://spcpujmqnjtalupxzqpp.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwY3B1am1xbmp0YWx1cHh6cXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MjI3ODMsImV4cCI6MjA4ODI5ODc4M30.TYVtILJNISNR3aDejRM5fsWKt9TuIHgN1dS2deVbQwQ";
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let dados = [];
+        let bancoSelecionado = "";
+        let perfilSelecionado = "";
+
+        function entrar() {
+            const passInput = document.getElementById("pass");
+            const senha = passInput.value.trim();
+            if (senha === "Dexco2026") {
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("app").style.display = "block";
+                carregar();
+            } else {
+                document.getElementById("login-msg").innerText = "Acesso negado!";
+                passInput.value = "";
+                passInput.focus();
+            }
+        }
+
+        function handleEnter(e) { if(e.key === "Enter") entrar(); }
+        function sair() { location.reload(); }
+
+        async function carregar() {
+            const { data, error } = await sb.from("gestao_acessos").select("*");
+            if (error) { alert("Erro de conexão: " + error.message); return; }
+            dados = data || [];
+            render();
+        }
+
+        function render() {
+            const busca = document.getElementById("busca").value.toLowerCase();
+            let lista = dados.filter(i => {
+                const operador = i.operador_nome ? i.operador_nome.toLowerCase() : "";
+                const empresa = i.empresa ? i.empresa.toLowerCase() : "";
+                const matchBusca = operador.includes(busca) || empresa.includes(busca);
+                const matchBanco = bancoSelecionado === "" || i.banco_nome === bancoSelecionado;
+                const matchPerfil = perfilSelecionado === "" || i.perfil === perfilSelecionado;
+                return matchBusca && matchBanco && matchPerfil;
+            });
+
+            document.getElementById("total").innerText = dados.length;
+            document.getElementById("total-banco").innerText = lista.length;
+            document.getElementById("kpi-label-filtrado").innerText = bancoSelecionado ? bancoSelecionado.toUpperCase() : "TODOS";
+
+            document.getElementById("corpo-tabela").innerHTML = lista.map(i => `
+                <tr>
+                    <td style="font-weight: 600;">${i.operador_nome || ""}</td>
+                    <td>${i.perfil || ""}</td>
+                    <td>${i.usuario_login || ""}</td>
+                    <td>${i.banco_nome || ""}</td>
+                    <td>${i.empresa || ""}</td>
+                    <td style="text-align: center;">
+                        <a class="action-link" onclick="editar('${i.id}','${i.operador_nome}','${i.perfil}','${i.usuario_login}','${i.banco_nome}','${i.empresa}')">Editar</a>
+                        <span style="color:#ddd">|</span>
+                        <a class="action-link link-delete" onclick="remover('${i.id}')">Excluir</a>
+                    </td>
+                </tr>
+            `).join("");
+
+            atualizarNavegacao();
+        }
+
+        function atualizarNavegacao() {
+            const todosBancos = [...new Set(dados.map(i => i.banco_nome).filter(Boolean))].sort();
+            const nav = document.getElementById("nav-bancos");
+            
+            // Botão TODOS
+            let html = `<div class="banco-link ${bancoSelecionado === "" ? 'ativo' : ''}" onclick="selecionarBanco('')">TODOS</div>`;
+            
+            // Demais bancos gerados dinamicamente
+            html += todosBancos.map(b => `<div class="banco-link ${b === bancoSelecionado ? 'ativo' : ''}" onclick="selecionarBanco('${b}')">${b.toUpperCase()}</div>`).join("");
+            
+            nav.innerHTML = html;
+
+            // Filtro de perfis
+            const dadosParaPerfis = bancoSelecionado ? dados.filter(i => i.banco_nome === bancoSelecionado) : dados;
+            const perfis = [...new Set(dadosParaPerfis.map(i => i.perfil).filter(Boolean))].sort();
+            document.getElementById("filtro-perfil").innerHTML = `<option value="">Todos perfis</option>` +
+                perfis.map(p => `<option value="${p}" ${p === perfilSelecionado ? 'selected' : ''}>${p}</option>`).join("");
+        }
+
+        function selecionarBanco(b) { bancoSelecionado = b; render(); }
+        function filtrarPerfil() { perfilSelecionado = document.getElementById("filtro-perfil").value; render(); }
+
+        function abrirModal() {
+            document.getElementById("modal").style.display = "flex";
+            document.getElementById("modal-titulo").innerText = "Cadastro";
+            document.getElementById("e-id").value = "";
+            document.getElementById("i-nome").value = "";
+            document.getElementById("i-perfil").value = "";
+            document.getElementById("i-user").value = "";
+            document.getElementById("i-banco").value = bancoSelecionado;
+            document.getElementById("i-empresa").value = "";
+        }
         
-        <div id="conciliacao" class="tab-content active">
-            <iframe src="conciliacao.html"></iframe>
-        </div>
+        function fechar() { document.getElementById("modal").style.display = "none"; }
 
-        <div id="bancos" class="tab-content">
-            <iframe src="bancos.html"></iframe>
-        </div>
+        async function salvar() {
+            const id = document.getElementById("e-id").value;
+            const obj = {
+                operador_nome: document.getElementById("i-nome").value,
+                perfil: document.getElementById("i-perfil").value,
+                usuario_login: document.getElementById("i-user").value,
+                banco_nome: document.getElementById("i-banco").value,
+                empresa: document.getElementById("i-empresa").value
+            };
+            if (!obj.operador_nome || !obj.banco_nome) { alert("Operador e Banco são obrigatórios"); return; }
+            
+            const res = id ? await sb.from("gestao_acessos").update(obj).eq("id", id) : await sb.from("gestao_acessos").insert([obj]);
+            
+            if (res.error) alert("Erro ao salvar: " + res.error.message); 
+            else { fechar(); carregar(); }
+        }
 
-        <div id="caixa" class="tab-content tab-caixa">
-            <iframe src="caixa.html"></iframe>
-        </div>
+        function editar(id, n, p, u, b, e) {
+            abrirModal();
+            document.getElementById("modal-titulo").innerText = "Editar Cadastro";
+            document.getElementById("e-id").value = id;
+            document.getElementById("i-nome").value = n;
+            document.getElementById("i-perfil").value = p;
+            document.getElementById("i-user").value = u;
+            document.getElementById("i-banco").value = b;
+            document.getElementById("i-empresa").value = e;
+        }
 
-        <div id="protestos" class="tab-content" style="background: white; padding: 40px;">
-            <h1 style="color: #0f172a; margin-top:0;">Protestos</h1>
-            <p>Procedimentos para baixas, cartas de anuência e negociações.</p>
-        </div>
+        async function remover(id) {
+            if (!confirm("Confirmar exclusão?")) return;
+            const { error } = await sb.from("gestao_acessos").delete().eq("id", id);
+            if (error) alert(error.message); else carregar();
+        }
 
-        <div id="chat-tab" class="tab-content">
-            <div class="chat-header-full">
-                <h2>Assistente Financeiro IA</h2>
-                <button class="new-chat-btn" onclick="novoChat()">+ Novo Chat</button>
-            </div>
-            <div id="chatMessages" class="chat-messages-full">
-                <p class="ai-message">Olá! Sou o assistente do Hub. Como posso ajudar hoje?</p>
-            </div>
-            <div class="chat-input-full">
-                <input type="text" id="userInput" placeholder="Digite sua dúvida..." onkeypress="enviarComEnter(event)">
-                <button onclick="sendMessage()">Enviar</button>
-            </div>
-        </div>
-
-    </main>
-
-    <script src="js/app.js"></script>
+        function exportarExcel() {
+            let csv = "\uFEFFOPERADOR;PERFIL;USUARIO;BANCO;EMPRESA\n";
+            dados.forEach(i => { csv += `${i.operador_nome||""};${i.perfil||""};${i.usuario_login||""};${i.banco_nome||""};${i.empresa||""}\n`; });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = "gestao_dexco.csv";
+            link.click();
+        }
+    </script>
 </body>
 </html>
