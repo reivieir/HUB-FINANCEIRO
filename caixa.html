@@ -12,21 +12,34 @@
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
 
+        /* ==========================================
+           MOLDE PADRÃO DEXCO
+        ========================================== */
         html, body {
             margin: 0; padding: 0; height: 100vh; width: 100vw;
-            background-color: #f0f2f5; overflow: hidden; color: var(--text);
+            background-color: #f0f2f5; 
+            overflow: hidden; 
+            color: var(--text);
         }
 
         body {
-            padding: 25px; display: flex; flex-direction: column; zoom: 1.1; 
+            padding: 25px; /* A MARGEM */
+            display: flex;
+            flex-direction: column;
+            zoom: 1.25; /* Compensa os 80% do Hub para ficar 100% legível */
         }
 
         .app-wrapper {
-            flex: 1; background: white; border-radius: 8px;
+            flex: 1; 
+            background: white;
+            border-radius: 8px; /* BORDAS ARREDONDADAS AQUI */
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex; flex-direction: column; overflow: hidden; 
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
         }
 
+        /* A BARRA AZUL MARINHO */
         .header-dexco {
             background-color: #002b45; color: white; padding: 12px 20px;
             display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
@@ -35,20 +48,48 @@
         .header-actions { display: flex; gap: 10px; }
         .header-actions button { padding: 6px 15px; border: none; border-radius: 3px; font-weight: bold; font-size: 11px; cursor: pointer; transition: 0.2s; }
         .btn-export { background: #f59e0b; color: white; }
+        .btn-export:hover { background: #d97706; }
         .btn-exit { background: #c40000; color: white; }
+        .btn-exit:hover { background: #a30000; }
 
-        .app-content { flex: 1; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+        /* ÁREA DE CONTEÚDO (Sem padding para tabela colar na tela) */
+        .app-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0; /* Caixa não tem padding para usar toda a largura */
+            overflow: hidden; /* A tabela lidará com a rolagem */
+        }
 
+        /* ==========================================
+           CONTEÚDO ESPECÍFICO DO CAIXA
+        ========================================== */
         .nav-dias { background: #e2e8f0; display: flex; align-items: center; padding: 0 15px; gap: 8px; height: 36px; flex-shrink: 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
         .dia-btn { display: flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 4px; background: white; border: 1px solid var(--border); font-size: 11px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s; white-space: nowrap; }
         .dia-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .btn-novo-dia { background: #10b981; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; }
+        .btn-acao { color: #94a3b8; font-size: 12px; cursor: pointer; line-height: 1; }
+        .btn-acao:hover { color: var(--primary); }
+        .btn-acao.fechar:hover { color: #ef4444; }
+        .dia-btn.active .btn-acao { color: #93c5fd; }
+        .dia-btn.active .btn-acao:hover { color: white; }
+        .dia-btn.active .btn-acao.fechar:hover { color: #fca5a5; }
+
+        .btn-novo-dia { background: #10b981; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; }
+        .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
+        .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
 
         .nav-empresas { display: flex; background: white; border-bottom: 1px solid var(--border); overflow-x: auto; padding: 0 15px; height: 34px; flex-shrink: 0; align-items: center;}
-        .tab-btn { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; }
-        .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+        .tab-btn { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; }
+        .tab-btn.active { background: var(--bg); border-color: var(--border); color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        .grid-container { flex: 1; min-height: 0; overflow: auto; background: white; position: relative; }
+        /* CONTAINER DA TABELA COM ROLAGEM */
+        .grid-container { 
+            flex: 1; 
+            min-height: 0; 
+            overflow: auto; /* ATIVA A BARRA HORIZONTAL E VERTICAL */
+            background: white; position: relative; 
+        }
+        
         table { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; font-size: 10px; }
         th, td { border: 1px solid var(--border); padding: 2px 4px; min-width: 135px; box-sizing: border-box; vertical-align: middle; background: white; }
 
@@ -57,19 +98,39 @@
         thead th.col-categoria { z-index: 12; background: #e2e8f0; text-align: center; }
 
         .cell-wrapper { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
-        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 2px; text-align: right; font-size: 9px; outline: none; background: #f8fafc; }
+        .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 1px; }
+        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc; }
+        .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
+
         .bg-total-entradas { background-color: var(--azul-entrada) !important; color: white !important; font-weight: bold; }
         .bg-total-saidas { background-color: var(--vermelho-saida) !important; color: white !important; font-weight: bold; }
         .bg-saldo-calculado { background-color: #0284c7 !important; color: white !important; font-weight: bold; }
+        .bg-margem-segura { background-color: #f1f5f9 !important; font-weight: bold; }
         .bg-saldo-seguro { background-color: #1e293b !important; color: white !important; font-weight: bold; }
+        
         .linha-destaque { font-weight: bold; background: white; }
+        .grupo-soma { font-weight: normal; text-transform: uppercase; background: white; }
         .indent { padding-left: 15px !important; }
         .no-input .input-lancar { display: none; }
         .no-input .cell-acumulado { font-weight: bold; font-size: 11px; }
 
-        /* MODAL */
+        .flash { animation: flash 0.5s; }
+        @keyframes flash { from { background: #dcfce7; } to { background: transparent; } }
+        .flash-in { animation: flash-in 0.8s ease-out; }
+        @keyframes flash-in { 0% { background: #bfdbfe; } 100% { background: transparent; } }
+
+        /* MODAL DE RESUMO */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: #f8fafc; margin: 2% auto; padding: 20px; border-radius: 8px; width: 85%; max-width: 800px; max-height: 90vh; overflow-y: auto;}
+        .modal-content { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 800px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 20px;}
+        .resumo-table-print { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; background: white;}
+        .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 6px; }
+        .resumo-table-print th { background-color: var(--primary); color: white; }
+        .resumo-table-print tfoot th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; }
+        .btn-copiar { background: #10b981; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: background 0.2s; }
+        .btn-copiar:hover { background: #059669; }
+        .btn-limpar-lote { background: #3b82f6; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .btn-limpar-lote:hover { background: #2563eb; }
     </style>
 </head>
 <body>
@@ -85,6 +146,7 @@
         <div class="app-content">
             <div class="nav-dias" id="nav-dias-container"></div>
             <div class="nav-empresas" id="nav-empresas-container"></div>
+
             <div class="grid-container">
                 <table>
                     <thead id="h-contas"></thead>
@@ -96,19 +158,60 @@
 
     <div id="modal-resumo" class="modal">
         <div class="modal-content">
-            <button onclick="document.getElementById('modal-resumo').style.display='none'">Fechar</button>
-            <div id="resumo-content-pendente"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;">
+                <div style="display: flex; align-items: center;">
+                    <button class="btn-copiar" id="btn-copiar-resumo" onclick="copiarResumoImagem()">📋 Copiar Imagem</button>
+                    <button class="btn-limpar-lote" onclick="confirmarEnvioLote()">✅ Marcar Lote como Enviado</button>
+                </div>
+                <span class="close" onclick="document.getElementById('modal-resumo').style.display='none'">&times;</span>
+            </div>
+            
+            <div id="resumo-export-area" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <h2 style="color:var(--primary); margin-top:0;">Novas Aplicações e Resgates: <span id="resumo-dia-titulo"></span></h2>
+                <div id="resumo-content-pendente"></div>
+            </div>
+
+            <div style="margin-top: 25px; padding: 15px; background: #e2e8f0; border-radius: 8px;">
+                <h3 style="margin-top: 0; color: #475569; font-size: 13px; text-transform: uppercase;">Total Consolidado do Dia (Enviados + Pendentes)</h3>
+                <div id="resumo-content-consolidado"></div>
+            </div>
         </div>
     </div>
 
     <script>
         const empresasConfig = {
-            'BRDX': [{b:'ITAÚ', c:'0262 / 17843-7'}, {b:'ITAÚ', c:'0262 / 29500-9'}, {b:'ITAÚ', c:'0262 / 11079-4'}, {b:'ITAÚ', c:'7307 / 50310-7'}, {b:'ITAÚ', c:'7307 / 59362-9'}, {b:'BB', c:'1893-7/ 343329-3'}, {b:'SANTANDER', c:'2008/ 130000413'}, {b:'BRADESCO', c:'2372-8/ 89300-5'}, {b:'BRADESCO', c:'0895-8 / 76322-5'}, {b:'SAFRA', c:'115/ 000.330-5'}, {b:'BANRISUL', c:'0413 / 60157510-3'}, {b:'CAIXA', c:'3337 / 577246689-1'}, {b:'BNB', c:'0031 / 55843-6'}, {b:'ABC BRASIL', c:'0001-9 / 2.331.908-0'}, {b:'DAYCOVAL', c:'0001 / 001516474-0'}],
-            'BRDF': [{b:'ITAÚ', c:'0262 / 17847-8'}, {b:'ITAÚ', c:'7307 /50311-5'}, {b:'ITAÚ', c:'7307 /50312-3'}, {b:'ITAÚ', c:'0350/ 59363-7'}, {b:'BB', c:'1893-7 /30001-2'}, {b:'SANTANDER', c:'2271 / 13003017-5'}, {b:'BRADESCO', c:'2374-4  / 35500-3'}, {b:'SAFRA', c:'115/ 005949-1'}, {b:'CEF', c:'1679/ 2783-9'}, {b:'CEF', c:'3337 / 577246793-6'}, {b:'ABC BRASIL', c:'0001-9 / 2.331.859-9'}, {b:'DAYCOVAL', c:'0001/ 001516477-4'}],
-            'BRHY': [{b:'ITAÚ', c:'0046 /15601-4'}, {b:'BB', c:'1893-7 / 32966-5'}, {b:'SANTANDER', c:'0728 / 13000535-6'}, {b:'BRADESCO', c:'2372 / 0038760-6'}],
-            'BRCF': [{b:'ITAÚ', c:'7307 / 11112-5'}, {b:'BB', c:'1893-7/ 106406-1'}, {b:'SANTANDER', c:'2271 / 13020743-0'}, {b:'SAFRA', c:'1150/44941-9'}, {b:'BNB', c:'31 / 43636-5'}, {b:'BNB', c:'31 / 43626-8'}],
-            'SPE + Controladas': [{b:'BRS1', c:'7307 / 50645-6'}, {b:'BRS3 - ITA', c:'7307 / 60438-4'}, {b:'BRS2 - ITA', c:'7307 / 59899-0'}, {b:'BRS2 - SAF', c:'0115 / 00056629-6'}, {b:'BREM - ITA', c:'0262 / 17856-9'}, {b:'BRBC - ITA', c:'0262 / 91486-4'}, {b:'BRSF - ITA', c:'0262 / 04518-0'}, {b:'BRIT - ITA', c:'7307/ 59901-4'}, {b:'DFL II - ITA', c:'7307 / 96675-9'}, {b:'BRSD - ITA', c:'7307 /48718-6'}, {b:'BRTR - ITA', c:'7307/ 08704-4'}]
+            'BRDX': [
+                { b: 'ITAÚ', c: '0262 / 17843-7' }, { b: 'ITAÚ', c: '0262 / 29500-9' }, { b: 'ITAÚ', c: '0262 / 11079-4' }, 
+                { b: 'ITAÚ', c: '7307 / 50310-7' }, { b: 'ITAÚ', c: '7307 / 59362-9' }, { b: 'BB', c: '1893-7/ 343329-3' }, 
+                { b: 'SANTANDER', c: '2008/ 130000413' }, { b: 'BRADESCO', c: '2372-8/ 89300-5' }, { b: 'BRADESCO', c: '0895-8 / 76322-5' }, 
+                { b: 'SAFRA', c: '115/ 000.330-5' }, { b: 'BANRISUL', c: '0413 / 60157510-3' }, { b: 'CAIXA', c: '3337 / 577246689-1' }, 
+                { b: 'BNB', c: '0031 / 55843-6' }, { b: 'ABC BRASIL', c: '0001-9 / 2.331.908-0' }, { b: 'DAYCOVAL', c: '0001 / 001516474-0' }
+            ],
+            'BRDF': [
+                { b: 'ITAÚ', c: '0262 / 17847-8' }, { b: 'ITAÚ', c: '7307 /50311-5' }, { b: 'ITAÚ', c: '7307 /50312-3' }, 
+                { b: 'ITAÚ', c: '0350/ 59363-7' }, { b: 'BB', c: '1893-7 /30001-2' }, { b: 'SANTANDER', c: '2271 / 13003017-5' }, 
+                { b: 'BRADESCO', c: '2374-4  / 35500-3' }, { b: 'SAFRA', c: '115/ 005949-1' }, { b: 'CEF', c: '1679/ 2783-9' }, 
+                { b: 'CEF', c: '3337 / 577246793-6' }, { b: 'ABC BRASIL', c: '0001-9 / 2.331.859-9' }, { b: 'DAYCOVAL', c: '0001/ 001516477-4' }
+            ],
+            'BRHY': [
+                { b: 'ITAÚ', c: '0046 /15601-4' }, { b: 'BB', c: '1893-7 / 32966-5' }, 
+                { b: 'SANTANDER', c: '0728 / 13000535-6' }, { b: 'BRADESCO', c: '2372 / 0038760-6' }
+            ],
+            'BRCF': [
+                { b: 'ITAÚ', c: '7307 / 11112-5' }, { b: 'BB', c: '1893-7/ 106406-1' }, 
+                { b: 'SANTANDER', c: '2271 / 13020743-0' }, { b: 'SAFRA', c: '1150/44941-9' }, 
+                { b: 'BNB', c: '31 / 43636-5' }, { b: 'BNB', c: '31 / 43626-8' }
+            ],
+            'SPE + Controladas': [
+                { b: 'BRS1', c: '7307 / 50645-6' }, { b: 'BRS3 - ITA', c: '7307 / 60438-4' }, { b: 'BRS2 - ITA', c: '7307 / 59899-0' }, 
+                { b: 'BRS2 - SAF', c: '0115 / 00056629-6' }, { b: 'BREM - ITA', c: '0262 / 17856-9' }, { b: 'BRBC - ITA', c: '0262 / 91486-4' }, 
+                { b: 'BRSF - ITA', c: '0262 / 04518-0' }, { b: 'BRIT - ITA', c: '7307/ 59901-4' }, { b: 'DFL II - ITA', c: '7307 / 96675-9' }, 
+                { b: 'BRSD - ITA', c: '7307 /48718-6' }, { b: 'BRTR - ITA', c: '7307/ 08704-4' }
+            ]
         };
+
+        let empresaAtiva = 'BRDX';
+        let contas = empresasConfig[empresaAtiva];
 
         const plano = [
             { id: 'si', nome: 'SALDO INICIAL :', tipo: 'linha-destaque', readOnly: false },
@@ -118,62 +221,253 @@
             { id: 'sco', nome: 'SOMA COLABORADORES', tipo: 'grupo-soma', readOnly: true },
             { id: 'co1', nome: 'Concur', tipo: 'item' }, { id: 'co2', nome: 'Salários', tipo: 'item' },
             { id: 'so', nome: 'SOMA OUTROS', tipo: 'grupo-soma', readOnly: true },
-            { id: 'o1', nome: 'Deposito Outros', tipo: 'item' }, { id: 'o2', nome: 'Desbloqueio Judicial', tipo: 'item' }, { id: 'o3', nome: 'Resgate', tipo: 'linha-banco' }, { id: 'o4', nome: 'Pagamento Fundação', tipo: 'item' }, { id: 'o5', nome: 'Rateio de Condominio - CRCC', tipo: 'item' }, { id: 'o6', nome: 'Venda de Ativos - Facilities', tipo: 'item' }, { id: 'o7', nome: 'CCEE - Energia', tipo: 'item' }, { id: 'o8', nome: 'NDF', tipo: 'item' },
+            { id: 'o1', nome: 'Deposito Outros', tipo: 'item' }, { id: 'o2', nome: 'Desbloqueio Judicial', tipo: 'item' }, 
+            { id: 'o3', nome: 'Resgate', tipo: 'linha-banco' }, 
+            { id: 'o4', nome: 'Pagamento Fundação', tipo: 'item' }, { id: 'o5', nome: 'Rateio de Condominio - CRCC', tipo: 'item' }, { id: 'o6', nome: 'Venda de Ativos - Facilities', tipo: 'item' }, { id: 'o7', nome: 'CCEE - Energia', tipo: 'item' }, { id: 'o8', nome: 'NDF', tipo: 'item' },
             { id: 'sf', nome: 'SOMA FINANCIAMENTO', tipo: 'grupo-soma', readOnly: true },
             { id: 'f1', nome: 'Financiamento', tipo: 'item' }, { id: 'f2', nome: 'SWAP', tipo: 'item' },
             { id: 'sint', nome: 'SOMA INTERCOMPANY', tipo: 'grupo-soma', readOnly: true },
-            { id: 'i1', nome: 'Intercias', tipo: 'item' }, { id: 'i2', nome: 'Faturamento', tipo: 'item' }, { id: 'i3', nome: "Faturamento SCP's", tipo: 'item' }, { id: 'm1', nome: 'Mutuo', tipo: 'item' }, { id: 'a1', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item' },
+            { id: 'i1', nome: 'Intercias', tipo: 'item' }, { id: 'i2', nome: 'Faturamento', tipo: 'item' }, { id: 'i3', nome: "Faturamento SCP's", tipo: 'item' },
+            { id: 'm1', nome: 'Mutuo', tipo: 'item' }, { id: 'a1', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item' },
             { id: 'tr', nome: 'SOMA TED RECEBIDA', tipo: 'linha-destaque', readOnly: true },
+            
             { id: 'tsai', nome: 'TOTAL SAÍDAS', tipo: 'bg-total-saidas', readOnly: true },
             { id: 'sfor', nome: 'SOMA FORNECEDORES', tipo: 'grupo-soma', readOnly: true },
             { id: 's1', nome: 'SAP', tipo: 'item' }, { id: 's2', nome: 'Complemento', tipo: 'item' }, { id: 's3', nome: 'Siscomex', tipo: 'item' }, { id: 's4', nome: 'Concessionaria', tipo: 'item' }, { id: 's5', nome: 'CCEE - ENERGIA', tipo: 'item' }, { id: 's6', nome: 'Câmbio', tipo: 'item' }, { id: 's7', nome: 'Marinha Mercante', tipo: 'item' },
             { id: 'ssal', nome: 'SOMA SALARIOS', tipo: 'grupo-soma', readOnly: true },
             { id: 'sa1', nome: 'Salários', tipo: 'item' }, { id: 'sa2', nome: 'Débito de Consignado', tipo: 'item' },
             { id: 'ssout', nome: 'SOMA OUTROS', tipo: 'grupo-soma', readOnly: true },
-            { id: 'so1', nome: 'Cartão de Crédito', tipo: 'item' }, { id: 'so2', nome: 'Tarifas', tipo: 'item' }, { id: 'so3', nome: 'Comissão / Fiança', tipo: 'item' }, { id: 'so4', nome: 'Bloqueio judicial', tipo: 'item' }, { id: 'so5', nome: 'Sem Parar', tipo: 'item' }, { id: 'so6', nome: 'CRCC', tipo: 'item' }, { id: 'so7', nome: 'Aplicação', tipo: 'linha-banco' }, { id: 'so8', nome: 'NDF', tipo: 'item' },
+            { id: 'so1', nome: 'Cartão de Crédito', tipo: 'item' }, { id: 'so2', nome: 'Tarifas', tipo: 'item' }, { id: 'so3', nome: 'Comissão / Fiança', tipo: 'item' }, { id: 'so4', nome: 'Bloqueio judicial', tipo: 'item' }, { id: 'so5', nome: 'Sem Parar', tipo: 'item' }, { id: 'so6', nome: 'CRCC', tipo: 'item' }, 
+            { id: 'so7', nome: 'Aplicação', tipo: 'linha-banco' }, 
+            { id: 'so8', nome: 'NDF', tipo: 'item' },
             { id: 'ssfin', nome: 'SOMA FINANCIAMENTOS', tipo: 'grupo-soma', readOnly: true },
             { id: 'sfi1', nome: 'Financiamentos Principal', tipo: 'item' }, { id: 'sfi2', nome: 'Financiamentos Juros', tipo: 'item' }, { id: 'sfi3', nome: 'SWAP Principal', tipo: 'item' }, { id: 'sfi4', nome: 'SWAP Juros', tipo: 'item' }, { id: 'sfi5', nome: 'Dividendos', tipo: 'item' },
             { id: 'ssint', nome: 'SOMA INTERCOMPANY', tipo: 'grupo-soma', readOnly: true },
-            { id: 'sin1', nome: 'Intercias', tipo: 'item' }, { id: 'sin2', nome: 'Faturamento DF', tipo: 'item' }, { id: 'sin3', nome: "Faturamento SCP's", tipo: 'item' }, { id: 'smut', nome: 'Mutuo', tipo: 'item' }, { id: 'sapo', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item' }, { id: 'sviv', nome: 'VIVA DECORA', tipo: 'item' }, { id: 'scri', nome: 'CRI SOMA', tipo: 'item' },
+            { id: 'sin1', nome: 'Intercias', tipo: 'item' }, { id: 'sin2', nome: 'Faturamento DF', tipo: 'item' }, { id: 'sin3', nome: "Faturamento SCP's", tipo: 'item' },
+            { id: 'smut', nome: 'Mutuo', tipo: 'item' }, { id: 'sapo', nome: 'Aporte / AFAC / CAP. INT.', tipo: 'item' },
+            { id: 'sviv', nome: 'VIVA DECORA', tipo: 'item' }, { id: 'scri', nome: 'CRI SOMA', tipo: 'item' },
             { id: 'stenv', nome: 'SOMA TED D ENVIADA', tipo: 'linha-transferencia' },
+            
             { id: 'calc', nome: 'SALDO CALCULADO', tipo: 'bg-saldo-calculado', readOnly: true },
             { id: 'marg', nome: 'MARGEM SEGURA', tipo: 'bg-margem-segura', readOnly: false },
             { id: 'seg', nome: 'SALDO SEGURO', tipo: 'bg-saldo-seguro', readOnly: true }
         ];
 
-        let empresaAtiva = 'BRDX';
+        let diasCadastrados = ['Hoje'];
         let diaAtivo = 'Hoje';
         let dadosPorDia = { 'Hoje': {} };
         Object.keys(empresasConfig).forEach(e => dadosPorDia['Hoje'][e] = {});
 
         function renderTabsEmpresas() {
+            const container = document.getElementById('nav-empresas-container');
             let html = '';
             Object.keys(empresasConfig).forEach(emp => {
-                html += `<div class="tab-btn ${emp === empresaAtiva ? 'active' : ''}" onclick="mudarEmpresa('${emp}')">${emp}</div>`;
+                html += `<div class="tab-btn ${emp === empresaAtiva ? 'active' : ''}" id="tab-${emp}" onclick="mudarEmpresa('${emp}')">${emp}</div>`;
             });
-            document.getElementById('nav-empresas-container').innerHTML = html;
+            container.innerHTML = html;
         }
 
-        function mudarEmpresa(nova) { salvarEstado(); empresaAtiva = nova; renderTabsEmpresas(); renderTabela(); carregarEstado(); }
+        function renderTabsDias() {
+            const container = document.getElementById('nav-dias-container');
+            let html = diasCadastrados.map(d => `
+                <div class="dia-btn ${d === diaAtivo ? 'active' : ''}" onclick="mudarDia('${d}')">
+                    <span ondblclick="event.stopPropagation(); renomearDia('${d}')">${d}</span>
+                    <span class="btn-acao" onclick="event.stopPropagation(); renomearDia('${d}')" title="Renomear Guia">✎</span>
+                    <span class="btn-acao fechar" onclick="event.stopPropagation(); fecharAba('${d}')" title="Ocultar Guia">&times;</span>
+                </div>
+            `).join('');
+            
+            html += `<button class="btn-novo-dia" onclick="abrirNovoDia()">+ ABRIR NOVO DIA</button>`;
+            html += `<button class="btn-guias-ocultas" onclick="abrirGuiaOculta()">📁 GUIAS OCULTAS</button>`;
+
+            if(diaAtivo) {
+                html += `<button class="btn-excluir-dia" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}]</button>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function mudarEmpresa(novaEmpresa) {
+            salvarEstado(); 
+            empresaAtiva = novaEmpresa; contas = empresasConfig[empresaAtiva]; 
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${novaEmpresa}`).classList.add('active');
+            renderTabela(); carregarEstado(); 
+        }
+
+        function salvarEstado() {
+            if(!diaAtivo) return;
+            if(!dadosPorDia[diaAtivo]) dadosPorDia[diaAtivo] = {};
+            if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
+
+            let estado = dadosPorDia[diaAtivo][empresaAtiva];
+            contas.forEach((c, idx) => {
+                if(!estado[idx]) estado[idx] = {};
+                plano.forEach(l => {
+                    let el = document.getElementById(`val-${l.id}-${idx}`);
+                    if(el) {
+                        estado[idx][l.id] = el.innerText;
+                        if(l.id === 'o3' || l.id === 'so7') {
+                            estado[idx][`pendente-${l.id}`] = el.getAttribute('data-pendente') || "0";
+                        }
+                    }
+                    if(l.tipo === 'linha-banco') {
+                        let sel = document.getElementById(`banco-${l.id}-${idx}`);
+                        if(sel) estado[idx][`banco-${l.id}`] = sel.value;
+                    }
+                });
+            });
+        }
+
+        function carregarEstado() {
+            if(!diaAtivo) { zerarTabela(); return; }
+            let estadoEmpresa = (dadosPorDia[diaAtivo] || {})[empresaAtiva] || {};
+
+            contas.forEach((c, idx) => {
+                plano.forEach(l => {
+                    let el = document.getElementById(`val-${l.id}-${idx}`);
+                    if(el) {
+                        el.innerText = (estadoEmpresa[idx] && estadoEmpresa[idx][l.id]) ? estadoEmpresa[idx][l.id] : "0,00";
+                        if(l.id === 'o3' || l.id === 'so7') {
+                            el.setAttribute('data-pendente', estadoEmpresa[idx] ? (estadoEmpresa[idx][`pendente-${l.id}`] || "0") : "0");
+                        }
+                    }
+                    
+                    if(l.tipo === 'linha-banco') {
+                        let sel = document.getElementById(`banco-${l.id}-${idx}`);
+                        if(sel) sel.value = (estadoEmpresa[idx] && estadoEmpresa[idx][`banco-${l.id}`]) ? estadoEmpresa[idx][`banco-${l.id}`] : "";
+                    }
+                });
+                recalcularColuna(idx);
+            });
+        }
+
+        function zerarTabela() {
+            contas.forEach((c, idx) => {
+                plano.forEach(l => {
+                    let el = document.getElementById(`val-${l.id}-${idx}`);
+                    if(el) {
+                        el.innerText = "0,00";
+                        if(l.id === 'o3' || l.id === 'so7') el.setAttribute('data-pendente', "0");
+                    }
+                    if(l.tipo === 'linha-banco') {
+                        let sel = document.getElementById(`banco-${l.id}-${idx}`);
+                        if(sel) sel.value = "";
+                    }
+                });
+            });
+        }
+
+        function abrirNovoDia() {
+            let nomeDia = prompt("Digite o nome ou data do novo caixa:");
+            if (!nomeDia || nomeDia.trim() === "") return;
+            nomeDia = nomeDia.trim();
+
+            if (diasCadastrados.includes(nomeDia)) { alert("Guia já aberta."); mudarDia(nomeDia); return; }
+
+            salvarEstado(); 
+            if(!dadosPorDia[nomeDia]) {
+                dadosPorDia[nomeDia] = {};
+                Object.keys(empresasConfig).forEach(emp => {
+                    dadosPorDia[nomeDia][emp] = {};
+                    let estadoAntigo = (dadosPorDia[diaAtivo] && dadosPorDia[diaAtivo][emp]) ? dadosPorDia[diaAtivo][emp] : {};
+                    empresasConfig[emp].forEach((c, idx) => {
+                        dadosPorDia[nomeDia][emp][idx] = {};
+                        dadosPorDia[nomeDia][emp][idx]['si'] = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
+                    });
+                });
+            }
+            diasCadastrados.push(nomeDia); diaAtivo = nomeDia;
+            carregarEstado(); renderTabsDias();
+        }
+
+        function renomearDia(nomeAtual) {
+            let novoNome = prompt(`Renomear guia [${nomeAtual}] para:`, nomeAtual);
+            if (!novoNome || novoNome.trim() === "" || novoNome === nomeAtual) return;
+            novoNome = novoNome.trim();
+            if (dadosPorDia[novoNome] || diasCadastrados.includes(novoNome)) { alert("Nome já existe."); return; }
+            salvarEstado(); 
+            dadosPorDia[novoNome] = dadosPorDia[nomeAtual]; delete dadosPorDia[nomeAtual];
+            let index = diasCadastrados.indexOf(nomeAtual); if (index !== -1) diasCadastrados[index] = novoNome;
+            if (diaAtivo === nomeAtual) diaAtivo = novoNome;
+            renderTabsDias();
+        }
+
+        function mudarDia(novoDia) { salvarEstado(); diaAtivo = novoDia; carregarEstado(); renderTabsDias(); }
+
+        function fecharAba(diaParaFechar) {
+            salvarEstado(); diasCadastrados = diasCadastrados.filter(d => d !== diaParaFechar); 
+            if (diaAtivo === diaParaFechar) { diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); }
+            renderTabsDias();
+        }
+
+        function abrirGuiaOculta() {
+            let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
+            if(guiasOcultas.length === 0) { alert("Nenhuma guia oculta."); return; }
+            let lista = guiasOcultas.map((d, i) => `${i + 1} - ${d}`).join('\n');
+            let escolha = prompt(`Qual guia restaurar? Digite o NÚMERO:\n\n${lista}`);
+            if(!escolha) return;
+            let nomeParaRestaurar = guiasOcultas.find(d => d === escolha || (guiasOcultas.indexOf(d) + 1).toString() === escolha);
+            if(nomeParaRestaurar) { salvarEstado(); diasCadastrados.push(nomeParaRestaurar); diaAtivo = nomeParaRestaurar; carregarEstado(); renderTabsDias(); }
+        }
+
+        function excluirDiaDoBanco() {
+            if(confirm(`ATENÇÃO! Excluir a competência [${diaAtivo}]?`)) {
+                delete dadosPorDia[diaAtivo]; diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
+                diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); renderTabsDias();
+            }
+        }
+
+        const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
 
         function renderTabela() {
             const h = document.getElementById('h-contas');
             const b = document.getElementById('b-caixa');
-            const contas = empresasConfig[empresaAtiva];
-            h.innerHTML = `<tr><th class="col-categoria">Categorias</th>${contas.map(c => `<th>${c.b}<br><small>${c.c}</small></th>`).join('')}</tr>`;
+            
+            h.innerHTML = `<tr><th class="col-categoria">Categorias / Contas</th>${contas.map(c => `<th>${c.b}<br><span style="font-weight:normal;">${c.c}</span></th>`).join('')}</tr>`;
+            
             b.innerHTML = plano.map(l => {
-                const noInput = l.readOnly ? 'no-input' : '';
-                const isIndent = (l.tipo === 'item' || l.tipo === 'linha-banco') ? 'indent' : '';
-                return `<tr><td class="col-categoria ${l.tipo} ${isIndent}">${l.nome}</td>
-                ${contas.map((c, i) => `<td><div class="cell-wrapper ${noInput}">
-                    <span id="val-${l.id}-${i}" class="cell-acumulado" data-pendente="0">0,00</span>
-                    <input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})">
-                </div></td>`).join('')}</tr>`;
+                const isBgLine = (l.tipo === 'bg-total-entradas' || l.tipo === 'bg-total-saidas' || l.tipo === 'bg-saldo-calculado' || l.tipo === 'bg-saldo-seguro');
+                const isIndent = (l.tipo === 'item' || l.tipo === 'linha-banco');
+                const noInputClass = l.readOnly ? 'no-input' : '';
+                
+                return `<tr>
+                    <td class="col-categoria ${l.tipo} ${isIndent ? 'indent' : ''}">${l.nome}</td>
+                    ${contas.map((c, i) => {
+                        
+                        if (l.tipo === 'linha-banco') {
+                            return `<td><div class="cell-wrapper">
+                                    <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente="0">0,00</span>
+                                    <select id="banco-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;" onchange="salvarEstado()">
+                                        <option value="">Banco Destino/Origem...</option>
+                                        ${listaBancosPadrao.map(bco => `<option value="${bco}">${bco}</option>`).join('')}
+                                    </select>
+                                    <input type="text" class="input-lancar" placeholder="Valor" onkeypress="lancar(event, '${l.id}', ${i})">
+                                </div></td>`;
+                        }
+                        if (l.tipo === 'linha-transferencia') {
+                            return `<td><div class="cell-wrapper">
+                                    <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
+                                    <select id="sel-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;">
+                                        <option value="">Conta Destino...</option>
+                                        ${contas.map((ct, idx) => idx !== i ? `<option value="${idx}">${ct.b} ${ct.c.split('/')[1]}</option>` : '').join('')}
+                                    </select>
+                                    <input type="text" class="input-lancar" placeholder="Valor + Enter" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
+                                </div></td>`;
+                        }
+                        
+                        return `<td class="${l.tipo} ${noInputClass}">
+                            <div class="cell-wrapper">
+                                <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
+                                <input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})">
+                            </div>
+                        </td>`;
+                    }).join('')}
+                </tr>`;
             }).join('');
         }
 
-        function getV(id, idx) { let el = document.getElementById(`val-${id}-${idx}`); return el ? parseFloat(el.innerText.replace(/\./g, '').replace(',', '.')) || 0 : 0; }
-        function setV(id, idx, v) { let el = document.getElementById(`val-${id}-${idx}`); if(el) el.innerText = v.toLocaleString('pt-BR', {minimumFractionDigits: 2}); }
+        function getV(id, cidx) { let el = document.getElementById(`val-${id}-${cidx}`); return el ? parseFloat(el.innerText.replace(/\./g, '').replace(',', '.')) || 0 : 0; }
+        function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = val.toLocaleString('pt-BR', {minimumFractionDigits: 2}); }
 
         function recalcularColuna(idx) {
             let sc = getV('c1',idx) + getV('c2',idx) + getV('c3',idx) + getV('c4',idx) + getV('c5',idx); setV('sc', idx, sc);
@@ -181,57 +475,201 @@
             let so = getV('o1',idx) + getV('o2',idx) + getV('o3',idx) + getV('o4',idx) + getV('o5',idx) + getV('o6',idx) + getV('o7',idx) + getV('o8',idx); setV('so', idx, so);
             let sf = getV('f1',idx) + getV('f2',idx); setV('sf', idx, sf);
             let sint = getV('i1',idx) + getV('i2',idx) + getV('i3',idx) + getV('m1',idx) + getV('a1',idx); setV('sint', idx, sint);
+            
             let te = sc + sco + so + sf + sint + getV('tr',idx); setV('te', idx, te);
+
             let sfor = getV('s1',idx) + getV('s2',idx) + getV('s3',idx) + getV('s4',idx) + getV('s5',idx) + getV('s6',idx) + getV('s7',idx); setV('sfor', idx, sfor);
             let ssal = getV('sa1',idx) + getV('sa2',idx); setV('ssal', idx, ssal);
             let ssout = getV('so1',idx) + getV('so2',idx) + getV('so3',idx) + getV('so4',idx) + getV('so5',idx) + getV('so6',idx) + getV('so7',idx) + getV('so8',idx); setV('ssout', idx, ssout);
             let ssfin = getV('sfi1',idx) + getV('sfi2',idx) + getV('sfi3',idx) + getV('sfi4',idx) + getV('sfi5',idx); setV('ssfin', idx, ssfin);
             let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx) + getV('smut',idx) + getV('sapo',idx); setV('ssint', idx, ssint);
+
             let tsai = sfor + ssal + ssout + ssfin + ssint + getV('sviv',idx) + getV('scri',idx) + getV('stenv',idx); setV('tsai', idx, tsai);
-            let calc = getV('si', idx) + te - tsai; setV('calc', idx, calc);
-            setV('seg', idx, calc - getV('marg', idx));
+
+            let si = getV('si', idx);
+            let calc = si + te - tsai; setV('calc', idx, calc);
+            
+            let marg = getV('marg', idx);
+            let seg = calc - marg; setV('seg', idx, seg); 
         }
 
-        function lancar(e, lid, idx) {
+        function lancar(e, lid, cidx) {
             if(e.key === 'Enter') {
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v)) return;
-                if(lid === 'si' || lid === 'marg') setV(lid, idx, v); else setV(lid, idx, getV(lid, idx) + v);
-                e.target.value = ""; recalcularColuna(idx); salvarEstado();
+                
+                if (lid === 'marg') {
+                    setV(lid, cidx, v); 
+                } else {
+                    setV(lid, cidx, getV(lid, cidx) + v); 
+                    
+                    if (lid === 'o3' || lid === 'so7') {
+                        let el = document.getElementById(`val-${lid}-${cidx}`);
+                        let p = parseFloat(el.getAttribute('data-pendente')) || 0;
+                        el.setAttribute('data-pendente', p + v);
+                    }
+                }
+                
+                e.target.parentElement.parentElement.classList.add('flash');
+                setTimeout(() => e.target.parentElement.parentElement.classList.remove('flash'), 500);
+                e.target.value = "";
+                recalcularColuna(cidx); salvarEstado();
             }
         }
 
-        function salvarEstado() {
-            let est = dadosPorDia[diaAtivo][empresaAtiva];
-            const contas = empresasConfig[empresaAtiva];
-            contas.forEach((c, i) => {
-                est[i] = est[i] || {};
-                plano.forEach(l => {
-                    let el = document.getElementById(`val-${l.id}-${i}`);
-                    if(el) est[i][l.id] = el.innerText;
+        function lancarTransferencia(e, fromIdx, lid) {
+            if(e.key === 'Enter') {
+                const selectDestino = document.getElementById(`sel-${lid}-${fromIdx}`);
+                const toIdx = selectDestino.value;
+                if(toIdx === "") { alert("Selecione o destino primeiro."); return; }
+                const v = parseFloat(e.target.value.replace(',', '.'));
+                if(isNaN(v) || v === 0) return; 
+                
+                setV(lid, fromIdx, getV(lid, fromIdx) + v);
+                setV('tr', toIdx, getV('tr', toIdx) + v);
+                
+                e.target.parentElement.parentElement.classList.add('flash');
+                document.getElementById(`val-tr-${toIdx}`).parentElement.parentElement.classList.add('flash-in'); 
+                setTimeout(() => { document.querySelectorAll('.flash, .flash-in').forEach(el => { el.classList.remove('flash'); el.classList.remove('flash-in'); }); }, 800);
+                
+                e.target.value = ""; selectDestino.value = "";
+                recalcularColuna(fromIdx); recalcularColuna(toIdx);
+                salvarEstado();
+            }
+        }
+
+        function abrirResumo() {
+            salvarEstado(); 
+            document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
+            let diaDados = dadosPorDia[diaAtivo];
+            if(!diaDados) return;
+
+            let linhasPendente = '';
+            let linhasConsolidado = '';
+            let totPendResgGeral = 0, totPendAplicGeral = 0;
+            let totConsResgGeral = 0, totConsAplicGeral = 0;
+            let htmlCardsPendente = '<div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom: 20px;">';
+
+            Object.keys(empresasConfig).forEach(emp => {
+                let empDados = diaDados[emp];
+                if(!empDados) return;
+
+                let pResg = 0, pAplic = 0, cResg = 0, cAplic = 0;
+                let pBancos = new Set(), cBancos = new Set();
+
+                empresasConfig[emp].forEach((c, idx) => {
+                    let contaDados = empDados[idx] || {};
+                    
+                    let resg = parseFloat((contaDados['o3'] || '0').replace(/\./g,'').replace(',','.')) || 0;
+                    let aplic = parseFloat((contaDados['so7'] || '0').replace(/\./g,'').replace(',','.')) || 0;
+                    
+                    let pendR = parseFloat(contaDados['pendente-o3']) || 0;
+                    let pendA = parseFloat(contaDados['pendente-so7']) || 0;
+
+                    cResg += resg; cAplic += aplic;
+                    pResg += pendR; pAplic += pendA;
+
+                    if(resg !== 0 && contaDados['banco-o3']) cBancos.add(contaDados['banco-o3']);
+                    if(aplic !== 0 && contaDados['banco-so7']) cBancos.add(contaDados['banco-so7']);
+                    if(pendR !== 0 && contaDados['banco-o3']) pBancos.add(contaDados['banco-o3']);
+                    if(pendA !== 0 && contaDados['banco-so7']) pBancos.add(contaDados['banco-so7']);
                 });
+
+                if(pResg !== 0 || pAplic !== 0) {
+                    htmlCardsPendente += `
+                    <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 5px; background: #f8fafc; min-width: 150px; flex: 1;">
+                        <h4 style="margin: 0 0 5px 0; color: var(--primary); text-align: center;">${emp}</h4>
+                        <div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${pResg.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+                        <div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${pAplic.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+                    </div>`;
+
+                    totPendResgGeral += pResg; totPendAplicGeral += pAplic;
+                    let strBancoP = pBancos.size > 0 ? Array.from(pBancos).join(', ') : '-';
+                    linhasPendente += `<tr><td style="font-weight:bold;">${emp}</td><td style="text-align:right; color:#10b981; font-weight:bold;">${pResg !== 0 ? pResg.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:right; color:var(--vermelho-saida); font-weight:bold;">${pAplic !== 0 ? pAplic.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:center;">${strBancoP}</td></tr>`;
+                }
+
+                if(cResg !== 0 || cAplic !== 0) {
+                    totConsResgGeral += cResg; totConsAplicGeral += cAplic;
+                    let strBancoC = cBancos.size > 0 ? Array.from(cBancos).join(', ') : '-';
+                    linhasConsolidado += `<tr><td>${emp}</td><td style="text-align:right;">${cResg !== 0 ? cResg.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:right;">${cAplic !== 0 ? cAplic.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:center;">${strBancoC}</td></tr>`;
+                }
             });
+            htmlCardsPendente += '</div>';
+
+            if (linhasPendente === '') {
+                document.getElementById('resumo-content-pendente').innerHTML = "<p style='text-align: center; color: #64748b; font-size: 14px;'>Nenhuma nova pendência para enviar.</p>";
+            } else {
+                document.getElementById('resumo-content-pendente').innerHTML = htmlCardsPendente + `
+                <table class="resumo-table-print">
+                    <thead><tr><th style="text-align:left;">Empresa</th><th style="text-align:right;">Resgate</th><th style="text-align:right;">Aplicação</th><th style="text-align:center;">Banco</th></tr></thead>
+                    <tbody>${linhasPendente}</tbody>
+                    <tfoot><tr><th style="text-align:left;">Total a Enviar</th><th style="text-align:right;">${totPendResgGeral !== 0 ? totPendResgGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</th><th style="text-align:right;">${totPendAplicGeral !== 0 ? totPendAplicGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</th><th></th></tr></tfoot>
+                </table>`;
+            }
+
+            if (linhasConsolidado === '') {
+                document.getElementById('resumo-content-consolidado').innerHTML = "<p style='font-size:12px; color:#64748b; margin:0;'>O dia está zerado.</p>";
+            } else {
+                document.getElementById('resumo-content-consolidado').innerHTML = `
+                <table style="width:100%; border-collapse:collapse; font-size:11px; background:white;">
+                    <thead><tr style="background:#cbd5e1; color:#1e293b;"><th style="padding:4px; text-align:left;">Empresa</th><th style="padding:4px; text-align:right;">Resgate</th><th style="padding:4px; text-align:right;">Aplicação</th><th style="padding:4px; text-align:center;">Banco</th></tr></thead>
+                    <tbody>${linhasConsolidado}</tbody>
+                    <tfoot><tr style="font-weight:bold;"><td style="padding:4px;">Total</td><td style="padding:4px; text-align:right;">${totConsResgGeral !== 0 ? totConsResgGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="padding:4px; text-align:right;">${totConsAplicGeral !== 0 ? totConsAplicGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td></td></tr></tfoot>
+                </table>`;
+            }
+
+            document.getElementById('modal-resumo').style.display = 'block';
         }
 
-        function carregarEstado() {
-            let est = dadosPorDia[diaAtivo][empresaAtiva] || {};
-            const contas = empresasConfig[empresaAtiva];
-            contas.forEach((c, i) => {
-                plano.forEach(l => {
-                    let el = document.getElementById(`val-${l.id}-${i}`);
-                    if(el && est[i]) el.innerText = est[i][l.id] || "0,00";
+        function confirmarEnvioLote() {
+            if(!confirm("Confirma que estes valores já foram enviados para a operação?\n\nIsso limpará a tela de Novas Aplicações/Resgates (mas os valores continuarão no Saldo do Caixa normalmente).")) return;
+            
+            let diaDados = dadosPorDia[diaAtivo];
+            if(!diaDados) return;
+
+            Object.keys(empresasConfig).forEach(emp => {
+                if(diaDados[emp]) {
+                    Object.keys(diaDados[emp]).forEach(idx => {
+                        if(diaDados[emp][idx]) {
+                            diaDados[emp][idx]['pendente-o3'] = "0";
+                            diaDados[emp][idx]['pendente-so7'] = "0";
+                        }
+                    });
+                }
+            });
+            
+            carregarEstado(); 
+            abrirResumo();    
+        }
+
+        async function copiarResumoImagem() {
+            const exportArea = document.getElementById('resumo-export-area');
+            const btn = document.getElementById('btn-copiar-resumo');
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = "⏳ Copiando..."; btn.style.background = "#64748b"; 
+            
+            try {
+                const canvas = await html2canvas(exportArea, { backgroundColor: "#ffffff", scale: 2 });
+                canvas.toBlob(async function(blob) {
+                    try {
+                        const item = new ClipboardItem({ "image/png": blob });
+                        await navigator.clipboard.write([item]);
+                        btn.innerHTML = "✅ Copiado!"; btn.style.background = "#10b981"; 
+                        setTimeout(() => { btn.innerHTML = textoOriginal; }, 2000);
+                    } catch (err) {
+                        alert("Não foi possível copiar. Verifique se o navegador permite.");
+                        btn.innerHTML = textoOriginal; btn.style.background = "#10b981";
+                    }
                 });
-                recalcularColuna(i);
-            });
+            } catch (err) { alert("Erro ao gerar imagem."); btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; }
         }
 
-        function renderTabsDias() {
-            document.getElementById('nav-dias-container').innerHTML = `<div class="dia-btn active">${diaAtivo}</div>`;
-        }
+        // START
+        renderTabsEmpresas();
+        renderTabela();
+        renderTabsDias();
+        carregarEstado();
 
-        function abrirResumo() { document.getElementById('modal-resumo').style.display='block'; }
-
-        renderTabsEmpresas(); renderTabela(); renderTabsDias();
     </script>
 </body>
 </html>
