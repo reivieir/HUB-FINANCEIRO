@@ -6,146 +6,136 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
-            --primary: #002b45; --danger: #c40000; --success: #10b981; --border: #e2e8f0; --text: #334155;
+            --primary: #002b45; 
+            --danger: #c40000; 
+            --success: #10b981; 
+            --border: #e2e8f0;
         }
         
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { margin: 0; font-family: Arial, sans-serif; background: #f8fafc; padding: 0; }
 
-        /* ==========================================
-           MOLDE PADRÃO DEXCO
-        ========================================== */
-        html, body {
-            margin: 0; padding: 0; height: 100vh;
-            background-color: #f0f2f5; 
-            overflow: hidden; 
-            color: var(--text);
-        }
-
-        body {
-            padding: 25px; /* A MARGEM */
+        /* CABEÇALHO */
+        .header-blue {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 25px;
             display: flex;
-            flex-direction: column;
-            zoom: 0.875; /* Zoom reduzido para manter a proporção com o hub antigo */
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
-
-        .app-wrapper {
-            flex: 1; 
+        .header-title { font-size: 16px; font-weight: normal; }
+        .header-btns { display: flex; gap: 10px; }
+        
+        .btn-export {
             background: white;
-            border-radius: 8px; /* BORDAS ARREDONDADAS AQUI */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; 
+            color: black;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 2px;
+        }
+        .btn-logout {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 4px;
+            font-weight: bold;
         }
 
-        /* A BARRA AZUL MARINHO */
-        .header-dexco {
-            background-color: #002b45; color: white; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        /* CONTEÚDO */
+        .container { padding: 0 20px 20px 20px; }
+
+        .nav-bancos { 
+            background: white; padding: 10px 25px; display: flex; gap: 15px; 
+            border-bottom: 1px solid var(--border); margin: 0 -20px 20px -20px; overflow-x: auto;
         }
-        .header-dexco h1 { font-size: 14px; font-weight: 400; margin: 0; letter-spacing: 0.5px;}
-        .header-actions { display: flex; gap: 10px; }
-        .header-actions button { padding: 6px 15px; border: none; border-radius: 3px; font-weight: bold; font-size: 11px; cursor: pointer; transition: 0.2s; }
-        .btn-export { background: white; color: #002b45; }
-        .btn-export:hover { background: #e2e8f0; }
-        .btn-exit { background: #c40000; color: white; }
-        .btn-exit:hover { background: #a30000; }
-
-        /* ÁREA DE CONTEÚDO COM ESPAÇO PARA OS CONTROLES */
-        .app-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            overflow: hidden;
+        .banco-link { 
+            padding: 10px 20px; cursor: pointer; font-weight: bold; border-radius: 6px; 
+            color: #64748b; text-transform: uppercase; font-size: 13px; white-space: nowrap;
         }
+        .banco-link.ativo { background: var(--primary); color: white; }
 
-        /* ==========================================
-           CONTEÚDO ESPECÍFICO
-        ========================================== */
-        .nav-bancos { background: white; display: flex; gap: 10px; border-bottom: 1px solid var(--border); margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;}
-        .banco-link { padding: 8px 16px; cursor: pointer; font-weight: bold; border-radius: 6px; color: #64748b; text-transform: uppercase; font-size: 11px; white-space: nowrap; border: 1px solid var(--border);}
-        .banco-link:hover { border-color: #cbd5e1; color: var(--text); }
-        .banco-link.ativo { background: var(--primary); color: white; border-color: var(--primary); }
+        .kpis { display: flex; gap: 20px; margin-bottom: 20px; }
+        .kpi-card { background: white; padding: 20px; border-radius: 8px; flex: 1; border: 1px solid var(--border); }
+        .kpi { font-size: 32px; color: var(--danger); font-weight: bold; }
 
-        .kpis { display: flex; gap: 20px; margin-bottom: 20px; flex-shrink: 0;}
-        .kpi-card { background: white; padding: 20px; border-radius: 6px; flex: 1; border: 1px solid var(--border); font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;}
-        .kpi { font-size: 28px; color: var(--primary); font-weight: bold; display: block; margin-top: 5px;}
+        .controls { display: flex; gap: 12px; margin-bottom: 15px; }
+        .search-input { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 6px; }
+        .btn-add { background: var(--success); color: white; border: none; padding: 0 25px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-        .controls { display: flex; gap: 12px; margin-bottom: 15px; flex-shrink: 0;}
-        .search-input { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 4px; outline: none;}
-        .btn-add { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;}
-
-        .table-container { flex: 1; overflow-y: auto; background: white; border: 1px solid var(--border); border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
-        th { background: #f8fafc; padding: 12px 15px; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 11px; position: sticky; top: 0; z-index: 10;}
-        td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: #f1f5f9; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+        th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 11px; color: #475569; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 13px; }
 
         .action-link { color: #2563eb; cursor: pointer; text-decoration: none; font-weight: bold; font-size: 12px; }
         .delete-link { color: #ef4444; margin-left: 10px; }
         
-        .btn-unlock-top { background: none; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; color: #64748b; margin-left: 10px; }
+        .btn-unlock-top {
+            background: none; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 4px;
+            cursor: pointer; font-size: 10px; font-weight: bold; color: #64748b; margin-left: 10px;
+        }
         .status-locked { color: #94a3b8; font-style: italic; font-size: 11px; }
 
         /* MODAIS */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 500px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-content { background: white; padding: 30px; border-radius: 10px; width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
         .modal-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
         .modal-field label { font-size: 12px; font-weight: bold; color: #64748b; }
-        .modal-field input { padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; outline: none;}
+        .modal-field input { padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 14px; }
         .modal-footer { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-save { flex: 1; padding: 10px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;}
-        .btn-cancel { flex: 1; padding: 10px; background: #e2e8f0; color: var(--text); border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;}
-        .btn-confirm { flex: 1; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;}
+        .btn-save { flex: 1; padding: 12px; background: var(--success); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-cancel { flex: 1; padding: 12px; background: #94a3b8; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        /* ESTILO ESPECÍFICO MODAL SENHA */
+        .btn-confirm { flex: 1; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="app-wrapper">
-        <header class="header-dexco">
-            <h1>Dexco S.A - Conciliação Bancária</h1>
-            <div class="header-actions">
-                <button class="btn-export" onclick="exportarCSV()">Exportar CSV</button>
-                <button class="btn-exit" onclick="window.parent.location.reload()">Sair / Bloquear</button>
-            </div>
-        </header>
-
-        <div class="app-content">
-            <div class="nav-bancos" id="nav-bancos"></div>
-
-            <div class="kpis">
-                <div class="kpi-card">TOTAL GERAL<br><span class="kpi" id="total">0</span></div>
-                <div class="kpi-card">Acessos em: <span id="kpi-label">TODOS</span><br><span class="kpi" id="total-f" style="color: #3b82f6;">0</span></div>
-            </div>
-
-            <div class="controls">
-                <input type="text" id="busca" class="search-input" placeholder="Buscar Empresa ou CNPJ..." oninput="render()">
-                <button class="btn-add" onclick="abrirModal()">+ INCLUIR NOVO</button>
-            </div>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Empresa</th><th>Contas</th><th>CNPJ</th><th>Banco</th><th>Razão Débito</th><th>Razão Crédito</th><th>Razão Mov.</th>
-                            <th style="text-align:center">
-                                Ações 
-                                <button id="btnUnlock" class="btn-unlock-top" onclick="abrirModalSeguranca()">🔓 DESBLOQUEAR</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaCorpo"></tbody>
-                </table>
-            </div>
+    <div class="header-blue">
+        <div class="header-title">Dexco S.A - Conciliação Bancária</div>
+        <div class="header-btns">
+            <button class="btn-export" onclick="exportarCSV()">Exportar CSV</button>
+            <button class="btn-logout" onclick="window.parent.location.reload()">Sair / Bloquear</button>
         </div>
+    </div>
+
+    <div class="container">
+        <div class="nav-bancos" id="nav-bancos"></div>
+
+        <div class="kpis">
+            <div class="kpi-card">TOTAL GERAL<br><span class="kpi" id="total">0</span></div>
+            <div class="kpi-card"><span id="kpi-label">TODOS</span><br><span class="kpi" id="total-f">0</span></div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="busca" class="search-input" placeholder="Buscar Empresa ou CNPJ..." oninput="render()">
+            <button class="btn-add" onclick="abrirModal()">+ INCLUIR NOVO</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Empresa</th><th>Contas</th><th>CNPJ</th><th>Banco</th><th>Razão Débito</th><th>Razão Crédito</th><th>Razão Mov.</th>
+                    <th style="text-align:center">
+                        Ações 
+                        <button id="btnUnlock" class="btn-unlock-top" onclick="abrirModalSeguranca()">🔓 DESBLOQUEAR</button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="tabelaCorpo"></tbody>
+        </table>
     </div>
 
     <div id="modal" class="modal">
         <div class="modal-content">
-            <h3 id="modal-titulo" style="margin-top:0; color:var(--primary); font-size: 15px;">Nova Configuração</h3>
+            <h3 id="modal-titulo" style="margin-top:0; color:var(--primary)">Nova Configuração</h3>
             <input type="hidden" id="m-id">
             <div class="modal-field"><label>Empresa</label><input type="text" id="m-empresa"></div>
             <div class="modal-grid">
@@ -167,10 +157,10 @@
 
     <div id="modal-seguranca" class="modal">
         <div class="modal-content" style="width: 320px; text-align: center;">
-            <h3 style="margin-top:0; color:var(--primary); font-size: 15px;">Acesso Restrito</h3>
+            <h3 style="margin-top:0; color:var(--primary)">Acesso Restrito</h3>
             <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">Digite a senha para habilitar edições</p>
             <div class="modal-field">
-                <input type="password" id="input-senha-segura" placeholder="Senha do Sistema" onkeypress="if(event.key==='Enter') validarSenhaSegura()" style="text-align: center;">
+                <input type="password" id="input-senha-segura" placeholder="Senha do Sistema" onkeypress="if(event.key==='Enter') validarSenhaSegura()">
             </div>
             <div class="modal-footer">
                 <button class="btn-confirm" onclick="validarSenhaSegura()">CONFIRMAR</button>
@@ -208,7 +198,7 @@
 
             document.getElementById("tabelaCorpo").innerHTML = lista.map(i => `
                 <tr>
-                    <td style="font-weight: 600;">${i.empresa_nome || ""}</td>
+                    <td>${i.empresa_nome || ""}</td>
                     <td>${i.conta_numero || ""}</td>
                     <td>${i.cnpj || ""}</td>
                     <td>${i.banco_nome || ""}</td>
@@ -218,7 +208,6 @@
                     <td style="text-align:center">
                         ${sistemaDesbloqueado ? 
                             `<a class="action-link" onclick="prepararEdicao('${i.id}')">Editar</a>
-                             <span style="color:#cbd5e1">|</span>
                              <a class="action-link delete-link" onclick="remover('${i.id}')">Excluir</a>` 
                             : `<span class="status-locked">Restrito</span>`}
                     </td>
@@ -226,6 +215,7 @@
             atualizarNav();
         }
 
+        /* FUNÇÕES DO MODAL DE SEGURANÇA */
         function abrirModalSeguranca() {
             if (sistemaDesbloqueado) {
                 sistemaDesbloqueado = false;
@@ -237,7 +227,9 @@
             }
         }
 
-        function fecharModalSeguranca() { document.getElementById("modal-seguranca").style.display = "none"; }
+        function fecharModalSeguranca() {
+            document.getElementById("modal-seguranca").style.display = "none";
+        }
 
         function validarSenhaSegura() {
             const senha = document.getElementById("input-senha-segura").value;
@@ -325,3 +317,4 @@
     </script>
 </body>
 </html>
+
