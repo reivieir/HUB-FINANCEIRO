@@ -1,331 +1,264 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Hub Financeiro - Dexco</title>
-
     <link rel="stylesheet" href="css/style.css">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-
-        /* AJUSTE DE VISUALIZAÇÃO CORRIGIDO E DEFINITIVO */
+        /* ==================================================================
+           1. VARIÁVEIS E BASE (CORES INSPIRADAS NA REFERÊNCIA)
+        ================================================================== */
+        :root {
+            --bg-color: #f0f2f5;       
+            --topbar-bg: #ffffff;      
+            --text-main: #1e293b;      
+            --text-light: #64748b;     
+            --accent-color: #10b981;   
+            --border-color: #e2e8f0;   
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); 
+        }
 
         html, body {
-
             margin: 0;
-
             padding: 0;
-
-            height: 100vh; /* Trava a altura na tela real */
-
-            overflow: hidden; /* Corta rolagem dupla no hub */
-
-            background-color: #f8fafc;
-
+            height: 100vh; 
+            overflow: hidden; 
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
         }
-
-
 
         body {
-
             display: flex;
-
-            /* SE O ZOOM ESTIVER QUEBRANDO A TELA, EXPERIMENTE REMOVER OU COMENTAR ESTA LINHA: */
-
-            /* zoom: 0.8; */ 
-
+            flex-direction: column; /* Organiza Topo e Conteúdo verticalmente */
         }
 
-
-
-        /* Sidebar Padrão */
-
-        .sidebar {
-
-            width: 250px;
-
-            background-color: #1e293b;
-
-            color: white;
-
-            padding: 20px;
-
+        /* ==================================================================
+           2. NOVO MENU HORIZONTAL (TOP-NAV)
+        ================================================================== */
+        .top-navbar {
+            background-color: var(--topbar-bg);
             display: flex;
-
-            flex-direction: column;
-
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            height: 65px;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--border-color);
             z-index: 100;
-
         }
 
-
-
-        .sidebar h2 { margin-bottom: 30px; font-size: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-
-        .nav-btn { background: none; border: none; color: #cbd5e1; padding: 12px; text-align: left; cursor: pointer; border-radius: 5px; margin-bottom: 10px; font-size: 1rem; transition: 0.3s; width: 100%; }
-
-        .nav-btn:hover, .nav-btn.active { background-color: #334155; color: white; }
-
-
-
-        /* AQUI ESTÁ O SEGREDO: O Content como container Flex vertical */
-
-        .content {
-
-            flex: 1; /* Ocupa o resto da largura */
-
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
             display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0f172a;
+        }
+        .logo span { color: var(--accent-color); }
 
-            flex-direction: column; /* Organiza os filhos empilhados */
-
-            height: 100vh;
-
-            overflow: hidden; /* Impede a rolagem do container pai */
-
+        .nav-links {
+            display: flex;
+            gap: 5px;
+            height: 100%;
+            align-items: center;
         }
 
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px 14px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
 
+        .nav-btn:hover {
+            color: var(--text-main);
+            background-color: #f8fafc;
+        }
+
+        .nav-btn.active {
+            color: #2563eb; /* Azul elegante para aba ativa */
+            background-color: #eff6ff;
+            font-weight: 600;
+        }
+
+        .user-profile {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .user-profile div {
+            width: 32px; height: 32px;
+            background-color: var(--accent-color);
+            color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
+
+        /* Removendo a antiga sidebar */
+        .sidebar { display: none; } 
+
+        /* ==================================================================
+           3. ÁREA DE CONTEÚDO (MANTÉM A SUA LÓGICA FLEX)
+        ================================================================== */
+        .content {
+            flex: 1; 
+            display: flex;
+            flex-direction: column; 
+            height: 100%;
+            overflow: hidden; 
+            padding: 20px 30px; /* Margem ao redor do conteúdo */
+        }
 
         /* Containers de Abas Padrões */
-
         .tab-content { 
-
             display: none; 
-
-            flex: 1; /* Estica para preencher toda a altura disponível da .content */
-
-            padding: 20px; /* Padding geral para o conteúdo não colar nas bordas */
-
+            flex: 1; 
+            padding: 0; /* Removido padding interno para o iframe colar na borda */
             box-sizing: border-box;
-
-            background-color: #f4f7f6;
-
-            overflow-y: auto; /* Rolagem interna das abas genéricas */
-
+            background-color: transparent;
+            overflow: hidden; 
+            border-radius: 12px; /* Borda arredondada do dashboard */
         }
-
         
-
         .tab-content.active { 
-
             display: flex; 
-
             flex-direction: column;
-
         }
-
-
 
         /* Iframes padrão */
-
         .tab-content iframe {
-
             width: 100%;
-
-            flex: 1; /* Estica o Iframe internamente */
-
+            flex: 1; 
             border: none;
-
-            border-radius: 8px;
-
+            border-radius: 12px; /* Suavidade das linhas */
             background-color: #fff;
-
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.02); /* Sombra elegante */
         }
-
-
 
         /* ==========================================================
-
            CLASSE EXCLUSIVA PARA A ABA "GESTÃO DE CAIXA"
-
-           Ignora as bordas (padding: 0) e encosta em todos os lados!
-
         ========================================================== */
-
         .tab-caixa {
-
-            padding: 0 !important; /* Retira as bordas da aba */
-
-            overflow: hidden !important; /* Desativa a rolagem desta aba, o iframe resolve */
-
+            padding: 0 !important; 
+            overflow: hidden !important; 
+            border-radius: 0; /* Caixa colado */
         }
-
         
-
         .tab-caixa iframe {
-
-            border-radius: 0 !important; /* Fica quadrado e liso nas bordas */
-
+            border-radius: 0 !important; 
             box-shadow: none !important;
-
         }
 
+        /* ==========================================================
+           AJUSTES DO CHAT (Estilo Clean)
+        ========================================================== */
+        #chat-tab.active { display: flex; flex-direction: column; height: 100%; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); overflow: hidden;}
+        .chat-header-full { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; border-bottom: 1px solid var(--border-color); background: #fff;}
+        .chat-header-full h2 { margin: 0; font-size: 1.25rem; font-weight: 600;}
+        .new-chat-btn { background-color: var(--accent-color); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 0.85rem;}
+        .new-chat-btn:hover { background-color: #059669; }
+        .chat-messages-full { flex: 1; overflow-y: auto; padding: 30px; background: #fafafa; display: flex; flex-direction: column; gap: 15px;}
+        .ai-message, .user-message { padding: 12px 18px; border-radius: 8px; max-width: 80%; font-size: 0.95rem; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+        .ai-message { background: white; align-self: flex-start; color: var(--text-main); border: 1px solid var(--border-color);}
+        .user-message { background: #3b82f6; color: white; align-self: flex-end; }
+        .chat-input-full { display: flex; gap: 10px; background: white; padding: 20px 30px; border-top: 1px solid var(--border-color); }
+        .chat-input-full input { flex: 1; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem; background: var(--bg-color);}
+        .chat-input-full input:focus { border-color: #3b82f6; background: white;}
+        .chat-input-full button { padding: 12px 25px; background: #3b82f6; border: none; cursor: pointer; font-weight: 600; color: white; border-radius: 6px; transition: 0.2s; font-size: 0.95rem;}
+        .chat-input-full button:hover { background: #2563eb; }
 
+        /* ==========================================================
+           CONTROLE DE ZOOM INDIVIDUAL DOS IFRAMES (MANTIDO O SEU)
+        ========================================================== */
+        /* 1. Conciliação e Gestão de Bancos em 70% */
+        #conciliacao iframe, #bancos iframe {
+            width: 142.85% !important; 
+            height: calc((100vh - 90px) * 1.4285) !important; 
+            transform: scale(0.70);
+            transform-origin: top left; 
+            border: none;
+            border-radius: 12px; 
+        }
 
-        /* Ajustes do Chat */
-
-        #chat-tab.active { display: flex; flex-direction: column; height: 100%; }
-
-        .chat-messages-full { flex: 1; overflow-y: auto; padding: 20px; background: white; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
-
-        .chat-header-full { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-
-        .chat-input-full { display: flex; gap: 10px; background: white; padding: 10px; border-top: 1px solid #e2e8f0; }
-
-        .chat-input-full input { flex: 1; }
-
-/* ==========================================================
-
-   CONTROLE DE ZOOM INDIVIDUAL DOS IFRAMES
-
-========================================================== */
-
-
-
-/* 1. Conciliação e Gestão de Bancos em 70% */
-
-#conciliacao iframe, #bancos iframe {
-
-    width: 142.85% !important; /* 100 / 0.70 = 142.85% (Compensa o encolhimento) */
-
-    height: calc((100vh - 90px) * 1.4285) !important; /* Compensa a altura */
-
-    transform: scale(0.70);
-
-    transform-origin: top left; /* Garante que o zoom encolha em direção ao topo esquerdo */
-
-    border: none;
-
-    border-radius: 12px; /* Ajuste visual para a borda não ficar pontiaguda no scale */
-
-}
-
-
-
-/* 2. Gestão de Caixa em 100% (Sem redução) */
-
-.tab-caixa iframe {
-
-    width: 90% !important;
-
-    height: 90% !important;
-
-    transform: none !important; /* Garante que não sofra nenhuma alteração */
-
-}
-
+        /* 2. Gestão de Caixa em 100% (Sem redução) */
+        .tab-caixa iframe {
+            width: 100% !important; /* Ajustei de 90% para 100% para não sobrar fundo */
+            height: 100% !important;
+            transform: none !important; 
+        }
     </style>
-
 </head>
-
 <body>
 
-
-
-    <aside class="sidebar">
-
-        <h2>Hub Financeiro</h2>
-
-        <nav>
-
+    <header class="top-navbar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #10b981;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            Hub <span>Financeiro</span>
+        </div>
+        
+        <nav class="nav-links">
             <button class="nav-btn active" onclick="showTab('conciliacao')">Conciliação Bancária</button>
-
             <button class="nav-btn" onclick="showTab('bancos')">Gestão de Bancos</button>
-
             <button class="nav-btn" onclick="showTab('caixa')">Gestão de Caixa</button>
-
             <button class="nav-btn" onclick="showTab('protestos')">Protestos</button>
-
-            <hr style="border: 0; border-top: 1px solid #334155; margin: 15px 0;">
-
-            <button class="nav-btn" onclick="showTab('chat-tab')">🤖 Assistente IA</button>
-
+            <div style="width: 1px; height: 20px; background-color: #cbd5e1; margin: 0 5px;"></div>
+            <button class="nav-btn" style="color: #10b981;" onclick="showTab('chat-tab')">✨ Assistente IA</button>
         </nav>
 
-    </aside>
-
-
+        <div class="user-profile">
+            Olá, Operador
+            <div>O</div>
+        </div>
+    </header>
 
     <main class="content">
-
         
-
         <div id="conciliacao" class="tab-content active">
-
             <iframe src="conciliacao.html"></iframe>
-
         </div>
-
-
 
         <div id="bancos" class="tab-content">
-
             <iframe src="https://bank-management-lime.vercel.app/"></iframe>
-
         </div>
-
-
 
         <div id="caixa" class="tab-content tab-caixa">
-
             <iframe src="caixa.html"></iframe>
-
         </div>
 
-
-
-        <div id="protestos" class="tab-content">
-
-            <h1>Protestos</h1>
-
+        <div id="protestos" class="tab-content" style="background: white; padding: 40px;">
+            <h1 style="color: #0f172a; margin-top:0;">Protestos</h1>
             <p>Procedimentos para baixas, cartas de anuência e negociações.</p>
-
         </div>
-
-
 
         <div id="chat-tab" class="tab-content">
-
             <div class="chat-header-full">
-
                 <h2>Assistente Financeiro IA</h2>
-
                 <button class="new-chat-btn" onclick="novoChat()">+ Novo Chat</button>
-
             </div>
-
             <div id="chatMessages" class="chat-messages-full">
-
                 <p class="ai-message">Olá! Sou o assistente do Hub. Como posso ajudar hoje?</p>
-
             </div>
-
             <div class="chat-input-full">
-
                 <input type="text" id="userInput" placeholder="Digite sua dúvida..." onkeypress="enviarComEnter(event)">
-
                 <button onclick="sendMessage()">Enviar</button>
-
             </div>
-
         </div>
-
-
 
     </main>
 
-
-
     <script src="js/app.js"></script>
-
 </body>
-
 </html>
