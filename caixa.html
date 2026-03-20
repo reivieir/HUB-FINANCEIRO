@@ -12,34 +12,21 @@
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
 
-        /* ==========================================
-           MOLDE PADRÃO DEXCO
-        ========================================== */
         html, body {
             margin: 0; padding: 0; height: 100vh; width: 100vw;
-            background-color: #f0f2f5; 
-            overflow: hidden; 
-            color: var(--text);
+            background-color: #f0f2f5; overflow: hidden; color: var(--text);
         }
 
         body {
-            padding: 25px; 
-            display: flex;
-            flex-direction: column;
-            zoom: 1.25; 
+            padding: 25px; display: flex; flex-direction: column; zoom: 1.1; 
         }
 
         .app-wrapper {
-            flex: 1; 
-            background: white;
-            border-radius: 8px;
+            flex: 1; background: white; border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; 
+            display: flex; flex-direction: column; overflow: hidden; 
         }
 
-        /* BARRA TOPO */
         .header-dexco {
             background-color: #002b45; color: white; padding: 12px 20px;
             display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
@@ -50,36 +37,18 @@
         .btn-export { background: #f59e0b; color: white; }
         .btn-exit { background: #c40000; color: white; }
 
-        .app-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            overflow: hidden;
-        }
+        .app-content { flex: 1; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
 
-        /* NAVEGAÇÃO */
         .nav-dias { background: #e2e8f0; display: flex; align-items: center; padding: 0 15px; gap: 8px; height: 36px; flex-shrink: 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
         .dia-btn { display: flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 4px; background: white; border: 1px solid var(--border); font-size: 11px; font-weight: bold; cursor: pointer; color: var(--primary); transition: 0.2s; white-space: nowrap; }
         .dia-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .btn-acao { color: #94a3b8; font-size: 12px; cursor: pointer; line-height: 1; }
-        
-        .btn-novo-dia { background: #10b981; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; }
-        .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
-        .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
+        .btn-novo-dia { background: #10b981; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; }
 
         .nav-empresas { display: flex; background: white; border-bottom: 1px solid var(--border); overflow-x: auto; padding: 0 15px; height: 34px; flex-shrink: 0; align-items: center;}
-        .tab-btn { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; }
-        .tab-btn.active { background: var(--bg); border-color: var(--border); color: var(--primary); border-bottom: 2px solid var(--primary); }
+        .tab-btn { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; }
+        .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* TABELA COM ROLAGEM */
-        .grid-container { 
-            flex: 1; 
-            min-height: 0; 
-            overflow: auto; 
-            background: white; position: relative; 
-        }
-        
+        .grid-container { flex: 1; min-height: 0; overflow: auto; background: white; position: relative; }
         table { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; font-size: 10px; }
         th, td { border: 1px solid var(--border); padding: 2px 4px; min-width: 135px; box-sizing: border-box; vertical-align: middle; background: white; }
 
@@ -88,37 +57,19 @@
         thead th.col-categoria { z-index: 12; background: #e2e8f0; text-align: center; }
 
         .cell-wrapper { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
-        .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 1px; }
-        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc; }
-        .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
-
+        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 2px; text-align: right; font-size: 9px; outline: none; background: #f8fafc; }
         .bg-total-entradas { background-color: var(--azul-entrada) !important; color: white !important; font-weight: bold; }
         .bg-total-saidas { background-color: var(--vermelho-saida) !important; color: white !important; font-weight: bold; }
         .bg-saldo-calculado { background-color: #0284c7 !important; color: white !important; font-weight: bold; }
-        .bg-margem-segura { background-color: #f1f5f9 !important; font-weight: bold; }
         .bg-saldo-seguro { background-color: #1e293b !important; color: white !important; font-weight: bold; }
-        
         .linha-destaque { font-weight: bold; background: white; }
-        .grupo-soma { font-weight: normal; text-transform: uppercase; background: white; }
         .indent { padding-left: 15px !important; }
         .no-input .input-lancar { display: none; }
         .no-input .cell-acumulado { font-weight: bold; font-size: 11px; }
 
-        .flash { animation: flash 0.5s; }
-        @keyframes flash { from { background: #dcfce7; } to { background: transparent; } }
-        .flash-in { animation: flash-in 0.8s ease-out; }
-        @keyframes flash-in { 0% { background: #bfdbfe; } 100% { background: transparent; } }
-
         /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 800px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 20px;}
-        .resumo-table-print { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; background: white;}
-        .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 6px; }
-        .resumo-table-print th { background-color: var(--primary); color: white; }
-        .resumo-table-print tfoot th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; }
-        .btn-copiar { background: #10b981; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: background 0.2s; }
-        .btn-limpar-lote { background: #3b82f6; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .modal-content { background-color: #f8fafc; margin: 2% auto; padding: 20px; border-radius: 8px; width: 85%; max-width: 800px; max-height: 90vh; overflow-y: auto;}
     </style>
 </head>
 <body>
@@ -134,7 +85,6 @@
         <div class="app-content">
             <div class="nav-dias" id="nav-dias-container"></div>
             <div class="nav-empresas" id="nav-empresas-container"></div>
-
             <div class="grid-container">
                 <table>
                     <thead id="h-contas"></thead>
@@ -146,31 +96,18 @@
 
     <div id="modal-resumo" class="modal">
         <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;">
-                <div style="display: flex; align-items: center;">
-                    <button class="btn-copiar" id="btn-copiar-resumo" onclick="copiarResumoImagem()">📋 Copiar Imagem</button>
-                    <button class="btn-limpar-lote" onclick="confirmarEnvioLote()">✅ Marcar Lote como Enviado</button>
-                </div>
-                <span class="close" onclick="document.getElementById('modal-resumo').style.display='none'">&times;</span>
-            </div>
-            <div id="resumo-export-area" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                <h2 style="color:var(--primary); margin-top:0;">Novas Aplicações e Resgates: <span id="resumo-dia-titulo"></span></h2>
-                <div id="resumo-content-pendente"></div>
-            </div>
-            <div style="margin-top: 25px; padding: 15px; background: #e2e8f0; border-radius: 8px;">
-                <h3 style="margin-top: 0; color: #475569; font-size: 13px; text-transform: uppercase;">Total Consolidado do Dia</h3>
-                <div id="resumo-content-consolidado"></div>
-            </div>
+            <button onclick="document.getElementById('modal-resumo').style.display='none'">Fechar</button>
+            <div id="resumo-content-pendente"></div>
         </div>
     </div>
 
     <script>
         const empresasConfig = {
-            'BRDX': [{ b: 'ITAÚ', c: '0262 / 17843-7' }, { b: 'ITAÚ', c: '0262 / 29500-9' }, { b: 'ITAÚ', c: '0262 / 11079-4' }, { b: 'ITAÚ', c: '7307 / 50310-7' }, { b: 'ITAÚ', c: '7307 / 59362-9' }, { b: 'BB', c: '1893-7/ 343329-3' }, { b: 'SANTANDER', c: '2008/ 130000413' }, { b: 'BRADESCO', c: '2372-8/ 89300-5' }, { b: 'BRADESCO', c: '0895-8 / 76322-5' }, { b: 'SAFRA', c: '115/ 000.330-5' }, { b: 'BANRISUL', c: '0413 / 60157510-3' }, { b: 'CAIXA', c: '3337 / 577246689-1' }, { b: 'BNB', c: '0031 / 55843-6' }, { b: 'ABC BRASIL', c: '0001-9 / 2.331.908-0' }, { b: 'DAYCOVAL', c: '0001 / 001516474-0' }],
-            'BRDF': [{ b: 'ITAÚ', c: '0262 / 17847-8' }, { b: 'ITAÚ', c: '7307 /50311-5' }, { b: 'ITAÚ', c: '7307 /50312-3' }, { b: 'ITAÚ', c: '0350/ 59363-7' }, { b: 'BB', c: '1893-7 /30001-2' }, { b: 'SANTANDER', c: '2271 / 13003017-5' }, { b: 'BRADESCO', c: '2374-4  / 35500-3' }, { b: 'SAFRA', c: '115/ 005949-1' }, { b: 'CEF', c: '1679/ 2783-9' }, { b: 'CEF', c: '3337 / 577246793-6' }, { b: 'ABC BRASIL', c: '0001-9 / 2.331.859-9' }, { b: 'DAYCOVAL', c: '0001/ 001516477-4' }],
-            'BRHY': [{ b: 'ITAÚ', c: '0046 /15601-4' }, { b: 'BB', c: '1893-7 / 32966-5' }, { b: 'SANTANDER', c: '0728 / 13000535-6' }, { b: 'BRADESCO', c: '2372 / 0038760-6' }],
-            'BRCF': [{ b: 'ITAÚ', c: '7307 / 11112-5' }, { b: 'BB', c: '1893-7/ 106406-1' }, { b: 'SANTANDER', c: '2271 / 13020743-0' }, { b: 'SAFRA', c: '1150/44941-9' }, { b: 'BNB', c: '31 / 43636-5' }, { b: 'BNB', c: '31 / 43626-8' }],
-            'SPE + Controladas': [{ b: 'BRS1', c: '7307 / 50645-6' }, { b: 'BRS3 - ITA', c: '7307 / 60438-4' }, { b: 'BRS2 - ITA', c: '7307 / 59899-0' }, { b: 'BRS2 - SAF', c: '0115 / 00056629-6' }, { b: 'BREM - ITA', c: '0262 / 17856-9' }, { b: 'BRBC - ITA', c: '0262 / 91486-4' }, { b: 'BRSF - ITA', c: '0262 / 04518-0' }, { b: 'BRIT - ITA', c: '7307/ 59901-4' }, { b: 'DFL II - ITA', c: '7307 / 96675-9' }, { b: 'BRSD - ITA', c: '7307 /48718-6' }, { b: 'BRTR - ITA', c: '7307/ 08704-4' }]
+            'BRDX': [{b:'ITAÚ', c:'0262 / 17843-7'}, {b:'ITAÚ', c:'0262 / 29500-9'}, {b:'ITAÚ', c:'0262 / 11079-4'}, {b:'ITAÚ', c:'7307 / 50310-7'}, {b:'ITAÚ', c:'7307 / 59362-9'}, {b:'BB', c:'1893-7/ 343329-3'}, {b:'SANTANDER', c:'2008/ 130000413'}, {b:'BRADESCO', c:'2372-8/ 89300-5'}, {b:'BRADESCO', c:'0895-8 / 76322-5'}, {b:'SAFRA', c:'115/ 000.330-5'}, {b:'BANRISUL', c:'0413 / 60157510-3'}, {b:'CAIXA', c:'3337 / 577246689-1'}, {b:'BNB', c:'0031 / 55843-6'}, {b:'ABC BRASIL', c:'0001-9 / 2.331.908-0'}, {b:'DAYCOVAL', c:'0001 / 001516474-0'}],
+            'BRDF': [{b:'ITAÚ', c:'0262 / 17847-8'}, {b:'ITAÚ', c:'7307 /50311-5'}, {b:'ITAÚ', c:'7307 /50312-3'}, {b:'ITAÚ', c:'0350/ 59363-7'}, {b:'BB', c:'1893-7 /30001-2'}, {b:'SANTANDER', c:'2271 / 13003017-5'}, {b:'BRADESCO', c:'2374-4  / 35500-3'}, {b:'SAFRA', c:'115/ 005949-1'}, {b:'CEF', c:'1679/ 2783-9'}, {b:'CEF', c:'3337 / 577246793-6'}, {b:'ABC BRASIL', c:'0001-9 / 2.331.859-9'}, {b:'DAYCOVAL', c:'0001/ 001516477-4'}],
+            'BRHY': [{b:'ITAÚ', c:'0046 /15601-4'}, {b:'BB', c:'1893-7 / 32966-5'}, {b:'SANTANDER', c:'0728 / 13000535-6'}, {b:'BRADESCO', c:'2372 / 0038760-6'}],
+            'BRCF': [{b:'ITAÚ', c:'7307 / 11112-5'}, {b:'BB', c:'1893-7/ 106406-1'}, {b:'SANTANDER', c:'2271 / 13020743-0'}, {b:'SAFRA', c:'1150/44941-9'}, {b:'BNB', c:'31 / 43636-5'}, {b:'BNB', c:'31 / 43626-8'}],
+            'SPE + Controladas': [{b:'BRS1', c:'7307 / 50645-6'}, {b:'BRS3 - ITA', c:'7307 / 60438-4'}, {b:'BRS2 - ITA', c:'7307 / 59899-0'}, {b:'BRS2 - SAF', c:'0115 / 00056629-6'}, {b:'BREM - ITA', c:'0262 / 17856-9'}, {b:'BRBC - ITA', c:'0262 / 91486-4'}, {b:'BRSF - ITA', c:'0262 / 04518-0'}, {b:'BRIT - ITA', c:'7307/ 59901-4'}, {b:'DFL II - ITA', c:'7307 / 96675-9'}, {b:'BRSD - ITA', c:'7307 /48718-6'}, {b:'BRTR - ITA', c:'7307/ 08704-4'}]
         };
 
         const plano = [
@@ -204,7 +141,7 @@
             { id: 'seg', nome: 'SALDO SEGURO', tipo: 'bg-saldo-seguro', readOnly: true }
         ];
 
-        let diasCadastrados = ['Hoje'];
+        let empresaAtiva = 'BRDX';
         let diaAtivo = 'Hoje';
         let dadosPorDia = { 'Hoje': {} };
         Object.keys(empresasConfig).forEach(e => dadosPorDia['Hoje'][e] = {});
@@ -217,19 +154,19 @@
             document.getElementById('nav-empresas-container').innerHTML = html;
         }
 
-        function mudarEmpresa(nova) { salvarEstado(); empresaAtiva = nova; contas = empresasConfig[empresaAtiva]; renderTabsEmpresas(); renderTabela(); carregarEstado(); }
+        function mudarEmpresa(nova) { salvarEstado(); empresaAtiva = nova; renderTabsEmpresas(); renderTabela(); carregarEstado(); }
 
         function renderTabela() {
             const h = document.getElementById('h-contas');
             const b = document.getElementById('b-caixa');
-            h.innerHTML = `<tr><th class="col-categoria">Categorias / Contas</th>${contas.map(c => `<th>${c.b}<br><span style="font-weight:normal;">${c.c}</span></th>`).join('')}</tr>`;
+            const contas = empresasConfig[empresaAtiva];
+            h.innerHTML = `<tr><th class="col-categoria">Categorias</th>${contas.map(c => `<th>${c.b}<br><small>${c.c}</small></th>`).join('')}</tr>`;
             b.innerHTML = plano.map(l => {
                 const noInput = l.readOnly ? 'no-input' : '';
                 const isIndent = (l.tipo === 'item' || l.tipo === 'linha-banco') ? 'indent' : '';
                 return `<tr><td class="col-categoria ${l.tipo} ${isIndent}">${l.nome}</td>
                 ${contas.map((c, i) => `<td><div class="cell-wrapper ${noInput}">
                     <span id="val-${l.id}-${i}" class="cell-acumulado" data-pendente="0">0,00</span>
-                    ${l.tipo === 'linha-banco' ? `<select id="banco-${l.id}-${i}" class="input-lancar"><option value="">Banco...</option>${listaBancosPadrao.map(bco => `<option value="${bco}">${bco}</option>`).join('')}</select>` : ''}
                     <input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})">
                 </div></td>`).join('')}</tr>`;
             }).join('');
@@ -260,49 +197,39 @@
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v)) return;
                 if(lid === 'si' || lid === 'marg') setV(lid, idx, v); else setV(lid, idx, getV(lid, idx) + v);
-                if(lid === 'o3' || lid === 'so7') {
-                    let el = document.getElementById(`val-${lid}-${idx}`);
-                    el.setAttribute('data-pendente', (parseFloat(el.getAttribute('data-pendente')) || 0) + v);
-                }
                 e.target.value = ""; recalcularColuna(idx); salvarEstado();
             }
         }
 
         function salvarEstado() {
-            if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
             let est = dadosPorDia[diaAtivo][empresaAtiva];
+            const contas = empresasConfig[empresaAtiva];
             contas.forEach((c, i) => {
                 est[i] = est[i] || {};
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${i}`);
-                    if(el) {
-                        est[i][l.id] = el.innerText;
-                        if(l.id === 'o3' || l.id === 'so7') est[i][`p-${l.id}`] = el.getAttribute('data-pendente');
-                    }
+                    if(el) est[i][l.id] = el.innerText;
                 });
             });
         }
 
         function carregarEstado() {
             let est = dadosPorDia[diaAtivo][empresaAtiva] || {};
+            const contas = empresasConfig[empresaAtiva];
             contas.forEach((c, i) => {
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${i}`);
-                    if(el && est[i]) {
-                        el.innerText = est[i][l.id] || "0,00";
-                        if(l.id === 'o3' || l.id === 'so7') el.setAttribute('data-pendente', est[i][`p-${l.id}`] || "0");
-                    }
+                    if(el && est[i]) el.innerText = est[i][l.id] || "0,00";
                 });
                 recalcularColuna(i);
             });
         }
 
         function renderTabsDias() {
-            let html = diasCadastrados.map(d => `<div class="dia-btn ${d===diaAtivo?'active':''}" onclick="mudarDia('${d}')">${d}</div>`).join('');
-            document.getElementById('nav-dias-container').innerHTML = html + `<button class="btn-novo-dia" onclick="abrirNovoDia()">+ NOVO</button>`;
+            document.getElementById('nav-dias-container').innerHTML = `<div class="dia-btn active">${diaAtivo}</div>`;
         }
 
-        const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
+        function abrirResumo() { document.getElementById('modal-resumo').style.display='block'; }
 
         renderTabsEmpresas(); renderTabela(); renderTabsDias();
     </script>
