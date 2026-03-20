@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ==================================================================
-           1. VARIÁVEIS E BASE
+           1. VARIÁVEIS E BASE (CORES INSPIRADAS NA REFERÊNCIA)
         ================================================================== */
         :root {
             --bg-color: #f0f2f5;       
@@ -24,7 +24,6 @@
             margin: 0;
             padding: 0;
             height: 100vh; 
-            width: 100%; /* Travado em 100% para não dar conflito horizontal */
             overflow: hidden; 
             background-color: var(--bg-color);
             font-family: 'Inter', sans-serif;
@@ -33,12 +32,11 @@
 
         body {
             display: flex;
-            flex-direction: column; 
-            zoom: 0.8; /* HUB MANTIDO EM 80% */
+            flex-direction: column; /* Organiza Topo e Conteúdo verticalmente */
         }
 
         /* ==================================================================
-           2. MENU HORIZONTAL (TOP-NAV)
+           2. NOVO MENU HORIZONTAL (TOP-NAV)
         ================================================================== */
         .top-navbar {
             background-color: var(--topbar-bg);
@@ -53,18 +51,67 @@
             z-index: 100;
         }
 
-        .logo { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 10px; color: #0f172a; }
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0f172a;
+        }
         .logo span { color: var(--accent-color); }
-        .nav-links { display: flex; gap: 5px; height: 100%; align-items: center; }
-        .nav-btn { background: transparent; border: none; color: var(--text-light); font-size: 0.9rem; font-weight: 500; cursor: pointer; padding: 8px 14px; border-radius: 6px; transition: all 0.2s ease; }
-        .nav-btn:hover { color: var(--text-main); background-color: #f8fafc; }
-        .nav-btn.active { color: #2563eb; background-color: #eff6ff; font-weight: 600; }
-        .user-profile { font-size: 0.85rem; color: var(--text-light); display: flex; align-items: center; gap: 10px; font-weight: 500; }
-        .user-profile div { width: 32px; height: 32px; background-color: var(--accent-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        .nav-links {
+            display: flex;
+            gap: 5px;
+            height: 100%;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px 14px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            color: var(--text-main);
+            background-color: #f8fafc;
+        }
+
+        .nav-btn.active {
+            color: #2563eb; /* Azul elegante para aba ativa */
+            background-color: #eff6ff;
+            font-weight: 600;
+        }
+
+        .user-profile {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .user-profile div {
+            width: 32px; height: 32px;
+            background-color: var(--accent-color);
+            color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
+
+        /* Removendo a antiga sidebar */
         .sidebar { display: none; } 
 
         /* ==================================================================
-           3. ÁREA DE CONTEÚDO E TRAVAS DE BORDAS (AQUI ESTÁ A CORREÇÃO)
+           3. ÁREA DE CONTEÚDO (MANTÉM A SUA LÓGICA FLEX)
         ================================================================== */
         .content {
             flex: 1; 
@@ -72,25 +119,18 @@
             flex-direction: column; 
             height: 100%;
             overflow: hidden; 
-            padding: 20px 30px; 
-            
-            /* TRAVAS INVISÍVEIS PARA NÃO COMER AS BORDAS DO IFRAME: */
-            min-height: 0; 
-            min-width: 0; 
+            padding: 20px 30px; /* Margem ao redor do conteúdo */
         }
 
+        /* Containers de Abas Padrões */
         .tab-content { 
             display: none; 
             flex: 1; 
-            padding: 0; 
+            padding: 0; /* Removido padding interno para o iframe colar na borda */
             box-sizing: border-box;
             background-color: transparent;
-            border-radius: 12px; 
-            
-            /* TRAVAS INVISÍVEIS AQUI TAMBÉM: */
             overflow: hidden; 
-            min-height: 0; 
-            min-width: 0; 
+            border-radius: 12px; /* Borda arredondada do dashboard */
         }
         
         .tab-content.active { 
@@ -98,43 +138,33 @@
             flex-direction: column;
         }
 
-        /* Tira qualquer "margem fantasma" embaixo do Iframe */
+        /* Iframes padrão */
         .tab-content iframe {
             width: 100%;
-            height: 100%; 
-            display: block; 
+            flex: 1; 
             border: none;
-            border-radius: 12px; 
+            border-radius: 12px; /* Suavidade das linhas */
             background-color: #fff;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.02); 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.02); /* Sombra elegante */
         }
 
         /* ==========================================================
-           CONTROLE DE ZOOM DOS IFRAMES
+           CLASSE EXCLUSIVA PARA A ABA "GESTÃO DE CAIXA"
         ========================================================== */
+        .tab-caixa {
+            padding: 0 !important; 
+            overflow: hidden !important; 
+            border-radius: 0; /* Caixa colado */
+        }
         
-        /* 1. Conciliação e Bancos (70%) */
-        #conciliacao iframe, #bancos iframe {
-            width: 142.85% !important; 
-            height: 142.85% !important; /* Usando proporção pura, em vez de calc() */
-            transform: scale(0.70);
-            transform-origin: top left; 
-        }
-
-        /* 2. Gestão de Caixa (100%) */
         .tab-caixa iframe {
-            width: 100% !important; 
-            height: 100% !important;
-            transform: none !important; 
+            border-radius: 0 !important; 
+            box-shadow: none !important;
         }
 
         /* ==========================================================
-           AJUSTES DO CHAT E OUTROS
+           AJUSTES DO CHAT (Estilo Clean)
         ========================================================== */
-        #protestos { padding: 40px; background: white; }
-        #protestos h1 { color: #0f172a; margin-top:0; margin-bottom: 10px; font-size: 1.5rem;}
-        #protestos p { color: var(--text-light); }
-
         #chat-tab.active { display: flex; flex-direction: column; height: 100%; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); overflow: hidden;}
         .chat-header-full { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; border-bottom: 1px solid var(--border-color); background: #fff;}
         .chat-header-full h2 { margin: 0; font-size: 1.25rem; font-weight: 600;}
@@ -149,6 +179,26 @@
         .chat-input-full input:focus { border-color: #3b82f6; background: white;}
         .chat-input-full button { padding: 12px 25px; background: #3b82f6; border: none; cursor: pointer; font-weight: 600; color: white; border-radius: 6px; transition: 0.2s; font-size: 0.95rem;}
         .chat-input-full button:hover { background: #2563eb; }
+
+        /* ==========================================================
+           CONTROLE DE ZOOM INDIVIDUAL DOS IFRAMES (MANTIDO O SEU)
+        ========================================================== */
+        /* 1. Conciliação e Gestão de Bancos em 70% */
+        #conciliacao iframe, #bancos iframe {
+            width: 142.85% !important; 
+            height: calc((100vh - 90px) * 1.4285) !important; 
+            transform: scale(0.70);
+            transform-origin: top left; 
+            border: none;
+            border-radius: 12px; 
+        }
+
+        /* 2. Gestão de Caixa em 100% (Sem redução) */
+        .tab-caixa iframe {
+            width: 100% !important; /* Ajustei de 90% para 100% para não sobrar fundo */
+            height: 100% !important;
+            transform: none !important; 
+        }
     </style>
 </head>
 <body>
@@ -188,8 +238,8 @@
             <iframe src="caixa.html"></iframe>
         </div>
 
-        <div id="protestos" class="tab-content">
-            <h1>Protestos</h1>
+        <div id="protestos" class="tab-content" style="background: white; padding: 40px;">
+            <h1 style="color: #0f172a; margin-top:0;">Protestos</h1>
             <p>Procedimentos para baixas, cartas de anuência e negociações.</p>
         </div>
 
@@ -199,35 +249,16 @@
                 <button class="new-chat-btn" onclick="novoChat()">+ Novo Chat</button>
             </div>
             <div id="chatMessages" class="chat-messages-full">
-                <p class="ai-message">Olá! Sou o assistente do Hub. Analiso saldos, conciliações e regras de negócio. Como posso te ajudar hoje?</p>
+                <p class="ai-message">Olá! Sou o assistente do Hub. Como posso ajudar hoje?</p>
             </div>
             <div class="chat-input-full">
-                <input type="text" id="userInput" placeholder="Faça uma pergunta sobre o fluxo de caixa..." onkeypress="enviarComEnter(event)">
+                <input type="text" id="userInput" placeholder="Digite sua dúvida..." onkeypress="enviarComEnter(event)">
                 <button onclick="sendMessage()">Enviar</button>
             </div>
         </div>
 
     </main>
 
-    <script>
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        function enviarComEnter(event) { if (event.key === 'Enter') sendMessage(); }
-        function sendMessage() {
-            let input = document.getElementById("userInput");
-            let chat = document.getElementById("chatMessages");
-            if (input.value.trim() === "") return;
-            chat.innerHTML += `<p class="user-message">${input.value}</p>`;
-            input.value = "";
-            chat.scrollTop = chat.scrollHeight;
-        }
-        function novoChat() { document.getElementById("chatMessages").innerHTML = `<p class="ai-message">Olá! Sou o assistente do Hub. Como posso ajudar hoje?</p>`; }
-    </script>
+    <script src="js/app.js"></script>
 </body>
 </html>
