@@ -83,9 +83,10 @@
         .dia-btn.active .btn-acao:hover { color: white; }
         .dia-btn.active .btn-acao.fechar:hover { color: #fca5a5; }
 
-        .btn-novo-dia { background: #10b981; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; }
-        .btn-guias-ocultas { background: #3b82f6; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 5px; }
-        .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
+        .btn-novo-dia { background: #0284c7; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 10px; transition: 0.2s;}
+        .btn-novo-dia:hover { background: #0369a1; }
+        .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; transition: 0.2s;}
+        .btn-excluir-dia:hover { background: #dc2626; }
 
         .nav-empresas { display: flex; background: white; border-bottom: 1px solid var(--border); overflow-x: auto; padding: 0 15px; height: 34px; flex-shrink: 0; align-items: center;}
         .tab-btn { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; white-space: nowrap;}
@@ -121,10 +122,14 @@
         .flash-in { animation: flash-in 0.8s ease-out; }
         @keyframes flash-in { 0% { background: #bfdbfe; } 100% { background: transparent; } }
 
-        /* MODAL */
-        .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 800px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 20px;}
+        /* MODAIS */
+        .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal-content { background-color: #ffffff; padding: 25px; width: 100%; max-width: 400px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;}
+        .modal-content-resumo { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 800px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
+        
+        .close { color: #94a3b8; position: absolute; right: 20px; top: 20px; font-size: 24px; font-weight: bold; cursor: pointer; line-height: 20px; transition: 0.2s;}
+        .close:hover { color: var(--danger); }
+        
         .resumo-table-print { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; background: white;}
         .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 6px; }
         .resumo-table-print th { background-color: var(--primary); color: white; }
@@ -133,6 +138,9 @@
         .btn-copiar:hover { background: #059669; }
         .btn-limpar-lote { background: #3b82f6; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; }
         .btn-limpar-lote:hover { background: #2563eb; }
+
+        .btn-modal-acao { background: var(--success); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
+        .btn-modal-acao:hover { background: #059669; }
     </style>
 </head>
 <body>
@@ -183,14 +191,41 @@
         </div>
     </div>
 
-    <div id="modal-resumo" class="modal">
+    <div id="modal-calendario" class="modal">
         <div class="modal-content">
+            <span class="close" onclick="fecharModalCalendario()">&times;</span>
+            <h3 style="color:var(--primary); margin-top:0; font-size: 16px;">Gerenciar Datas</h3>
+            
+            <div style="margin-top: 20px;">
+                <label style="font-size: 12px; font-weight: bold; color: #64748b;">Selecione uma Data no Calendário:</label>
+                <div style="display: flex; gap: 10px; margin-top: 8px;">
+                    <input type="date" id="input-data-cal" class="input-lancar" style="font-size: 14px; padding: 10px;">
+                    <button class="btn-modal-acao" onclick="processarDataCalendario()">IR PARA DIA</button>
+                </div>
+                <p style="font-size: 11px; color: #94a3b8; margin-top: 8px;">* Se a data não existir, um novo caixa será gerado com os saldos da guia atual.</p>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;">
+
+            <div>
+                <label style="font-size: 12px; font-weight: bold; color: #64748b;">Restaurar Guias Ocultas:</label>
+                <div style="display: flex; gap: 10px; margin-top: 8px;">
+                    <select id="sel-guias-ocultas" class="input-lancar" style="font-size: 13px; padding: 10px; cursor: pointer;">
+                        </select>
+                    <button class="btn-modal-acao" style="background:#3b82f6;" onclick="restaurarGuiaOcultaModal()">RESTAURAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-resumo" class="modal" style="align-items: flex-start; padding-top: 30px;">
+        <div class="modal-content-resumo">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;">
                 <div style="display: flex; align-items: center;">
                     <button class="btn-copiar" id="btn-copiar-resumo" onclick="copiarResumoImagem()">📋 Copiar Imagem</button>
                     <button class="btn-limpar-lote" onclick="confirmarEnvioLote()">✅ Marcar Lote como Enviado</button>
                 </div>
-                <span class="close" onclick="document.getElementById('modal-resumo').style.display='none'">&times;</span>
+                <span class="close" style="position:static;" onclick="document.getElementById('modal-resumo').style.display='none'">&times;</span>
             </div>
             <div id="resumo-export-area" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
                 <h2 style="color:var(--primary); margin-top:0;">Novas Aplicações e Resgates: <span id="resumo-dia-titulo"></span></h2>
@@ -212,7 +247,7 @@
         // VARIÁVEIS GLOBAIS (Agora geradas dinamicamente)
         let empresasConfig = {};
         let plano = [];
-        let mapConta = {}; // Para ajudar na conversão ID Banco -> Index Tela
+        let mapConta = {}; 
         
         let empresaAtiva = '';
         let contas = [];
@@ -258,7 +293,7 @@
                 } else {
                     diasCadastrados = dbDias.map(d => d.nome_dia);
                 }
-                diaAtivo = diasCadastrados[diasCadastrados.length - 1]; // Aba atual
+                diaAtivo = diasCadastrados[diasCadastrados.length - 1];
 
                 // 4. Estrutura a variável local de dados
                 diasCadastrados.forEach(d => {
@@ -266,7 +301,7 @@
                     Object.keys(empresasConfig).forEach(e => dadosPorDia[d][e] = {});
                 });
 
-                // 5. Busca todos os lançamentos de dinheiro do Supabase
+                // 5. Busca todos os lançamentos
                 const { data: dbLancamentos } = await sb.from('caixa_lancamentos').select('*');
                 if (dbLancamentos) {
                     dbLancamentos.forEach(lan => {
@@ -276,7 +311,6 @@
                             let i = info.idx;
                             if(!dadosPorDia[lan.nome_dia][e][i]) dadosPorDia[lan.nome_dia][e][i] = {};
                             
-                            // Transforma decimal do banco para string BR "1.000,00" na tela
                             dadosPorDia[lan.nome_dia][e][i][lan.categoria_codigo] = parseFloat(lan.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2});
                             
                             if(lan.valor_pendente > 0) {
@@ -293,13 +327,11 @@
                 empresaAtiva = dbEmpresas[0].nome;
                 contas = empresasConfig[empresaAtiva];
 
-                // RENDERIZAR TUDO
                 renderTabsEmpresas();
                 renderTabela();
                 renderTabsDias();
                 carregarEstado();
 
-                // Esconder tela de carregamento
                 document.getElementById('loading-overlay').style.display = 'none';
 
             } catch (err) {
@@ -308,7 +340,6 @@
             }
         }
 
-        // SALVA TODOS OS CAMPOS DE UMA EMPRESA NO SUPABASE EM LOTE (UPSERT)
         async function syncSupabase() {
             if(!diaAtivo || !empresaAtiva) return;
             let estado = dadosPorDia[diaAtivo][empresaAtiva];
@@ -358,14 +389,12 @@
             const container = document.getElementById('nav-dias-container');
             let html = diasCadastrados.map(d => `
                 <div class="dia-btn ${d === diaAtivo ? 'active' : ''}" onclick="mudarDia('${d}')">
-                    <span ondblclick="event.stopPropagation(); renomearDia('${d}')">${d}</span>
-                    <span class="btn-acao" onclick="event.stopPropagation(); renomearDia('${d}')" title="Renomear Guia">✎</span>
+                    <span>${d}</span>
                     <span class="btn-acao fechar" onclick="event.stopPropagation(); fecharAba('${d}')" title="Ocultar Guia">&times;</span>
                 </div>
             `).join('');
             
-            html += `<button class="btn-novo-dia" onclick="abrirNovoDia()">+ ABRIR NOVO DIA</button>`;
-            html += `<button class="btn-guias-ocultas" onclick="abrirGuiaOculta()">📁 GUIAS OCULTAS</button>`;
+            html += `<button class="btn-novo-dia" onclick="abrirModalCalendario()">📅 CALENDÁRIO / GUIAS</button>`;
 
             if(diaAtivo) {
                 html += `<button class="btn-excluir-dia" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}]</button>`;
@@ -373,6 +402,124 @@
             container.innerHTML = html;
         }
 
+        // ==============================================
+        // LÓGICA DO MODAL DO CALENDÁRIO
+        // ==============================================
+        function abrirModalCalendario() {
+            salvarEstadoLocal(); 
+            
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            document.getElementById('input-data-cal').value = `${ano}-${mes}-${dia}`;
+            
+            const selOcultas = document.getElementById('sel-guias-ocultas');
+            let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
+            if (guiasOcultas.length === 0) {
+                selOcultas.innerHTML = '<option value="">Nenhuma guia oculta...</option>';
+                selOcultas.disabled = true;
+            } else {
+                selOcultas.innerHTML = '<option value="">Selecione para restaurar...</option>' + guiasOcultas.map(d => `<option value="${d}">${d}</option>`).join('');
+                selOcultas.disabled = false;
+            }
+            
+            document.getElementById('modal-calendario').style.display = 'flex';
+        }
+
+        function fecharModalCalendario() {
+            document.getElementById('modal-calendario').style.display = 'none';
+        }
+
+        async function processarDataCalendario() {
+            const inputData = document.getElementById('input-data-cal').value;
+            if(!inputData) { alert("Selecione uma data no calendário!"); return; }
+            
+            // Converte YYYY-MM-DD para DD/MM/YYYY
+            const partes = inputData.split('-');
+            const nomeDia = `${partes[2]}/${partes[1]}/${partes[0]}`;
+            
+            fecharModalCalendario();
+
+            // Se o dia já está na barra, só muda pra ele
+            if (diasCadastrados.includes(nomeDia)) { 
+                mudarDia(nomeDia); 
+                return; 
+            }
+
+            // Se o dia existe no banco mas foi "fechado" na tela, restaura ele
+            let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
+            if (guiasOcultas.includes(nomeDia)) {
+                diasCadastrados.push(nomeDia);
+                diaAtivo = nomeDia;
+                carregarEstado();
+                renderTabsDias();
+                return;
+            }
+
+            // SE CHEGOU AQUI, O DIA NÃO EXISTE. VAMOS CRIAR UM NOVO!
+            salvarEstadoLocal(); 
+            await sb.from('caixa_dias').insert([{ nome_dia: nomeDia }]);
+
+            let upsertsNovoDia = [];
+
+            if(!dadosPorDia[nomeDia]) {
+                dadosPorDia[nomeDia] = {};
+                Object.keys(empresasConfig).forEach(emp => {
+                    dadosPorDia[nomeDia][emp] = {};
+                    
+                    // Pega os dados de onde estávamos antes de abrir o modal
+                    let estadoAntigo = (dadosPorDia[diaAtivo] && dadosPorDia[diaAtivo][emp]) ? dadosPorDia[diaAtivo][emp] : {};
+                    
+                    empresasConfig[emp].forEach((c, idx) => {
+                        dadosPorDia[nomeDia][emp][idx] = {};
+                        
+                        // LÓGICA DE TRANSFERÊNCIA DE SALDO (Puxa o Final pro Inicial)
+                        let saldoFinalAnterior = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
+                        dadosPorDia[nomeDia][emp][idx]['si'] = saldoFinalAnterior;
+
+                        let v = parseFloat(saldoFinalAnterior.replace(/\./g, '').replace(',', '.')) || 0;
+                        if(v !== 0) {
+                            upsertsNovoDia.push({
+                                nome_dia: nomeDia,
+                                conta_id: c.id,
+                                categoria_codigo: 'si',
+                                valor: v,
+                                valor_pendente: 0,
+                                banco_destino: null
+                            });
+                        }
+                    });
+                });
+            }
+            diasCadastrados.push(nomeDia); 
+            diaAtivo = nomeDia; 
+            
+            // Atualiza a tela para o novo dia
+            carregarEstado(); 
+            renderTabsDias();
+
+            if(upsertsNovoDia.length > 0) {
+                await sb.from('caixa_lancamentos').insert(upsertsNovoDia);
+            }
+        }
+
+        function restaurarGuiaOcultaModal() {
+            const select = document.getElementById('sel-guias-ocultas');
+            const nomeParaRestaurar = select.value;
+            if(!nomeParaRestaurar) { alert("Selecione uma guia na lista para restaurar."); return; }
+            
+            fecharModalCalendario();
+            salvarEstadoLocal(); 
+            diasCadastrados.push(nomeParaRestaurar); 
+            diaAtivo = nomeParaRestaurar; 
+            carregarEstado(); 
+            renderTabsDias();
+        }
+
+        // ==============================================
+        // RESTANTE DAS FUNÇÕES
+        // ==============================================
         function mudarEmpresa(novaEmpresa) {
             salvarEstadoLocal(); 
             empresaAtiva = novaEmpresa; contas = empresasConfig[empresaAtiva]; 
@@ -443,82 +590,6 @@
             });
         }
 
-        async function abrirNovoDia() {
-            let nomeDia = prompt("Digite o nome ou data do novo caixa:");
-            if (!nomeDia || nomeDia.trim() === "") return;
-            nomeDia = nomeDia.trim();
-
-            if (diasCadastrados.includes(nomeDia)) { alert("Guia já aberta."); mudarDia(nomeDia); return; }
-
-            // Salva a tela atual para não perder nada do dia de onde estamos saindo
-            salvarEstadoLocal(); 
-            
-            // Grava a aba nova no banco
-            await sb.from('caixa_dias').insert([{ nome_dia: nomeDia }]);
-
-            let upsertsNovoDia = [];
-
-            if(!dadosPorDia[nomeDia]) {
-                dadosPorDia[nomeDia] = {};
-                Object.keys(empresasConfig).forEach(emp => {
-                    dadosPorDia[nomeDia][emp] = {};
-                    // Puxa o estado da aba que estava ativa antes de criar a nova
-                    let estadoAntigo = (dadosPorDia[diaAtivo] && dadosPorDia[diaAtivo][emp]) ? dadosPorDia[diaAtivo][emp] : {};
-                    
-                    empresasConfig[emp].forEach((c, idx) => {
-                        dadosPorDia[nomeDia][emp][idx] = {};
-                        
-                        // O grande pulo: Pega APENAS O SALDO CALCULADO (calc) e joga pro SALDO INICIAL (si)
-                        let saldoFinalAnterior = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
-                        dadosPorDia[nomeDia][emp][idx]['si'] = saldoFinalAnterior;
-
-                        // Prepara o array para salvar os saldos iniciais de todas as empresas no banco
-                        let v = parseFloat(saldoFinalAnterior.replace(/\./g, '').replace(',', '.')) || 0;
-                        if(v !== 0) {
-                            upsertsNovoDia.push({
-                                nome_dia: nomeDia,
-                                conta_id: c.id,
-                                categoria_codigo: 'si',
-                                valor: v,
-                                valor_pendente: 0,
-                                banco_destino: null
-                            });
-                        }
-                    });
-                });
-            }
-            diasCadastrados.push(nomeDia); 
-            diaAtivo = nomeDia; // Muda o foco para o dia novo
-            
-            // Atualiza a tela primeiro (isso vai fazer as outras linhas ficarem em branco)
-            carregarEstado(); 
-            renderTabsDias();
-
-            // Salva as linhas Iniciais preenchidas no Supabase
-            if(upsertsNovoDia.length > 0) {
-                await sb.from('caixa_lancamentos').insert(upsertsNovoDia);
-            }
-        }
-
-        async function renomearDia(nomeAtual) {
-            let novoNome = prompt(`Renomear guia [${nomeAtual}] para:`, nomeAtual);
-            if (!novoNome || novoNome.trim() === "" || novoNome === nomeAtual) return;
-            novoNome = novoNome.trim();
-            if (diasCadastrados.includes(novoNome)) { alert("Nome já existe."); return; }
-            
-            salvarEstadoLocal(); 
-            
-            // Truque de Renomear no Supabase (Cria novo, atualiza cascade, deleta velho)
-            await sb.from('caixa_dias').insert([{nome_dia: novoNome}]);
-            await sb.from('caixa_lancamentos').update({nome_dia: novoNome}).eq('nome_dia', nomeAtual);
-            await sb.from('caixa_dias').delete().eq('nome_dia', nomeAtual);
-
-            dadosPorDia[novoNome] = dadosPorDia[nomeAtual]; delete dadosPorDia[nomeAtual];
-            let index = diasCadastrados.indexOf(nomeAtual); if (index !== -1) diasCadastrados[index] = novoNome;
-            if (diaAtivo === nomeAtual) diaAtivo = novoNome;
-            renderTabsDias();
-        }
-
         function mudarDia(novoDia) { salvarEstadoLocal(); diaAtivo = novoDia; carregarEstado(); renderTabsDias(); }
 
         function fecharAba(diaParaFechar) {
@@ -527,19 +598,9 @@
             renderTabsDias();
         }
 
-        function abrirGuiaOculta() {
-            let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
-            if(guiasOcultas.length === 0) { alert("Nenhuma guia oculta."); return; }
-            let lista = guiasOcultas.map((d, i) => `${i + 1} - ${d}`).join('\n');
-            let escolha = prompt(`Qual guia restaurar? Digite o NÚMERO:\n\n${lista}`);
-            if(!escolha) return;
-            let nomeParaRestaurar = guiasOcultas.find(d => d === escolha || (guiasOcultas.indexOf(d) + 1).toString() === escolha);
-            if(nomeParaRestaurar) { salvarEstadoLocal(); diasCadastrados.push(nomeParaRestaurar); diaAtivo = nomeParaRestaurar; carregarEstado(); renderTabsDias(); }
-        }
-
         async function excluirDiaDoBanco() {
-            if(confirm(`ATENÇÃO! Excluir a competência [${diaAtivo}] DE FORMA DEFINITIVA DO BANCO DE DADOS?`)) {
-                await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); // O cascade deleta os lançamentos
+            if(confirm(`ATENÇÃO! Excluir a data [${diaAtivo}] DE FORMA DEFINITIVA DO BANCO DE DADOS?`)) {
+                await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
                 delete dadosPorDia[diaAtivo]; diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
                 diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); renderTabsDias();
             }
@@ -622,7 +683,7 @@
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v)) return;
                 
-                // Margem agora soma/subtrai normalmente igual às outras
+                // Agora Margem Segura também soma/subtrai normalmente
                 setV(lid, cidx, getV(lid, cidx) + v); 
                 
                 if (lid === 'o3' || lid === 'so7') {
@@ -764,7 +825,6 @@
                 }
             });
             
-            // Força a atualização dos pendentes "0" no banco
             salvarEstadoLocal();
             await syncSupabase();
             carregarEstado(); 
@@ -792,9 +852,6 @@
             } catch (err) { alert("Erro ao gerar."); btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; }
         }
 
-        // ==============================================
-        // INICIAR TUDO QUANDO ABRIR A PÁGINA
-        // ==============================================
         window.onload = inicializarCaixa;
 
     </script>
