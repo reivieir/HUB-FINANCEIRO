@@ -7,68 +7,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /*ajuste - reinaldo
-        .hub-navbar {
-            background-color: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 25px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            flex-shrink: 0;
-        }
-        .hub-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 20px;
-            font-weight: 700;
-            color: #0f172a;
-            text-decoration: none;
-        }
-        .hub-logo span { color: #10b981; }
-        .hub-menu {
-            display: flex;
-            gap: 20px;
-            height: 100%;
-        }
-        .hub-menu a {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: #64748b;
-            font-weight: 600;
-            font-size: 13px;
-            padding: 0 15px;
-            border-bottom: 3px solid transparent;
-            transition: 0.2s;
-        }
-        .hub-menu a:hover { color: #10b981; }
-        /* A classe active acende o menu da página atual */
-        .hub-menu a.active {
-            color: #10b981;
-            border-bottom-color: #10b981;
-            background-color: #f8fafc;
-        }
-        .hub-user {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            color: #475569;
-            font-weight: 600;
-        }
-        .hub-avatar {
-            width: 32px; height: 32px;
-            background-color: #10b981;
-            color: white;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold;
-        }
-        /*ajuste reinaldo fim
         /* ==================================================================
            1. VARIÁVEIS E BASE (CORES INSPIRADAS NA REFERÊNCIA)
         ================================================================== */
@@ -211,7 +149,7 @@
         }
 
         /* ==========================================================
-           CLASSE EXCLUSIVA PARA A ABA "GESTÃO DE CAIXA"
+           CLASSE EXCLUSIVA PARA A ABA DE "CAIXA" E "BANCOS"
         ========================================================== */
         .tab-caixa {
             padding: 0 !important; 
@@ -243,10 +181,10 @@
         .chat-input-full button:hover { background: #2563eb; }
 
         /* ==========================================================
-           CONTROLE DE ZOOM INDIVIDUAL DOS IFRAMES (MANTIDO O SEU)
+           CONTROLE DE ZOOM INDIVIDUAL DOS IFRAMES
         ========================================================== */
-        /* 1. Conciliação e Gestão de Bancos em 70% */
-        #conciliacao iframe, #bancos iframe {
+        /* 1. Conciliação em 70% */
+        #conciliacao iframe {
             width: 142.85% !important; 
             height: calc((100vh - 90px) * 1.4285) !important; 
             transform: scale(0.70);
@@ -255,12 +193,13 @@
             border-radius: 12px; 
         }
 
-        /* 2. Gestão de Caixa em 100% (Sem redução) */
+        /* 2. Gestão de Caixa E BANCOS em 100% (Sem redução) */
         .tab-caixa iframe {
             width: 100% !important; /* Ajustei de 90% para 100% para não sobrar fundo */
             height: 100% !important;
             transform: none !important; 
         }
+    
     </style>
 </head>
 <body>
@@ -292,7 +231,7 @@
             <iframe src="https://hub-financeiro-eight.vercel.app/conciliacao.html"></iframe>
         </div>
 
-        <div id="bancos" class="tab-content">
+        <div id="bancos" class="tab-content tab-caixa">
             <iframe src="https://hub-financeiro-eight.vercel.app/bancos.html"></iframe>
         </div>
 
