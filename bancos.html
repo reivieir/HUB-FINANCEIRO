@@ -22,23 +22,68 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
         /* ==========================================
-           MOLDE PADRÃO DEXCO (FUNDO E MARGENS)
+           MOLDE PADRÃO (FUNDO E MARGENS)
         ========================================== */
         html, body {
             margin: 0; padding: 0; height: 100vh;
-            background-color: #f0f2f5; /* Fundo cinza claro */
+            background-color: #f0f2f5; 
             color: var(--text);
-            overflow: hidden; /* Trava a rolagem dupla */
+            overflow: hidden; 
         }
 
         body {
-            padding: 20px; /* MARGEM AO REDOR DO SISTEMA */
+            padding-top: 65px; /* ESPAÇO PARA O MENU SUPERIOR FIXO */
             display: flex;
             flex-direction: column;
-            /* Zoom removido para utilizar a página toda do Hub */
         }
 
-        /* O CARTÃO BRANCO COM BORDAS ARREDONDADAS */
+        /* ==========================================
+           MENU SUPERIOR GLOBAL (PADRÃO PRINT)
+        ========================================== */
+        .hub-top-nav {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            z-index: 9999;
+        }
+        
+        .hub-logo-box {
+            display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 18px;
+        }
+        .hub-title { font-weight: 800; color: #0f172a; }
+        .hub-subtitle { font-weight: 700; color: #10b981; }
+
+        .hub-menu-links { display: flex; align-items: center; gap: 20px; }
+        
+        .hub-nav-item {
+            text-decoration: none; color: #475569; font-weight: 600; font-size: 13px; transition: 0.2s; padding: 5px 10px; border-radius: 6px;
+        }
+        .hub-nav-item:hover { color: #10b981; background-color: #f8fafc; }
+        .hub-nav-item.active { color: #10b981; } /* Página Atual */
+        
+        .hub-nav-divider { width: 1px; height: 24px; background-color: #cbd5e1; margin: 0 5px; }
+
+        .hub-nav-ia {
+            text-decoration: none; color: #059669; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #ecfdf5; display: flex; align-items: center; gap: 6px; transition: 0.2s;
+        }
+        .hub-nav-ia:hover { background-color: #d1fae5; }
+        
+        .hub-user-box { display: flex; align-items: center; gap: 12px; }
+        .hub-greeting { color: #475569; font-size: 13px; font-weight: 500; }
+        .hub-avatar {
+            width: 36px; height: 36px; background-color: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px;
+        }
+
+        /* ==========================================
+           O CARTÃO BRANCO PRINCIPAL DO SISTEMA
+        ========================================== */
         .app-wrapper {
             flex: 1; 
             background: white;
@@ -47,7 +92,8 @@
             display: flex;
             flex-direction: column;
             overflow: hidden; 
-            min-height: 0; /* Impede o flexbox de estourar a tela */
+            min-height: 0; 
+            margin: 20px; /* Margem da tela */
         }
 
         /* ÁREA DE CONTEÚDO */
@@ -63,7 +109,7 @@
         ========================================== */
         #login-screen {
             position: fixed; inset: 0; background: var(--primary);
-            display: flex; justify-content: center; align-items: center; z-index: 999;
+            display: flex; justify-content: center; align-items: center; z-index: 10000; /* Acima do menu novo */
         }
         .login-card {
             background: white; padding: 40px; border-radius: 8px;
@@ -76,16 +122,16 @@
         .login-card button:hover { background: #004494; }
 
         /* ==========================================
-           CABEÇALHOS (PADRÃO DEXCO)
+           CABEÇALHOS INTERNOS
         ========================================== */
         #app { display: none; height: 100%; }
         
-        header {
+        header.interno {
             background-color: var(--primary); color: white; padding: 12px 20px;
             display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
         }
         
-        header h1 { font-size: 14px; font-weight: 400; margin: 0; letter-spacing: 0.5px; }
+        header.interno h1 { font-size: 14px; font-weight: 400; margin: 0; letter-spacing: 0.5px; }
         
         .header-actions button {
             padding: 6px 15px; border: none; border-radius: 3px; font-weight: 600; cursor: pointer; font-size: 11px; transition: 0.2s;
@@ -123,12 +169,12 @@
         .btn-incluir { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
         .btn-incluir:hover { background: #218838; }
 
-        /* CONTAINER DA TABELA (AJUSTE PRINCIPAL AQUI) */
+        /* CONTAINER DA TABELA */
         .table-container { 
             background: white; border: 1px solid var(--border); border-radius: 6px; 
-            overflow-y: auto; /* Rolagem apenas dentro da tabela */
+            overflow-y: auto; 
             flex: 1; 
-            position: relative; /* Necessário para o sticky funcionar corretamente */
+            position: relative; 
         }
         
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
@@ -137,10 +183,8 @@
         th { 
             background: #f1f5f9; 
             font-weight: 600; color: #475569; text-transform: uppercase; font-size: 11px; 
-            position: sticky; /* Congela o cabeçalho */
-            top: 0; 
-            z-index: 10;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Adiciona uma sombrinha suave no cabeçalho */
+            position: sticky; top: 0; z-index: 10;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
         }
         
         tr:last-child td { border-bottom: none; }
@@ -153,7 +197,7 @@
         /* ==========================================
            MODAL
         ========================================== */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 10000; }
         .modal-content { background: white; padding: 25px; border-radius: 8px; width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .modal-content h3 { margin-top: 0; margin-bottom: 15px; color: var(--primary); font-size: 15px;}
         .modal-content input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px; outline: none; font-size: 13px;}
@@ -169,6 +213,34 @@
 
 <body>
 
+    <header class="hub-top-nav">
+        <a href="index.html" class="hub-logo-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            <span class="hub-title">Hub</span> <span class="hub-subtitle">Financeiro</span>
+        </a>
+        
+        <nav class="hub-menu-links">
+            <a href="conciliacao.html" class="hub-nav-item">Conciliação Bancária</a>
+            <a href="bancos.html" class="hub-nav-item active">Gestão de Bancos</a>
+            <a href="caixa.html" class="hub-nav-item">Gestão de Caixa</a>
+            <a href="protestos.html" class="hub-nav-item">Protestos</a>
+            
+            <div class="hub-nav-divider"></div>
+            
+            <a href="index.html" class="hub-nav-ia">✨ Assistente IA</a>
+        </nav>
+
+        <div class="hub-user-box">
+            <span class="hub-greeting">Olá, Operador</span>
+            <div class="hub-avatar">O</div>
+        </div>
+    </header>
+
+
     <div id="login-screen">
         <div class="login-card">
             <h2>DEXCO ASSIST</h2>
@@ -181,11 +253,11 @@
 
     <div id="app" class="app-wrapper">
         
-        <header>
-            <h1>Dexco S.A - Gestão de Bancoooo002222s</h1>
+        <header class="interno">
+            <h1>Dexco S.A - Gestão de Bancos</h1>
             <div class="header-actions">
                 <button class="btn-export" onclick="exportarExcel()">Exportar CSV</button>
-                <button class="btn-lock" onclick="sair()">Sair / Encerrarr</button>
+                <button class="btn-lock" onclick="sair()">Sair / Bloquear</button>
             </div>
         </header>
 
