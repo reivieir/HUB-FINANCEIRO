@@ -19,13 +19,8 @@
         /* ==========================================
            TELA DE LOGIN
         ========================================== */
-        #login-screen {
-            position: fixed; inset: 0; background: var(--primary);
-            display: flex; justify-content: center; align-items: center; z-index: 200000;
-        }
-        .login-card {
-            background: white; padding: 40px; border-radius: 8px; width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
+        #login-screen { position: fixed; inset: 0; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 200000; }
+        .login-card { background: white; padding: 40px; border-radius: 8px; width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .login-card h2 { color: var(--primary); margin-bottom: 5px; font-weight: 700; }
         .login-card p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
         .login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 4px; outline: none; text-align: center; font-size: 14px; }
@@ -36,10 +31,7 @@
         /* ==========================================
            TELAS DE CARREGAMENTO E MENU
         ========================================== */
-        #loading-overlay {
-            position: fixed; inset: 0; background: var(--primary); z-index: 100000;
-            display: none; flex-direction: column; justify-content: center; align-items: center; color: white;
-        }
+        #loading-overlay { position: fixed; inset: 0; background: var(--primary); z-index: 100000; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; }
         #loading-overlay h2 { margin-bottom: 10px; font-weight: 700; letter-spacing: 1px;}
         #loading-overlay p { color: #94a3b8; font-size: 14px;}
 
@@ -83,7 +75,6 @@
         .dia-btn.active .btn-acao { color: #93c5fd; }
         .dia-btn.active .btn-acao:hover { color: white; }
         .dia-btn.active .btn-acao.fechar:hover { color: #fca5a5; }
-
         .btn-novo-dia { background: #0284c7; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 10px; transition: 0.2s;}
         .btn-novo-dia:hover { background: #0369a1; }
         .btn-acao-dia { color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; transition: 0.2s;}
@@ -100,10 +91,9 @@
         .col-categoria { position: sticky; left: 0; z-index: 11; background: white; min-width: 250px; text-align: left; border-right: 2px solid var(--border) !important; }
         thead th { background: #f1f5f9; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--border); color: var(--primary); padding: 4px; }
         thead th.col-categoria { z-index: 12; background: #e2e8f0; text-align: center; }
-
         .cell-wrapper { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
         .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 1px; }
-        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 2px; box-sizing: border-box; text-align: right; font-size: 10px; outline: none; background: #f8fafc; }
+        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc; }
         .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
 
         .bg-total-entradas { background-color: var(--azul-entrada) !important; color: white !important; font-weight: bold; }
@@ -123,11 +113,10 @@
         .flash-in { animation: flash-in 0.8s ease-out; }
         @keyframes flash-in { 0% { background: #bfdbfe; } 100% { background: transparent; } }
 
-        /* MODAIS */
+        /* MODAIS E INPUTS EDITÁVEIS */
         .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
         .modal-content { background-color: #ffffff; padding: 25px; width: 100%; max-width: 400px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;}
         .modal-content-resumo { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 800px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
-        
         .close { color: #94a3b8; position: absolute; right: 20px; top: 20px; font-size: 24px; font-weight: bold; cursor: pointer; line-height: 20px; transition: 0.2s;}
         .close:hover { color: var(--danger); }
         
@@ -135,13 +124,18 @@
         .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 6px; }
         .resumo-table-print th { background-color: var(--primary); color: white; }
         .resumo-table-print tfoot th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; }
+        
         .btn-copiar { background: #10b981; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; transition: background 0.2s; }
         .btn-copiar:hover { background: #059669; }
         .btn-limpar-lote { background: #3b82f6; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; }
         .btn-limpar-lote:hover { background: #2563eb; }
-
         .btn-modal-acao { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
         .btn-modal-acao:hover { background: #059669; }
+
+        .input-transparent {
+            border: 1px dashed #cbd5e1; background: #f8fafc; width: 100%; font-size: 12px; outline: none; font-family: inherit; color: var(--text); padding: 4px; border-radius: 3px; transition: 0.2s;
+        }
+        .input-transparent:focus { border-style: solid; border-color: var(--primary); background: white; }
     </style>
 </head>
 <body>
@@ -185,6 +179,7 @@
                 <h1>Dexco S.A - Gestão Diária de Caixa</h1> 
                 <div class="header-actions">
                     <button class="btn-export" style="background:#10b981;" onclick="exportarCSV()">📥 Exportar CSV</button>
+                    <button class="btn-export" style="background:#0284c7;" onclick="abrirAprovacoes()">✅ Aprovações</button>
                     <button class="btn-export" onclick="abrirResumo()">📊 Resumo do Dia</button>
                     <button class="btn-exit" onclick="window.parent.location.reload()">Sair / Bloquear</button>
                 </div>
@@ -207,23 +202,18 @@
         <div class="modal-content">
             <span class="close" onclick="fecharModalCalendario()">&times;</span>
             <h3 style="color:var(--primary); margin-top:0; font-size: 16px;">Gerenciar Datas</h3>
-            
             <div style="margin-top: 20px;">
                 <label style="font-size: 12px; font-weight: bold; color: #64748b;">Selecione uma Data no Calendário:</label>
                 <div style="display: flex; gap: 10px; margin-top: 8px;">
                     <input type="date" id="input-data-cal" class="input-lancar" style="font-size: 14px; padding: 10px;">
                     <button class="btn-modal-acao" onclick="processarDataCalendario()">IR PARA DIA</button>
                 </div>
-                <p style="font-size: 11px; color: #94a3b8; margin-top: 8px;">* Se a data não existir, um novo caixa será gerado com os saldos da guia atual.</p>
             </div>
-
             <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;">
-
             <div>
                 <label style="font-size: 12px; font-weight: bold; color: #64748b;">Restaurar Guias Ocultas:</label>
                 <div style="display: flex; gap: 10px; margin-top: 8px;">
-                    <select id="sel-guias-ocultas" class="input-lancar" style="font-size: 13px; padding: 10px; cursor: pointer;">
-                        </select>
+                    <select id="sel-guias-ocultas" class="input-lancar" style="font-size: 13px; padding: 10px; cursor: pointer;"></select>
                     <button class="btn-modal-acao" style="background:#3b82f6;" onclick="restaurarGuiaOcultaModal()">RESTAURAR</button>
                 </div>
             </div>
@@ -234,8 +224,8 @@
         <div class="modal-content-resumo">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;">
                 <div style="display: flex; align-items: center;">
-                    <button class="btn-copiar" id="btn-copiar-resumo" onclick="copiarResumoImagem()">📋 Copiar Imagem</button>
-                    <button class="btn-limpar-lote" onclick="confirmarEnvioLote()">✅ Marcar Lote como Enviado</button>
+                    <button class="btn-copiar" id="btn-copiar-resumo" onclick="copiarImagem('resumo-export-area', 'btn-copiar-resumo')">📋 Copiar Imagem</button>
+                    <button class="btn-limpar-lote" onclick="confirmarEnvioLoteResumo()">✅ Marcar Lote como Enviado</button>
                 </div>
                 <span class="close" style="position:static;" onclick="document.getElementById('modal-resumo').style.display='none'">&times;</span>
             </div>
@@ -244,23 +234,47 @@
                 <div id="resumo-content-pendente"></div>
             </div>
             <div style="margin-top: 25px; padding: 15px; background: #e2e8f0; border-radius: 8px;">
-                <h3 style="margin-top: 0; color: #475569; font-size: 13px; text-transform: uppercase;">Total Consolidado do Dia (Enviados + Pendentes)</h3>
+                <h3 style="margin-top: 0; color: #475569; font-size: 13px; text-transform: uppercase;">Total Consolidado do Dia</h3>
                 <div id="resumo-content-consolidado"></div>
             </div>
         </div>
     </div>
 
+    <div id="modal-aprovacoes" class="modal" style="align-items: flex-start; padding-top: 30px;">
+        <div class="modal-content-resumo">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;">
+                <div style="display: flex; align-items: center;">
+                    <button class="btn-copiar" id="btn-copiar-aprov" onclick="copiarImagem('aprovacoes-export-area', 'btn-copiar-aprov')">📋 Copiar Imagem</button>
+                    <button class="btn-limpar-lote" onclick="confirmarEnvioAprovacoes()">✅ Marcar Lote de Aprovação Enviado</button>
+                </div>
+                <span class="close" style="position:static;" onclick="document.getElementById('modal-aprovacoes').style.display='none'">&times;</span>
+            </div>
+            <div id="aprovacoes-export-area" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <h2 style="color:var(--primary); margin-top:0; margin-bottom: 15px;">Planilha de Aprovações - TEDs e Aplicações: <span id="aprovacoes-dia-titulo"></span></h2>
+                <table class="resumo-table-print">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;">Empresa</th>
+                            <th style="text-align:left;">Conta de Origem</th>
+                            <th style="text-align:left; width: 25%;">Favorecido</th>
+                            <th style="text-align:left; width: 25%;">Conta Crédito</th>
+                            <th style="text-align:right;">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="aprovacoes-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // CONEXÃO COM SUPABASE
         const SUPABASE_URL = "https://spcpujmqnjtalupxzqpp.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwY3B1am1xbmp0YWx1cHh6cXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MjI3ODMsImV4cCI6MjA4ODI5ODc4M30.TYVtILJNISNR3aDejRM5fsWKt9TuIHgN1dS2deVbQwQ"; 
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // VARIÁVEIS GLOBAIS
         let empresasConfig = {};
         let plano = [];
         let mapConta = {}; 
-        
         let empresaAtiva = '';
         let contas = [];
         let diasCadastrados = [];
@@ -269,69 +283,48 @@
         const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
 
         // ==============================================
-        // FUNÇÕES UNIVERSAIS DE FORMATAÇÃO (PADRÃO BRASIL)
+        // FUNÇÕES DE FORMATAÇÃO
         // ==============================================
-        
-        // Pega qualquer número (ex: "5.000,00" ou "5000") e transforma em Float limpo
         function parseMoeda(str) {
             if (!str) return 0;
             str = str.toString().trim();
-            // Remove os pontos de milhar e troca a vírgula decimal por ponto de Float
             str = str.replace(/\./g, '').replace(',', '.');
             const num = parseFloat(str);
             return isNaN(num) ? 0 : num;
         }
 
-        // Pega um Float e transforma em String BR com 2 casas e separador de milhar
         function formatarMoeda(valor) {
-            return new Intl.NumberFormat('pt-BR', { 
-                style: 'decimal', 
-                minimumFractionDigits: 2, 
-                maximumFractionDigits: 2 
-            }).format(valor);
+            return new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(valor);
         }
 
         // ==============================================
-        // LÓGICA DE LOGIN COM BANCO DE DADOS
+        // LOGIN
         // ==============================================
-        function seEnterLogin(e) {
-            if(e.key === 'Enter') fazerLogin();
-        }
+        function seEnterLogin(e) { if(e.key === 'Enter') fazerLogin(); }
 
         async function fazerLogin() {
             const senhaDigitada = document.getElementById('input-senha-login').value.trim();
             const msg = document.getElementById('login-msg');
+            if(!senhaDigitada) { msg.innerText = "Por favor, digite a senha!"; return; }
 
-            if(!senhaDigitada) {
-                msg.innerText = "Por favor, digite a senha!";
-                return;
-            }
-
-            msg.innerText = "Verificando...";
-            msg.style.color = "#64748b";
+            msg.innerText = "Verificando..."; msg.style.color = "#64748b";
 
             const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_acesso').single();
-
-            if (error || !data) {
-                msg.innerText = "Erro ao validar senha no banco de dados.";
-                msg.style.color = "#c40000";
-                return;
-            }
+            if (error || !data) { msg.innerText = "Erro ao validar senha no banco de dados."; msg.style.color = "#c40000"; return; }
 
             if (senhaDigitada === data.valor) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('loading-overlay').style.display = 'flex'; 
                 inicializarCaixa(); 
             } else {
-                msg.innerText = "Senha incorreta!";
-                msg.style.color = "#c40000";
+                msg.innerText = "Senha incorreta!"; msg.style.color = "#c40000";
                 document.getElementById('input-senha-login').value = '';
                 document.getElementById('input-senha-login').focus();
             }
         }
 
         // ==============================================
-        // INICIALIZAÇÃO E SINCRONIZAÇÃO COM O BANCO
+        // BANCO DE DADOS E CARGA
         // ==============================================
         async function inicializarCaixa() {
             try {
@@ -350,10 +343,7 @@
 
                 const { data: dbCategorias } = await sb.from('caixa_categorias').select('*').order('ordem');
                 plano = dbCategorias.map(cat => ({
-                    id: cat.codigo,
-                    nome: cat.nome,
-                    tipo: cat.tipo,
-                    readOnly: cat.is_readonly
+                    id: cat.codigo, nome: cat.nome, tipo: cat.tipo, readOnly: cat.is_readonly
                 }));
 
                 const h = new Date();
@@ -367,11 +357,7 @@
                     diasCadastrados = dbDias.map(d => d.nome_dia);
                 }
                 
-                if (diasCadastrados.includes(dataHojeStr)) {
-                    diaAtivo = dataHojeStr;
-                } else {
-                    diaAtivo = diasCadastrados[diasCadastrados.length - 1];
-                }
+                diaAtivo = diasCadastrados.includes(dataHojeStr) ? dataHojeStr : diasCadastrados[diasCadastrados.length - 1];
 
                 diasCadastrados.forEach(d => {
                     dadosPorDia[d] = {};
@@ -383,17 +369,26 @@
                     dbLancamentos.forEach(lan => {
                         let info = mapConta[lan.conta_id];
                         if(info && dadosPorDia[lan.nome_dia]) {
-                            let e = info.emp;
-                            let i = info.idx;
+                            let e = info.emp; let i = info.idx;
                             if(!dadosPorDia[lan.nome_dia][e][i]) dadosPorDia[lan.nome_dia][e][i] = {};
                             
                             dadosPorDia[lan.nome_dia][e][i][lan.categoria_codigo] = formatarMoeda(lan.valor);
                             
+                            // Carrega a String JSON segura do banco (Permite pendências independentes)
+                            try {
+                                if(lan.banco_destino && lan.banco_destino.startsWith('{')) {
+                                    let parsed = JSON.parse(lan.banco_destino);
+                                    dadosPorDia[lan.nome_dia][e][i][`banco-${lan.categoria_codigo}`] = parsed.banco || "";
+                                    if(parsed.pAprov > 0) dadosPorDia[lan.nome_dia][e][i][`pendente-aprov-${lan.categoria_codigo}`] = parsed.pAprov.toString();
+                                } else {
+                                    dadosPorDia[lan.nome_dia][e][i][`banco-${lan.categoria_codigo}`] = lan.banco_destino || "";
+                                }
+                            } catch(err) {
+                                dadosPorDia[lan.nome_dia][e][i][`banco-${lan.categoria_codigo}`] = lan.banco_destino || "";
+                            }
+                            
                             if(lan.valor_pendente > 0) {
                                 dadosPorDia[lan.nome_dia][e][i][`pendente-${lan.categoria_codigo}`] = lan.valor_pendente.toString();
-                            }
-                            if(lan.banco_destino) {
-                                dadosPorDia[lan.nome_dia][e][i][`banco-${lan.categoria_codigo}`] = lan.banco_destino;
                             }
                         }
                     });
@@ -402,17 +397,10 @@
                 empresaAtiva = dbEmpresas[0].nome;
                 contas = empresasConfig[empresaAtiva];
 
-                renderTabsEmpresas();
-                renderTabela();
-                renderTabsDias();
-                carregarEstado();
-
+                renderTabsEmpresas(); renderTabela(); renderTabsDias(); carregarEstado();
                 document.getElementById('loading-overlay').style.display = 'none';
 
-            } catch (err) {
-                alert("Erro ao conectar com o banco de dados. Recarregue a página.");
-                console.error(err);
-            }
+            } catch (err) { alert("Erro ao conectar com banco de dados."); }
         }
 
         async function syncSupabase() {
@@ -425,401 +413,35 @@
                 plano.forEach(l => {
                     let catCodigo = l.id;
                     if(estado[idx] && estado[idx][catCodigo] !== undefined) {
-                        let valFormatado = estado[idx][catCodigo] || "0,00";
+                        let v = parseMoeda(estado[idx][catCodigo] || "0,00");
+                        let p = parseFloat(estado[idx][`pendente-${catCodigo}`] || 0); // Resumo
+                        let pAprov = parseFloat(estado[idx][`pendente-aprov-${catCodigo}`] || 0); // Aprovações
+                        let b = estado[idx][`banco-${catCodigo}`] || "";
                         
-                        // Parse correto utilizando a nova função
-                        let v = parseMoeda(valFormatado);
-                        let p = parseFloat(estado[idx][`pendente-${catCodigo}`] || 0);
-                        let b = estado[idx][`banco-${catCodigo}`] || null;
-                        
+                        // Empacota o dado de Aprovação no TEXT do banco para manter a independência sem mexer na estrutura SQL
+                        let bancoStr = b;
+                        if (pAprov > 0 || String(b).startsWith('{')) {
+                            bancoStr = JSON.stringify({ banco: b, pAprov: pAprov });
+                        }
+
                         upserts.push({
                             nome_dia: diaAtivo,
                             conta_id: contaId,
                             categoria_codigo: catCodigo,
                             valor: v,
                             valor_pendente: p,
-                            banco_destino: b
+                            banco_destino: bancoStr
                         });
                     }
                 });
             });
             
-            if(upserts.length > 0) {
-                await sb.from('caixa_lancamentos').upsert(upserts, { onConflict: 'nome_dia, conta_id, categoria_codigo' });
-            }
+            if(upserts.length > 0) { await sb.from('caixa_lancamentos').upsert(upserts, { onConflict: 'nome_dia, conta_id, categoria_codigo' }); }
         }
 
         // ==============================================
-        // LÓGICA DE EXPORTAÇÃO CSV
+        // CONTROLE DA TABELA E DIGITAÇÃO
         // ==============================================
-        function exportarCSV() {
-            salvarEstadoLocal();
-            let diaDados = dadosPorDia[diaAtivo];
-            if(!diaDados) { alert("Nenhum dado para exportar neste dia."); return; }
-
-            let csv = "\uFEFFData;Empresa;Banco;Conta;Categoria da Linha;Tipo da Linha;Valor (R$);Banco Destino/Origem;Possui Pendencia?\n";
-
-            Object.keys(empresasConfig).forEach(emp => {
-                let contasEmpresa = empresasConfig[emp];
-                if(!diaDados[emp]) return;
-
-                contasEmpresa.forEach((c, idx) => {
-                    let contaDados = diaDados[emp][idx] || {};
-                    
-                    plano.forEach(l => {
-                        let valFormatado = contaDados[l.id] || "0,00";
-                        // Evita escrever 0,00 para todas as linhas vazias no CSV para deixar mais limpo (Opcional)
-                        if (valFormatado === "0,00") return;
-
-                        let tipoLegivel = l.tipo;
-                        if(tipoLegivel.includes('grupo-soma')) tipoLegivel = 'Soma';
-                        else if(tipoLegivel.includes('bg-')) tipoLegivel = 'Totalizador';
-                        else tipoLegivel = 'Lançamento';
-
-                        let pendente = contaDados[`pendente-${l.id}`] ? parseFloat(contaDados[`pendente-${l.id}`]) : 0;
-                        let bancoDestino = contaDados[`banco-${l.id}`] || "";
-
-                        csv += `${diaAtivo};${emp};${c.b};${c.c};${l.nome};${tipoLegivel};${valFormatado};${bancoDestino};${pendente > 0 ? 'Sim' : 'Não'}\n`;
-                    });
-                });
-            });
-
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-            let nomeArquivo = diaAtivo.replace(/\//g, '-');
-            link.download = `Caixa_Dexco_${nomeArquivo}.csv`;
-            link.click();
-        }
-
-        // ==============================================
-        // CÓDIGO DA TELA E NAVEGAÇÃO
-        // ==============================================
-        function renderTabsEmpresas() {
-            const container = document.getElementById('nav-empresas-container');
-            let html = '';
-            Object.keys(empresasConfig).forEach(emp => {
-                html += `<div class="tab-btn ${emp === empresaAtiva ? 'active' : ''}" id="tab-${emp}" onclick="mudarEmpresa('${emp}')">${emp}</div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function renderTabsDias() {
-            const container = document.getElementById('nav-dias-container');
-            let html = diasCadastrados.map(d => `
-                <div class="dia-btn ${d === diaAtivo ? 'active' : ''}" onclick="mudarDia('${d}')">
-                    <span>${d}</span>
-                    <span class="btn-acao fechar" onclick="event.stopPropagation(); fecharAba('${d}')" title="Ocultar Guia">&times;</span>
-                </div>
-            `).join('');
-            
-            html += `<button class="btn-novo-dia" onclick="abrirModalCalendario()">📅 CRIAR / RESTAURAR</button>`;
-
-            if(diaAtivo) {
-                html += `<button class="btn-acao-dia" style="background:#f59e0b; margin-left: auto;" onclick="duplicarDiaAtual()">⧉ DUPLICAR [${diaAtivo}]</button>`;
-                html += `<button class="btn-acao-dia" style="background:#ef4444; margin-left: 10px;" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}]</button>`;
-            }
-            container.innerHTML = html;
-        }
-
-        async function duplicarDiaAtual() {
-            let novoNome = prompt(`Você está duplicando o caixa do dia [${diaAtivo}].\n\nDigite a nova data (DD/MM/YYYY):`);
-            if (!novoNome || novoNome.trim() === "") return;
-            novoNome = novoNome.trim();
-
-            if (diasCadastrados.includes(novoNome) || dadosPorDia[novoNome]) { 
-                alert("Esta data/guia já existe no sistema!"); 
-                return; 
-            }
-
-            salvarEstadoLocal(); 
-
-            const { error: errDia } = await sb.from('caixa_dias').insert([{ nome_dia: novoNome }]);
-            if (errDia) { alert("Erro ao duplicar dia: " + errDia.message); return; }
-
-            dadosPorDia[novoNome] = JSON.parse(JSON.stringify(dadosPorDia[diaAtivo]));
-            
-            let upsertsNovaCopia = [];
-            let estadoCopia = dadosPorDia[novoNome];
-            
-            Object.keys(empresasConfig).forEach(emp => {
-                let contasEmpresa = empresasConfig[emp];
-                contasEmpresa.forEach((c, idx) => {
-                    if(!estadoCopia[emp] || !estadoCopia[emp][idx]) return;
-                    
-                    plano.forEach(l => {
-                        let catCodigo = l.id;
-                        if(estadoCopia[emp][idx][catCodigo] !== undefined) {
-                            let valFormatado = estadoCopia[emp][idx][catCodigo] || "0,00";
-                            
-                            // Usando parseMoeda no duplicar também
-                            let v = parseMoeda(valFormatado);
-                            let p = parseFloat(estadoCopia[emp][idx][`pendente-${catCodigo}`] || 0);
-                            let b = estadoCopia[emp][idx][`banco-${catCodigo}`] || null;
-                            
-                            if (v !== 0 || p !== 0 || b !== null) {
-                                upsertsNovaCopia.push({
-                                    nome_dia: novoNome,
-                                    conta_id: c.id,
-                                    categoria_codigo: catCodigo,
-                                    valor: v,
-                                    valor_pendente: p,
-                                    banco_destino: b
-                                });
-                            }
-                        }
-                    });
-                });
-            });
-
-            diasCadastrados.push(novoNome);
-            diaAtivo = novoNome;
-            
-            carregarEstado();
-            renderTabsDias();
-
-            if(upsertsNovaCopia.length > 0) {
-                await sb.from('caixa_lancamentos').insert(upsertsNovaCopia);
-            }
-        }
-
-        function abrirModalCalendario() {
-            salvarEstadoLocal(); 
-            
-            const hoje = new Date();
-            const ano = hoje.getFullYear();
-            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-            const dia = String(hoje.getDate()).padStart(2, '0');
-            document.getElementById('input-data-cal').value = `${ano}-${mes}-${dia}`;
-            
-            const selOcultas = document.getElementById('sel-guias-ocultas');
-            let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
-            if (guiasOcultas.length === 0) {
-                selOcultas.innerHTML = '<option value="">Nenhuma guia oculta...</option>';
-                selOcultas.disabled = true;
-            } else {
-                selOcultas.innerHTML = '<option value="">Selecione para restaurar...</option>' + guiasOcultas.map(d => `<option value="${d}">${d}</option>`).join('');
-                selOcultas.disabled = false;
-            }
-            
-            document.getElementById('modal-calendario').style.display = 'flex';
-        }
-
-        function fecharModalCalendario() {
-            document.getElementById('modal-calendario').style.display = 'none';
-        }
-
-        async function processarDataCalendario() {
-            const inputData = document.getElementById('input-data-cal').value;
-            if(!inputData) { alert("Selecione uma data no calendário!"); return; }
-            
-            const partes = inputData.split('-');
-            const nomeDia = `${partes[2]}/${partes[1]}/${partes[0]}`;
-            
-            fecharModalCalendario();
-
-            if (diasCadastrados.includes(nomeDia)) { 
-                mudarDia(nomeDia); 
-                return; 
-            }
-
-            let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
-            if (guiasOcultas.includes(nomeDia)) {
-                diasCadastrados.push(nomeDia);
-                diaAtivo = nomeDia;
-                carregarEstado();
-                renderTabsDias();
-                return;
-            }
-
-            salvarEstadoLocal(); 
-            await sb.from('caixa_dias').insert([{ nome_dia: nomeDia }]);
-
-            let upsertsNovoDia = [];
-
-            if(!dadosPorDia[nomeDia]) {
-                dadosPorDia[nomeDia] = {};
-                Object.keys(empresasConfig).forEach(emp => {
-                    dadosPorDia[nomeDia][emp] = {};
-                    
-                    let estadoAntigo = (dadosPorDia[diaAtivo] && dadosPorDia[diaAtivo][emp]) ? dadosPorDia[diaAtivo][emp] : {};
-                    
-                    empresasConfig[emp].forEach((c, idx) => {
-                        dadosPorDia[nomeDia][emp][idx] = {};
-                        
-                        let saldoFinalAnterior = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
-                        dadosPorDia[nomeDia][emp][idx]['si'] = saldoFinalAnterior;
-
-                        // Usando parseMoeda
-                        let v = parseMoeda(saldoFinalAnterior);
-                        if(v !== 0) {
-                            upsertsNovoDia.push({
-                                nome_dia: nomeDia,
-                                conta_id: c.id,
-                                categoria_codigo: 'si',
-                                valor: v,
-                                valor_pendente: 0,
-                                banco_destino: null
-                            });
-                        }
-                    });
-                });
-            }
-            diasCadastrados.push(nomeDia); 
-            diaAtivo = nomeDia; 
-            
-            carregarEstado(); 
-            renderTabsDias();
-
-            if(upsertsNovoDia.length > 0) {
-                await sb.from('caixa_lancamentos').insert(upsertsNovoDia);
-            }
-        }
-
-        function restaurarGuiaOcultaModal() {
-            const select = document.getElementById('sel-guias-ocultas');
-            const nomeParaRestaurar = select.value;
-            if(!nomeParaRestaurar) { alert("Selecione uma guia na lista para restaurar."); return; }
-            
-            fecharModalCalendario();
-            salvarEstadoLocal(); 
-            diasCadastrados.push(nomeParaRestaurar); 
-            diaAtivo = nomeParaRestaurar; 
-            carregarEstado(); 
-            renderTabsDias();
-        }
-
-        function mudarEmpresa(novaEmpresa) {
-            salvarEstadoLocal(); 
-            empresaAtiva = novaEmpresa; contas = empresasConfig[empresaAtiva]; 
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`tab-${novaEmpresa}`).classList.add('active');
-            renderTabela(); carregarEstado(); 
-        }
-
-        function salvarEstadoLocal() {
-            if(!diaAtivo) return;
-            if(!dadosPorDia[diaAtivo]) dadosPorDia[diaAtivo] = {};
-            if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
-
-            let estado = dadosPorDia[diaAtivo][empresaAtiva];
-            contas.forEach((c, idx) => {
-                if(!estado[idx]) estado[idx] = {};
-                plano.forEach(l => {
-                    let el = document.getElementById(`val-${l.id}-${idx}`);
-                    if(el) {
-                        estado[idx][l.id] = el.innerText;
-                        if(l.id === 'o3' || l.id === 'so7') {
-                            estado[idx][`pendente-${l.id}`] = el.getAttribute('data-pendente') || "0";
-                        }
-                    }
-                    if(l.tipo === 'linha-banco') {
-                        let sel = document.getElementById(`banco-${l.id}-${idx}`);
-                        if(sel) estado[idx][`banco-${l.id}`] = sel.value;
-                    }
-                });
-            });
-        }
-
-        function carregarEstado() {
-            if(!diaAtivo) { zerarTabela(); return; }
-            let estadoEmpresa = (dadosPorDia[diaAtivo] || {})[empresaAtiva] || {};
-
-            contas.forEach((c, idx) => {
-                plano.forEach(l => {
-                    let el = document.getElementById(`val-${l.id}-${idx}`);
-                    if(el) {
-                        el.innerText = (estadoEmpresa[idx] && estadoEmpresa[idx][l.id]) ? estadoEmpresa[idx][l.id] : "0,00";
-                        if(l.id === 'o3' || l.id === 'so7') {
-                            el.setAttribute('data-pendente', estadoEmpresa[idx] ? (estadoEmpresa[idx][`pendente-${l.id}`] || "0") : "0");
-                        }
-                    }
-                    if(l.tipo === 'linha-banco') {
-                        let sel = document.getElementById(`banco-${l.id}-${idx}`);
-                        if(sel) sel.value = (estadoEmpresa[idx] && estadoEmpresa[idx][`banco-${l.id}`]) ? estadoEmpresa[idx][`banco-${l.id}`] : "";
-                    }
-                });
-                recalcularColuna(idx);
-            });
-        }
-
-        function zerarTabela() {
-            contas.forEach((c, idx) => {
-                plano.forEach(l => {
-                    let el = document.getElementById(`val-${l.id}-${idx}`);
-                    if(el) {
-                        el.innerText = "0,00";
-                        if(l.id === 'o3' || l.id === 'so7') el.setAttribute('data-pendente', "0");
-                    }
-                    if(l.tipo === 'linha-banco') {
-                        let sel = document.getElementById(`banco-${l.id}-${idx}`);
-                        if(sel) sel.value = "";
-                    }
-                });
-            });
-        }
-
-        function mudarDia(novoDia) { salvarEstadoLocal(); diaAtivo = novoDia; carregarEstado(); renderTabsDias(); }
-
-        function fecharAba(diaParaFechar) {
-            salvarEstadoLocal(); diasCadastrados = diasCadastrados.filter(d => d !== diaParaFechar); 
-            if (diaAtivo === diaParaFechar) { diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); }
-            renderTabsDias();
-        }
-
-        async function excluirDiaDoBanco() {
-            if(confirm(`ATENÇÃO! Excluir a data [${diaAtivo}] DE FORMA DEFINITIVA DO BANCO DE DADOS?`)) {
-                await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
-                delete dadosPorDia[diaAtivo]; diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
-                diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); renderTabsDias();
-            }
-        }
-
-        function renderTabela() {
-            const h = document.getElementById('h-contas');
-            const b = document.getElementById('b-caixa');
-            
-            h.innerHTML = `<tr><th class="col-categoria">Categorias / Contas</th>${contas.map(c => `<th>${c.b}<br><span style="font-weight:normal;">${c.c}</span></th>`).join('')}</tr>`;
-            
-            b.innerHTML = plano.map(l => {
-                const isBgLine = (l.tipo === 'bg-total-entradas' || l.tipo === 'bg-total-saidas' || l.tipo === 'bg-saldo-calculado' || l.tipo === 'bg-saldo-seguro');
-                const isIndent = (l.tipo === 'item' || l.tipo === 'linha-banco');
-                const noInputClass = l.readOnly ? 'no-input' : '';
-                
-                return `<tr>
-                    <td class="col-categoria ${l.tipo} ${isIndent ? 'indent' : ''}">${l.nome}</td>
-                    ${contas.map((c, i) => {
-                        if (l.tipo === 'linha-banco') {
-                            return `<td><div class="cell-wrapper">
-                                    <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente="0">0,00</span>
-                                    <select id="banco-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;" onchange="salvarEstadoLocal(); syncSupabase();">
-                                        <option value="">Banco Destino/Origem...</option>
-                                        ${listaBancosPadrao.map(bco => `<option value="${bco}">${bco}</option>`).join('')}
-                                    </select>
-                                    <input type="text" class="input-lancar" placeholder="Valor" onkeypress="lancar(event, '${l.id}', ${i})">
-                                </div></td>`;
-                        }
-                        if (l.tipo === 'linha-transferencia') {
-                            return `<td><div class="cell-wrapper">
-                                    <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
-                                    <select id="sel-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;">
-                                        <option value="">Conta Destino...</option>
-                                        ${contas.map((ct, idx) => idx !== i ? `<option value="${idx}">${ct.b} ${ct.c.split('/')[1] || ct.c}</option>` : '').join('')}
-                                    </select>
-                                    <input type="text" class="input-lancar" placeholder="Valor + Enter" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
-                                </div></td>`;
-                        }
-                        return `<td class="${l.tipo} ${noInputClass}">
-                            <div class="cell-wrapper">
-                                <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
-                                <input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})">
-                            </div>
-                        </td>`;
-                    }).join('')}
-                </tr>`;
-            }).join('');
-        }
-
-        // Alterados para usar as funções novas de formatação correta
         function getV(id, cidx) { let el = document.getElementById(`val-${id}-${cidx}`); return el ? parseMoeda(el.innerText) : 0; }
         function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = formatarMoeda(val); }
 
@@ -840,34 +462,36 @@
 
             let tsai = sfor + ssal + ssout + ssfin + ssint + getV('sviv',idx) + getV('scri',idx) + getV('stenv',idx); setV('tsai', idx, tsai);
 
-            let si = getV('si', idx);
-            let calc = si + te - tsai; setV('calc', idx, calc);
-            
-            let marg = getV('marg', idx);
-            let seg = calc - marg; setV('seg', idx, seg); 
+            let si = getV('si', idx); let calc = si + te - tsai; setV('calc', idx, calc);
+            let marg = getV('marg', idx); let seg = calc - marg; setV('seg', idx, seg); 
         }
 
         async function lancar(e, lid, cidx) {
             if(e.key === 'Enter') {
-                // ParseMoeda limpa a sujeira do BR para transformar em Float no sistema
                 const v = parseMoeda(e.target.value);
                 if(isNaN(v) || e.target.value.trim() === '') return;
                 
                 setV(lid, cidx, getV(lid, cidx) + v); 
                 
+                let el = document.getElementById(`val-${lid}-${cidx}`);
+                
+                // Resumo do Dia
                 if (lid === 'o3' || lid === 'so7') {
-                    let el = document.getElementById(`val-${lid}-${cidx}`);
                     let p = parseFloat(el.getAttribute('data-pendente')) || 0;
                     el.setAttribute('data-pendente', p + v);
                 }
                 
+                // Planilha de Aprovações
+                if (lid === 'so7') {
+                    let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0;
+                    el.setAttribute('data-pendente-aprov', pAprov + v);
+                }
+                
                 e.target.parentElement.parentElement.classList.add('flash');
                 setTimeout(() => e.target.parentElement.parentElement.classList.remove('flash'), 500);
-                e.target.value = "";
-                recalcularColuna(cidx); 
+                e.target.value = ""; recalcularColuna(cidx); 
                 
-                salvarEstadoLocal();
-                await syncSupabase();
+                salvarEstadoLocal(); await syncSupabase();
             }
         }
 
@@ -882,6 +506,20 @@
                 setV(lid, fromIdx, getV(lid, fromIdx) + v);
                 setV('tr', toIdx, getV('tr', toIdx) + v);
                 
+                // MÁGICA DA PLANILHA DE APROVAÇÕES (TED Outros Bancos -> Itaú)
+                const fromBanco = contas[fromIdx].b.toUpperCase();
+                const toBanco = contas[toIdx].b.toUpperCase();
+
+                if (!fromBanco.includes('ITAÚ') && toBanco.includes('ITAÚ')) {
+                    let el = document.getElementById(`val-${lid}-${fromIdx}`);
+                    let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0;
+                    el.setAttribute('data-pendente-aprov', pAprov + v);
+
+                    if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
+                    if(!dadosPorDia[diaAtivo][empresaAtiva][fromIdx]) dadosPorDia[diaAtivo][empresaAtiva][fromIdx] = {};
+                    dadosPorDia[diaAtivo][empresaAtiva][fromIdx][`banco-${lid}`] = `${toBanco} - ${contas[toIdx].c}`;
+                }
+                
                 e.target.parentElement.parentElement.classList.add('flash');
                 document.getElementById(`val-tr-${toIdx}`).parentElement.parentElement.classList.add('flash-in');
                 setTimeout(() => { document.querySelectorAll('.flash, .flash-in').forEach(el => { el.classList.remove('flash'); el.classList.remove('flash-in'); }); }, 800);
@@ -889,39 +527,115 @@
                 e.target.value = ""; selectDestino.value = "";
                 recalcularColuna(fromIdx); recalcularColuna(toIdx);
                 
-                salvarEstadoLocal();
-                await syncSupabase();
+                salvarEstadoLocal(); await syncSupabase();
             }
         }
 
+        // ==============================================
+        // PLANILHA DE APROVAÇÕES (NOVA)
+        // ==============================================
+        function abrirAprovacoes() {
+            salvarEstadoLocal();
+            document.getElementById('aprovacoes-dia-titulo').innerText = diaAtivo;
+            let diaDados = dadosPorDia[diaAtivo];
+            if(!diaDados) return;
+
+            let tbody = '';
+            let total = 0;
+
+            Object.keys(empresasConfig).forEach(emp => {
+                if(!diaDados[emp]) return;
+                empresasConfig[emp].forEach((c, idx) => {
+                    let contaDados = diaDados[emp][idx] || {};
+
+                    // TEDs para Itaú
+                    let pendStenv = parseFloat(contaDados['pendente-aprov-stenv']) || 0;
+                    if(pendStenv > 0) {
+                        let bancoDest = contaDados['banco-stenv'] || '';
+                        total += pendStenv;
+                        tbody += `<tr>
+                            <td style="font-weight:bold;">${emp}</td>
+                            <td>${c.b} - ${c.c}</td>
+                            <td><input type="text" class="input-transparent" value="Dexco S.A" oninput="this.setAttribute('value', this.value)"></td>
+                            <td><input type="text" class="input-transparent" value="${bancoDest}" oninput="this.setAttribute('value', this.value)"></td>
+                            <td style="text-align:right; font-weight:bold; color:var(--vermelho-saida);">R$ ${formatarMoeda(pendStenv)}</td>
+                        </tr>`;
+                    }
+
+                    // Aplicações (Em branco e editável)
+                    let pendSo7 = parseFloat(contaDados['pendente-aprov-so7']) || 0;
+                    if(pendSo7 > 0) {
+                        total += pendSo7;
+                        tbody += `<tr>
+                            <td style="font-weight:bold;">${emp}</td>
+                            <td>${c.b} - ${c.c}</td>
+                            <td><input type="text" class="input-transparent" placeholder="Digite o Favorecido..." oninput="this.setAttribute('value', this.value)"></td>
+                            <td><input type="text" class="input-transparent" placeholder="Digite a Conta Crédito..." oninput="this.setAttribute('value', this.value)"></td>
+                            <td style="text-align:right; font-weight:bold; color:#10b981;">R$ ${formatarMoeda(pendSo7)}</td>
+                        </tr>`;
+                    }
+                });
+            });
+
+            if(tbody === '') {
+                document.getElementById('aprovacoes-tbody').innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">Nenhuma transferência ou aplicação pendente para aprovação.</td></tr>`;
+            } else {
+                document.getElementById('aprovacoes-tbody').innerHTML = tbody + `
+                    <tr>
+                        <td colspan="4" style="text-align:right; font-weight:bold; padding-top: 15px;">TOTAL A APROVAR DO LOTE</td>
+                        <td style="text-align:right; font-weight:bold; color:var(--primary); padding-top: 15px; font-size:14px;">R$ ${formatarMoeda(total)}</td>
+                    </tr>
+                `;
+            }
+
+            document.getElementById('modal-aprovacoes').style.display = 'flex';
+        }
+
+        async function confirmarEnvioAprovacoes() {
+            if(!confirm("Confirma que esta planilha de Aprovações já foi enviada?\n\nIsso limpará as aplicações e TEDs deste lote na tela de Aprovação (Mas elas continuarão normais no Resumo do Dia).")) return;
+            
+            let diaDados = dadosPorDia[diaAtivo];
+            if(!diaDados) return;
+
+            Object.keys(empresasConfig).forEach(emp => {
+                if(diaDados[emp]) {
+                    Object.keys(diaDados[emp]).forEach(idx => {
+                        if(diaDados[emp][idx]) {
+                            diaDados[emp][idx]['pendente-aprov-stenv'] = "0";
+                            diaDados[emp][idx]['pendente-aprov-so7'] = "0";
+                        }
+                    });
+                }
+            });
+            
+            salvarEstadoLocal(); await syncSupabase(); carregarEstado(); abrirAprovacoes();   
+        }
+
+        // ==============================================
+        // RESUMO DO DIA (ORIGINAL)
+        // ==============================================
         function abrirResumo() {
             salvarEstadoLocal(); 
             document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
             let diaDados = dadosPorDia[diaAtivo];
             if(!diaDados) return;
 
-            let linhasPendente = '';
-            let linhasConsolidado = '';
+            let linhasPendente = ''; let linhasConsolidado = '';
             let totPendResgGeral = 0, totPendAplicGeral = 0;
             let totConsResgGeral = 0, totConsAplicGeral = 0;
             let htmlCardsPendente = '<div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom: 20px;">';
 
             Object.keys(empresasConfig).forEach(emp => {
-                let empDados = diaDados[emp];
-                if(!empDados) return;
-
+                if(!diaDados[emp]) return;
                 let pResg = 0, pAplic = 0, cResg = 0, cAplic = 0;
                 let pBancos = new Set(), cBancos = new Set();
 
                 empresasConfig[emp].forEach((c, idx) => {
-                    let contaDados = empDados[idx] || {};
-                    let resg = parseMoeda(contaDados['o3']);
-                    let aplic = parseMoeda(contaDados['so7']);
-                    let pendR = parseFloat(contaDados['pendente-o3']) || 0;
-                    let pendA = parseFloat(contaDados['pendente-so7']) || 0;
+                    let contaDados = diaDados[emp][idx] || {};
+                    let resg = parseMoeda(contaDados['o3']); let aplic = parseMoeda(contaDados['so7']);
+                    let pendR = parseFloat(contaDados['pendente-o3']) || 0; let pendA = parseFloat(contaDados['pendente-so7']) || 0;
 
-                    cResg += resg; cAplic += aplic;
-                    pResg += pendR; pAplic += pendA;
+                    cResg += resg; cAplic += aplic; pResg += pendR; pAplic += pendA;
 
                     if(resg !== 0 && contaDados['banco-o3']) cBancos.add(contaDados['banco-o3']);
                     if(aplic !== 0 && contaDados['banco-so7']) cBancos.add(contaDados['banco-so7']);
@@ -936,7 +650,6 @@
                         <div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${formatarMoeda(pResg)}</div>
                         <div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${formatarMoeda(pAplic)}</div>
                     </div>`;
-
                     totPendResgGeral += pResg; totPendAplicGeral += pAplic;
                     let strBancoP = pBancos.size > 0 ? Array.from(pBancos).join(', ') : '-';
                     linhasPendente += `<tr><td style="font-weight:bold;">${emp}</td><td style="text-align:right; color:#10b981; font-weight:bold;">${pResg !== 0 ? formatarMoeda(pResg) : '-'}</td><td style="text-align:right; color:var(--vermelho-saida); font-weight:bold;">${pAplic !== 0 ? formatarMoeda(pAplic) : '-'}</td><td style="text-align:center;">${strBancoP}</td></tr>`;
@@ -961,46 +674,36 @@
                 </table>`;
             }
 
-            if (linhasConsolidado === '') {
-                document.getElementById('resumo-content-consolidado').innerHTML = "<p style='font-size:12px; color:#64748b; margin:0;'>O dia está zerado.</p>";
-            } else {
-                document.getElementById('resumo-content-consolidado').innerHTML = `
+            document.getElementById('resumo-content-consolidado').innerHTML = linhasConsolidado === '' ? "<p style='font-size:12px; color:#64748b; margin:0;'>O dia está zerado.</p>" : `
                 <table style="width:100%; border-collapse:collapse; font-size:11px; background:white;">
                     <thead><tr style="background:#cbd5e1; color:#1e293b;"><th style="padding:4px; text-align:left;">Empresa</th><th style="padding:4px; text-align:right;">Resgate</th><th style="padding:4px; text-align:right;">Aplicação</th><th style="padding:4px; text-align:center;">Banco</th></tr></thead>
                     <tbody>${linhasConsolidado}</tbody>
                     <tfoot><tr style="font-weight:bold;"><td style="padding:4px;">Total</td><td style="padding:4px; text-align:right;">${totConsResgGeral !== 0 ? formatarMoeda(totConsResgGeral) : '-'}</td><td style="padding:4px; text-align:right;">${totConsAplicGeral !== 0 ? formatarMoeda(totConsAplicGeral) : '-'}</td><td></td></tr></tfoot>
                 </table>`;
-            }
 
-            document.getElementById('modal-resumo').style.display = 'block';
+            document.getElementById('modal-resumo').style.display = 'flex';
         }
 
-        async function confirmarEnvioLote() {
-            if(!confirm("Confirma que estes valores já foram enviados para a operação?\n\nIsso limpará a tela de Novas Aplicações/Resgates.")) return;
-            
+        async function confirmarEnvioLoteResumo() {
+            if(!confirm("Confirma que este lote de Aplicação/Resgate já foi enviado?\n\nIsso NÃO afeta a Planilha de Aprovações.")) return;
             let diaDados = dadosPorDia[diaAtivo];
             if(!diaDados) return;
-
             Object.keys(empresasConfig).forEach(emp => {
                 if(diaDados[emp]) {
                     Object.keys(diaDados[emp]).forEach(idx => {
-                        if(diaDados[emp][idx]) {
-                            diaDados[emp][idx]['pendente-o3'] = "0";
-                            diaDados[emp][idx]['pendente-so7'] = "0";
-                        }
+                        if(diaDados[emp][idx]) { diaDados[emp][idx]['pendente-o3'] = "0"; diaDados[emp][idx]['pendente-so7'] = "0"; }
                     });
                 }
             });
-            
-            salvarEstadoLocal();
-            await syncSupabase();
-            carregarEstado(); 
-            abrirResumo();   
+            salvarEstadoLocal(); await syncSupabase(); carregarEstado(); abrirResumo();   
         }
 
-        async function copiarResumoImagem() {
-            const exportArea = document.getElementById('resumo-export-area');
-            const btn = document.getElementById('btn-copiar-resumo');
+        // ==============================================
+        // UTILITÁRIOS (Copiar e CSV)
+        // ==============================================
+        async function copiarImagem(areaId, btnId) {
+            const exportArea = document.getElementById(areaId);
+            const btn = document.getElementById(btnId);
             const textoOriginal = btn.innerHTML;
             btn.innerHTML = "⏳ Copiando..."; btn.style.background = "#64748b"; 
             try {
@@ -1011,16 +714,127 @@
                         await navigator.clipboard.write([item]);
                         btn.innerHTML = "✅ Copiado!"; btn.style.background = "#10b981"; 
                         setTimeout(() => { btn.innerHTML = textoOriginal; }, 2000);
-                    } catch (err) {
-                        alert("Não foi possível copiar. Verifique permissões.");
-                        btn.innerHTML = textoOriginal; btn.style.background = "#10b981";
-                    }
+                    } catch (err) { alert("Não foi possível copiar. Verifique permissões."); btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; }
                 });
             } catch (err) { alert("Erro ao gerar."); btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; }
         }
 
-        window.onload = inicializarCaixa;
+        function exportarCSV() {
+            salvarEstadoLocal();
+            let diaDados = dadosPorDia[diaAtivo];
+            if(!diaDados) { alert("Nenhum dado para exportar neste dia."); return; }
 
+            let csv = "\uFEFFData;Empresa;Banco;Conta;Categoria da Linha;Tipo da Linha;Valor (R$);Banco Destino/Origem;Possui Pendencia?\n";
+
+            Object.keys(empresasConfig).forEach(emp => {
+                if(!diaDados[emp]) return;
+                empresasConfig[emp].forEach((c, idx) => {
+                    let contaDados = diaDados[emp][idx] || {};
+                    plano.forEach(l => {
+                        let valFormatado = contaDados[l.id] || "0,00";
+                        if (valFormatado === "0,00") return;
+
+                        let tipoLegivel = l.tipo.includes('grupo-soma') ? 'Soma' : (l.tipo.includes('bg-') ? 'Totalizador' : 'Lançamento');
+                        let pendente = contaDados[`pendente-${l.id}`] ? parseFloat(contaDados[`pendente-${l.id}`]) : 0;
+                        let bancoDestino = contaDados[`banco-${l.id}`] || "";
+
+                        csv += `${diaAtivo};${emp};${c.b};${c.c};${l.nome};${tipoLegivel};${valFormatado};${bancoDestino};${pendente > 0 ? 'Sim' : 'Não'}\n`;
+                    });
+                });
+            });
+
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `Caixa_Dexco_${diaAtivo.replace(/\//g, '-')}.csv`;
+            link.click();
+        }
+
+        // ==============================================
+        // ESTRUTURA BASE DA TABELA (RENDER)
+        // ==============================================
+        function renderTabela() {
+            const h = document.getElementById('h-contas'); const b = document.getElementById('b-caixa');
+            h.innerHTML = `<tr><th class="col-categoria">Categorias / Contas</th>${contas.map(c => `<th>${c.b}<br><span style="font-weight:normal;">${c.c}</span></th>`).join('')}</tr>`;
+            
+            b.innerHTML = plano.map(l => {
+                const noInputClass = l.readOnly ? 'no-input' : '';
+                return `<tr>
+                    <td class="col-categoria ${l.tipo} ${l.tipo === 'item' || l.tipo === 'linha-banco' ? 'indent' : ''}">${l.nome}</td>
+                    ${contas.map((c, i) => {
+                        if (l.tipo === 'linha-banco') {
+                            return `<td><div class="cell-wrapper">
+                                    <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente="0" data-pendente-aprov="0">0,00</span>
+                                    <select id="banco-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;" onchange="salvarEstadoLocal(); syncSupabase();">
+                                        <option value="">Banco Destino/Origem...</option>${listaBancosPadrao.map(bco => `<option value="${bco}">${bco}</option>`).join('')}
+                                    </select>
+                                    <input type="text" class="input-lancar" placeholder="Valor" onkeypress="lancar(event, '${l.id}', ${i})">
+                                </div></td>`;
+                        }
+                        if (l.tipo === 'linha-transferencia') {
+                            return `<td><div class="cell-wrapper">
+                                    <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente-aprov="0">0,00</span>
+                                    <select id="sel-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;">
+                                        <option value="">Conta Destino...</option>${contas.map((ct, idx) => idx !== i ? `<option value="${idx}">${ct.b} ${ct.c.split('/')[1] || ct.c}</option>` : '').join('')}
+                                    </select>
+                                    <input type="text" class="input-lancar" placeholder="Valor + Enter" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
+                                </div></td>`;
+                        }
+                        return `<td class="${l.tipo} ${noInputClass}">
+                            <div class="cell-wrapper">
+                                <span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span>
+                                <input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})">
+                            </div>
+                        </td>`;
+                    }).join('')}
+                </tr>`;
+            }).join('');
+        }
+
+        function salvarEstadoLocal() {
+            if(!diaAtivo) return; if(!dadosPorDia[diaAtivo]) dadosPorDia[diaAtivo] = {}; if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
+            let estado = dadosPorDia[diaAtivo][empresaAtiva];
+            contas.forEach((c, idx) => {
+                if(!estado[idx]) estado[idx] = {};
+                plano.forEach(l => {
+                    let el = document.getElementById(`val-${l.id}-${idx}`);
+                    if(el) {
+                        estado[idx][l.id] = el.innerText;
+                        if(l.id === 'o3' || l.id === 'so7') estado[idx][`pendente-${l.id}`] = el.getAttribute('data-pendente') || "0";
+                        if(l.id === 'stenv' || l.id === 'so7') estado[idx][`pendente-aprov-${l.id}`] = el.getAttribute('data-pendente-aprov') || "0";
+                    }
+                    if(l.tipo === 'linha-banco') { let sel = document.getElementById(`banco-${l.id}-${idx}`); if(sel) estado[idx][`banco-${l.id}`] = sel.value; }
+                });
+            });
+        }
+
+        function carregarEstado() {
+            if(!diaAtivo) { zerarTabela(); return; }
+            let estadoEmpresa = (dadosPorDia[diaAtivo] || {})[empresaAtiva] || {};
+            contas.forEach((c, idx) => {
+                plano.forEach(l => {
+                    let el = document.getElementById(`val-${l.id}-${idx}`);
+                    if(el) {
+                        el.innerText = (estadoEmpresa[idx] && estadoEmpresa[idx][l.id]) ? estadoEmpresa[idx][l.id] : "0,00";
+                        if(l.id === 'o3' || l.id === 'so7') el.setAttribute('data-pendente', estadoEmpresa[idx] ? (estadoEmpresa[idx][`pendente-${l.id}`] || "0") : "0");
+                        if(l.id === 'stenv' || l.id === 'so7') el.setAttribute('data-pendente-aprov', estadoEmpresa[idx] ? (estadoEmpresa[idx][`pendente-aprov-${l.id}`] || "0") : "0");
+                    }
+                    if(l.tipo === 'linha-banco') { let sel = document.getElementById(`banco-${l.id}-${idx}`); if(sel) sel.value = (estadoEmpresa[idx] && estadoEmpresa[idx][`banco-${l.id}`]) ? estadoEmpresa[idx][`banco-${l.id}`] : ""; }
+                });
+                recalcularColuna(idx);
+            });
+        }
+
+        function zerarTabela() {
+            contas.forEach((c, idx) => {
+                plano.forEach(l => {
+                    let el = document.getElementById(`val-${l.id}-${idx}`);
+                    if(el) { el.innerText = "0,00"; el.setAttribute('data-pendente', "0"); el.setAttribute('data-pendente-aprov', "0");}
+                    if(l.tipo === 'linha-banco') { let sel = document.getElementById(`banco-${l.id}-${idx}`); if(sel) sel.value = ""; }
+                });
+            });
+        }
+        
+        window.onload = inicializarCaixa;
     </script>
 </body>
 </html>
