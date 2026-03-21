@@ -450,29 +450,54 @@
 
             if (diasCadastrados.includes(nomeDia)) { alert("Guia já aberta."); mudarDia(nomeDia); return; }
 
+            // Salva a tela atual para não perder nada do dia de onde estamos saindo
             salvarEstadoLocal(); 
             
-            // Salva novo dia no Supabase
+            // Grava a aba nova no banco
             await sb.from('caixa_dias').insert([{ nome_dia: nomeDia }]);
+
+            let upsertsNovoDia = [];
 
             if(!dadosPorDia[nomeDia]) {
                 dadosPorDia[nomeDia] = {};
                 Object.keys(empresasConfig).forEach(emp => {
                     dadosPorDia[nomeDia][emp] = {};
+                    // Puxa o estado da aba que estava ativa antes de criar a nova
                     let estadoAntigo = (dadosPorDia[diaAtivo] && dadosPorDia[diaAtivo][emp]) ? dadosPorDia[diaAtivo][emp] : {};
+                    
                     empresasConfig[emp].forEach((c, idx) => {
                         dadosPorDia[nomeDia][emp][idx] = {};
-                        dadosPorDia[nomeDia][emp][idx]['si'] = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
+                        
+                        // O grande pulo: Pega APENAS O SALDO CALCULADO (calc) e joga pro SALDO INICIAL (si)
+                        let saldoFinalAnterior = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
+                        dadosPorDia[nomeDia][emp][idx]['si'] = saldoFinalAnterior;
+
+                        // Prepara o array para salvar os saldos iniciais de todas as empresas no banco
+                        let v = parseFloat(saldoFinalAnterior.replace(/\./g, '').replace(',', '.')) || 0;
+                        if(v !== 0) {
+                            upsertsNovoDia.push({
+                                nome_dia: nomeDia,
+                                conta_id: c.id,
+                                categoria_codigo: 'si',
+                                valor: v,
+                                valor_pendente: 0,
+                                banco_destino: null
+                            });
+                        }
                     });
                 });
             }
-            diasCadastrados.push(nomeDia); diaAtivo = nomeDia;
+            diasCadastrados.push(nomeDia); 
+            diaAtivo = nomeDia; // Muda o foco para o dia novo
             
-            // Força salvar os saldos iniciais no banco
-            salvarEstadoLocal();
-            await syncSupabase();
+            // Atualiza a tela primeiro (isso vai fazer as outras linhas ficarem em branco)
+            carregarEstado(); 
+            renderTabsDias();
 
-            carregarEstado(); renderTabsDias();
+            // Salva as linhas Iniciais preenchidas no Supabase
+            if(upsertsNovoDia.length > 0) {
+                await sb.from('caixa_lancamentos').insert(upsertsNovoDia);
+            }
         }
 
         async function renomearDia(nomeAtual) {
@@ -597,15 +622,13 @@
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v)) return;
                 
-                if (lid === 'marg') {
-                    setV(lid, cidx, v); 
-                } else {
-                    setV(lid, cidx, getV(lid, cidx) + v); 
-                    if (lid === 'o3' || lid === 'so7') {
-                        let el = document.getElementById(`val-${lid}-${cidx}`);
-                        let p = parseFloat(el.getAttribute('data-pendente')) || 0;
-                        el.setAttribute('data-pendente', p + v);
-                    }
+                // Margem agora soma/subtrai normalmente igual às outras
+                setV(lid, cidx, getV(lid, cidx) + v); 
+                
+                if (lid === 'o3' || lid === 'so7') {
+                    let el = document.getElementById(`val-${lid}-${cidx}`);
+                    let p = parseFloat(el.getAttribute('data-pendente')) || 0;
+                    el.setAttribute('data-pendente', p + v);
                 }
                 
                 e.target.parentElement.parentElement.classList.add('flash');
