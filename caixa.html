@@ -134,7 +134,7 @@
         .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; }
 
         .nav-empresas { display: flex; background: white; border-bottom: 1px solid var(--border); overflow-x: auto; padding: 0 15px; height: 34px; flex-shrink: 0; align-items: center;}
-        .tab-btn { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; }
+        .tab-btn { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; white-space: nowrap;}
         .tab-btn.active { background: var(--bg); border-color: var(--border); color: var(--primary); border-bottom: 2px solid var(--primary); }
 
         /* CONTAINER DA TABELA COM ROLAGEM */
@@ -287,19 +287,19 @@
                 { b: 'SANTANDER', c: '2271 / 13020743-0' }, { b: 'SAFRA', c: '1150/44941-9' }, 
                 { b: 'BNB', c: '31 / 43636-5' }, { b: 'BNB', c: '31 / 43626-8' }
             ],
-            'SPE + Controladas': [
-                { b: 'BRS1', c: 'ITA - 7307 / 50645-6' },
-                { b: 'BRS3', c: 'ITA - 7307 / 60438-4' },
-                { b: 'BRS2', c: 'ITA - 7307 / 59899-0' },
-                { b: 'BRS2', c: 'SAF - 0115 / 00056629-6' },
-                { b: 'BREM', c: 'ITA - 0262 / 17856-9' },
-                { b: 'BRBC', c: 'ITA - 0262 / 91486-4' },
-                { b: 'BRSF', c: 'ITA - 0262 / 04518-0' },
-                { b: 'BRIT', c: 'ITA - 7307 / 59901-4' },
-                { b: 'DFL II', c: 'ITA - 7307 / 96675-9' },
-                { b: 'BRSD', c: 'ITA - 7307 / 48718-6' },
-                { b: 'BRTR', c: 'ITA - 7307 / 08704-4' }
-            ]
+            'BRS1': [ { b: 'ITAÚ', c: '7307 / 50645-6' } ],
+            'BRS3': [ { b: 'ITAÚ', c: '7307 / 60438-4' } ],
+            'BRS2': [ 
+                { b: 'ITAÚ', c: '7307 / 59899-0' },
+                { b: 'SAFRA', c: '0115 / 00056629-6' }
+            ],
+            'BREM': [ { b: 'ITAÚ', c: '0262 / 17856-9' } ],
+            'BRBC': [ { b: 'ITAÚ', c: '0262 / 91486-4' } ],
+            'BRSF': [ { b: 'ITAÚ', c: '0262 / 04518-0' } ],
+            'BRIT': [ { b: 'ITAÚ', c: '7307 / 59901-4' } ],
+            'DFL II': [ { b: 'ITAÚ', c: '7307 / 96675-9' } ],
+            'BRSD': [ { b: 'ITAÚ', c: '7307 / 48718-6' } ],
+            'BRTR': [ { b: 'ITAÚ', c: '7307 / 08704-4' } ]
         };
 
         let empresaAtiva = 'BRDX';
