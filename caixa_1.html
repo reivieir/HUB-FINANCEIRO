@@ -116,7 +116,7 @@
         /* MODAIS E INPUTS EDITÁVEIS */
         .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
         .modal-content { background-color: #ffffff; padding: 25px; width: 100%; max-width: 400px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;}
-        .modal-content-resumo { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 800px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
+        .modal-content-resumo { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 1000px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
         .close { color: #94a3b8; position: absolute; right: 20px; top: 20px; font-size: 24px; font-weight: bold; cursor: pointer; line-height: 20px; transition: 0.2s;}
         .close:hover { color: var(--danger); }
         
@@ -133,7 +133,7 @@
         .btn-modal-acao:hover { background: #059669; }
 
         .input-transparent {
-            border: 1px dashed #cbd5e1; background: #f8fafc; width: 100%; font-size: 12px; outline: none; font-family: inherit; color: var(--text); padding: 4px; border-radius: 3px; transition: 0.2s;
+            border: 1px dashed #cbd5e1; background: transparent; width: 100%; font-size: 11px; outline: none; font-family: inherit; color: var(--text); padding: 2px; border-radius: 3px; transition: 0.2s;
         }
         .input-transparent:focus { border-style: solid; border-color: var(--primary); background: white; }
     </style>
@@ -250,19 +250,7 @@
                 <span class="close" style="position:static;" onclick="document.getElementById('modal-aprovacoes').style.display='none'">&times;</span>
             </div>
             <div id="aprovacoes-export-area" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                <h2 style="color:var(--primary); margin-top:0; margin-bottom: 15px;">Planilha de Aprovações - TEDs e Aplicações: <span id="aprovacoes-dia-titulo"></span></h2>
-                <table class="resumo-table-print">
-                    <thead>
-                        <tr>
-                            <th style="text-align:left;">Empresa</th>
-                            <th style="text-align:left;">Conta de Origem</th>
-                            <th style="text-align:left; width: 25%;">Favorecido</th>
-                            <th style="text-align:left; width: 25%;">Conta Crédito</th>
-                            <th style="text-align:right;">Valor</th>
-                        </tr>
-                    </thead>
-                    <tbody id="aprovacoes-tbody"></tbody>
-                </table>
+                <div id="aprovacoes-container"></div>
             </div>
         </div>
     </div>
@@ -281,6 +269,14 @@
         let diaAtivo = '';
         let dadosPorDia = {};
         const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
+
+        // Mapeamento Oficial de Nomes de Empresa para o Excel de Aprovações
+        const nomesCompletosEmpresas = {
+            'BRDX': 'DEXCO S.A',
+            'BRDF': 'DEXCO REVESTIMENTOS',
+            'BRHY': 'DEXCO HYDRA CORONA',
+            'BRCF': 'DEXCO FLORESTAL'
+        };
 
         // ==============================================
         // FUNÇÕES DE FORMATAÇÃO
@@ -473,11 +469,13 @@
                 
                 let el = document.getElementById(`val-${lid}-${cidx}`);
                 
+                // Resumo do Dia
                 if (lid === 'o3' || lid === 'so7') {
                     let p = parseFloat(el.getAttribute('data-pendente')) || 0;
                     el.setAttribute('data-pendente', p + v);
                 }
                 
+                // Planilha de Aprovações
                 if (lid === 'so7') {
                     let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0;
                     el.setAttribute('data-pendente-aprov', pAprov + v);
@@ -527,86 +525,121 @@
         }
 
         // ==============================================
-        // PLANILHA DE APROVAÇÕES
+        // PLANILHA DE APROVAÇÕES E RESUMO
         // ==============================================
         function abrirAprovacoes() {
             salvarEstadoLocal();
-            document.getElementById('aprovacoes-dia-titulo').innerText = diaAtivo;
             let diaDados = dadosPorDia[diaAtivo];
             if(!diaDados) return;
 
-            let tbody = '';
-            let total = 0;
+            let items = [];
 
             Object.keys(empresasConfig).forEach(emp => {
                 if(!diaDados[emp]) return;
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = diaDados[emp][idx] || {};
 
+                    // TEDs para Itaú
                     let pendStenv = parseFloat(contaDados['pendente-aprov-stenv']) || 0;
                     if(pendStenv > 0) {
                         let bancoDest = contaDados['banco-stenv'] || '';
-                        total += pendStenv;
-                        tbody += `<tr>
-                            <td style="font-weight:bold;">${emp}</td>
-                            <td>${c.b} - ${c.c}</td>
-                            <td><input type="text" class="input-transparent" value="Dexco S.A" oninput="this.setAttribute('value', this.value)"></td>
-                            <td><input type="text" class="input-transparent" value="${bancoDest}" oninput="this.setAttribute('value', this.value)"></td>
-                            <td style="text-align:right; font-weight:bold; color:var(--vermelho-saida);">R$ ${formatarMoeda(pendStenv)}</td>
-                        </tr>`;
+                        items.push({ bancoOrigem: c.b, empresa: emp, contaOrigem: `${c.b} ${c.c}`, contaDestino: bancoDest, valor: pendStenv, isAplicacao: false });
                     }
 
+                    // Aplicações
                     let pendSo7 = parseFloat(contaDados['pendente-aprov-so7']) || 0;
                     if(pendSo7 > 0) {
-                        total += pendSo7;
-                        tbody += `<tr>
-                            <td style="font-weight:bold;">${emp}</td>
-                            <td>${c.b} - ${c.c}</td>
-                            <td><input type="text" class="input-transparent" placeholder="Digite o Favorecido..." oninput="this.setAttribute('value', this.value)"></td>
-                            <td><input type="text" class="input-transparent" placeholder="Digite a Conta Crédito..." oninput="this.setAttribute('value', this.value)"></td>
-                            <td style="text-align:right; font-weight:bold; color:#10b981;">R$ ${formatarMoeda(pendSo7)}</td>
-                        </tr>`;
+                        items.push({ bancoOrigem: c.b, empresa: emp, contaOrigem: `${c.b} ${c.c}`, contaDestino: '', valor: pendSo7, isAplicacao: true });
                     }
                 });
             });
 
-            if(tbody === '') {
-                document.getElementById('aprovacoes-tbody').innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">Nenhuma transferência ou aplicação pendente para aprovação.</td></tr>`;
-            } else {
-                document.getElementById('aprovacoes-tbody').innerHTML = tbody + `
-                    <tr>
-                        <td colspan="4" style="text-align:right; font-weight:bold; padding-top: 15px;">TOTAL A APROVAR DO LOTE</td>
-                        <td style="text-align:right; font-weight:bold; color:var(--primary); padding-top: 15px; font-size:14px;">R$ ${formatarMoeda(total)}</td>
-                    </tr>
-                `;
+            if(items.length === 0) {
+                document.getElementById('aprovacoes-container').innerHTML = `<p style="text-align:center; color:#64748b;">Nenhuma transferência ou aplicação pendente para aprovação.</p>`;
+                document.getElementById('modal-aprovacoes').style.display = 'flex';
+                return;
             }
 
+            // Agrupa por Banco de Origem
+            const bancosOrigem = [...new Set(items.map(i => i.bancoOrigem))];
+            let htmlTotal = `<h2 style="color:var(--primary); margin-top:0; margin-bottom: 25px;">Planilha de Aprovações: <span style="color:#64748b">${diaAtivo}</span></h2>`;
+
+            bancosOrigem.forEach(banco => {
+                let itensBanco = items.filter(i => i.bancoOrigem === banco);
+                let totalBanco = itensBanco.reduce((acc, curr) => acc + curr.valor, 0);
+
+                let linhasHtml = itensBanco.map(item => {
+                    let nomeEmpresaFull = nomesCompletosEmpresas[item.empresa] || item.empresa;
+                    let destHtml = item.isAplicacao 
+                        ? `<input type="text" class="input-transparent" placeholder="Conta Destino Aplicação..." oninput="this.setAttribute('value', this.value)">`
+                        : item.contaDestino;
+
+                    return `
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${item.bancoOrigem}</td>
+                        <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${nomeEmpresaFull}</td>
+                        <td style="border: 1px solid #000; padding: 6px;">BANCO ${item.contaOrigem}</td>
+                        <td style="border: 1px solid #000; padding: 6px;">${destHtml}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: right; white-space: nowrap;">R$ ${formatarMoeda(item.valor)}</td>
+                    </tr>`;
+                }).join('');
+
+                htmlTotal += `
+                <div style="margin-bottom: 40px; page-break-inside: avoid;">
+                    <table style="width: 450px; border-collapse: collapse; text-align: center; margin-bottom: 10px; font-size: 13px; font-family: 'Segoe UI', Arial, sans-serif;">
+                        <tr>
+                            <td rowspan="2" style="border: 1px solid #000; font-weight: bold; background: #fff; width: 120px;">APROVADORES</td>
+                            <td style="border: 1px solid #000; background: #f2f2f2; font-weight: bold; width: 150px;">RICARDO</td>
+                            <td style="border: 1px solid #000; background: #fff; font-weight: bold; width: 180px;">INSTITUIÇÃO BANCÁRIA</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #000; background: #f2f2f2; font-weight: bold;">AMANDA</td>
+                            <td style="border: 1px solid #000; background: #e2efda; font-weight: bold; color: var(--primary);">${banco}</td>
+                        </tr>
+                    </table>
+
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; font-family: 'Segoe UI', Arial, sans-serif; text-align: left;">
+                        <thead style="background: #d9d9d9;">
+                            <tr>
+                                <th style="border: 1px solid #000; padding: 6px; width: 15%;">BANCO <span style="font-size: 10px; color:#555;">▼</span></th>
+                                <th style="border: 1px solid #000; padding: 6px; width: 25%;">EMPRESA <span style="font-size: 10px; color:#555;">▼</span></th>
+                                <th style="border: 1px solid #000; padding: 6px; width: 25%;">CONTA ORIGEM <span style="font-size: 10px; color:#555;">▼</span></th>
+                                <th style="border: 1px solid #000; padding: 6px; width: 25%;">CONTA DESTINO <span style="font-size: 10px; color:#555;">▼</span></th>
+                                <th style="border: 1px solid #000; padding: 6px; width: 10%; text-align: right;">MONTANTE.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${linhasHtml}
+                        </tbody>
+                        <tfoot>
+                            <tr style="background: #d9d9d9; font-weight: bold;">
+                                <td colspan="4" style="border: 1px solid #000; padding: 6px;">Total Geral</td>
+                                <td style="border: 1px solid #000; padding: 6px; text-align: right; white-space: nowrap;">R$ ${formatarMoeda(totalBanco)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>`;
+            });
+
+            document.getElementById('aprovacoes-container').innerHTML = htmlTotal;
             document.getElementById('modal-aprovacoes').style.display = 'flex';
         }
 
         async function confirmarEnvioAprovacoes() {
-            if(!confirm("Confirma que esta planilha de Aprovações já foi enviada?\n\nIsso limpará as aplicações e TEDs deste lote na tela de Aprovação.")) return;
+            if(!confirm("Confirma que esta planilha de Aprovações já foi enviada?\n\nIsso limpará as aplicações e TEDs deste lote na tela de Aprovação (Mas elas continuarão normais no Resumo do Dia).")) return;
             
-            let diaDados = dadosPorDia[diaAtivo];
-            if(!diaDados) return;
-
             Object.keys(empresasConfig).forEach(emp => {
-                if(diaDados[emp]) {
-                    Object.keys(diaDados[emp]).forEach(idx => {
-                        if(diaDados[emp][idx]) {
-                            diaDados[emp][idx]['pendente-aprov-stenv'] = "0";
-                            diaDados[emp][idx]['pendente-aprov-so7'] = "0";
-                        }
-                    });
-                }
+                empresasConfig[emp].forEach((c, idx) => {
+                    let elStenv = document.getElementById(`val-stenv-${idx}`);
+                    if(elStenv) elStenv.setAttribute('data-pendente-aprov', "0");
+                    let elSo7 = document.getElementById(`val-so7-${idx}`);
+                    if(elSo7) elSo7.setAttribute('data-pendente-aprov', "0");
+                });
             });
             
-            salvarEstadoLocal(); await syncSupabase(); carregarEstado(); abrirAprovacoes();   
+            salvarEstadoLocal(); await syncSupabase(); abrirAprovacoes();   
         }
 
-        // ==============================================
-        // RESUMO DO DIA
-        // ==============================================
         function abrirResumo() {
             salvarEstadoLocal(); 
             document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
@@ -679,16 +712,15 @@
 
         async function confirmarEnvioLoteResumo() {
             if(!confirm("Confirma que este lote de Aplicação/Resgate já foi enviado?\n\nIsso NÃO afeta a Planilha de Aprovações.")) return;
-            let diaDados = dadosPorDia[diaAtivo];
-            if(!diaDados) return;
             Object.keys(empresasConfig).forEach(emp => {
-                if(diaDados[emp]) {
-                    Object.keys(diaDados[emp]).forEach(idx => {
-                        if(diaDados[emp][idx]) { diaDados[emp][idx]['pendente-o3'] = "0"; diaDados[emp][idx]['pendente-so7'] = "0"; }
-                    });
-                }
+                empresasConfig[emp].forEach((c, idx) => {
+                    let elO3 = document.getElementById(`val-o3-${idx}`);
+                    if(elO3) elO3.setAttribute('data-pendente', "0");
+                    let elSo7 = document.getElementById(`val-so7-${idx}`);
+                    if(elSo7) elSo7.setAttribute('data-pendente', "0");
+                });
             });
-            salvarEstadoLocal(); await syncSupabase(); carregarEstado(); abrirResumo();   
+            salvarEstadoLocal(); await syncSupabase(); abrirResumo();   
         }
 
         // ==============================================
@@ -940,7 +972,6 @@
             const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); link.download = `Caixa_Dexco_${diaAtivo.replace(/\//g, '-')}.csv`; link.click();
         }
 
-        // Aguarda a janela carregar e tenta colocar o foco na senha, mesmo estando escondida inicialmente
         window.onload = function() {
             const passInput = document.getElementById('input-senha-login');
             if (passInput) passInput.focus();
