@@ -32,7 +32,7 @@
 
         body {
             display: flex;
-            flex-direction: column; /* Organiza Topo e Conteúdo verticalmente */
+            flex-direction: column; 
         }
 
         /* ==================================================================
@@ -107,11 +107,10 @@
             display: flex; align-items: center; justify-content: center; font-weight: bold;
         }
 
-        /* Removendo a antiga sidebar */
         .sidebar { display: none; } 
 
         /* ==================================================================
-           3. ÁREA DE CONTEÚDO (MANTÉM A SUA LÓGICA FLEX)
+           3. ÁREA DE CONTEÚDO
         ================================================================== */
         .content {
             flex: 1; 
@@ -119,18 +118,17 @@
             flex-direction: column; 
             height: 100%;
             overflow: hidden; 
-            padding: 20px 30px; /* Margem ao redor do conteúdo */
+            padding: 20px 30px; 
         }
 
-        /* Containers de Abas Padrões */
         .tab-content { 
             display: none; 
             flex: 1; 
-            padding: 0; /* Removido padding interno para o iframe colar na borda */
+            padding: 0; 
             box-sizing: border-box;
             background-color: transparent;
             overflow: hidden; 
-            border-radius: 12px; /* Borda arredondada do dashboard */
+            border-radius: 12px; 
         }
         
         .tab-content.active { 
@@ -138,23 +136,19 @@
             flex-direction: column;
         }
 
-        /* Iframes padrão */
         .tab-content iframe {
             width: 100%;
             flex: 1; 
             border: none;
-            border-radius: 12px; /* Suavidade das linhas */
+            border-radius: 12px; 
             background-color: #fff;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.02); /* Sombra elegante */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.02); 
         }
 
-        /* ==========================================================
-           CLASSE EXCLUSIVA PARA A ABA DE "CAIXA" E "BANCOS"
-        ========================================================== */
         .tab-caixa {
             padding: 0 !important; 
             overflow: hidden !important; 
-            border-radius: 0; /* Caixa colado */
+            border-radius: 0; 
         }
         
         .tab-caixa iframe {
@@ -163,7 +157,7 @@
         }
 
         /* ==========================================================
-           AJUSTES DO CHAT (Estilo Clean)
+           AJUSTES DO CHAT
         ========================================================== */
         #chat-tab.active { display: flex; flex-direction: column; height: 100%; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); overflow: hidden;}
         .chat-header-full { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; border-bottom: 1px solid var(--border-color); background: #fff;}
@@ -183,7 +177,6 @@
         /* ==========================================================
            CONTROLE DE ZOOM INDIVIDUAL DOS IFRAMES
         ========================================================== */
-        /* 1. Conciliação em 70% */
         #conciliacao iframe {
             width: 142.85% !important; 
             height: calc((100vh - 90px) * 1.4285) !important; 
@@ -193,9 +186,8 @@
             border-radius: 12px; 
         }
 
-        /* 2. Gestão de Caixa E BANCOS em 100% (Sem redução) */
         .tab-caixa iframe {
-            width: 100% !important; /* Ajustei de 90% para 100% para não sobrar fundo */
+            width: 100% !important; 
             height: 100% !important;
             transform: none !important; 
         }
@@ -211,12 +203,12 @@
         </div>
         
         <nav class="nav-links">
-            <button class="nav-btn active" onclick="showTab('conciliacao')">Conciliação Bancária</button>
+            <button class="nav-btn" onclick="showTab('conciliacao')">Conciliação Bancária</button>
             <button class="nav-btn" onclick="showTab('bancos')">Gestão de Bancos</button>
             <button class="nav-btn" onclick="showTab('caixa')">Gestão de Caixa</button>
             <button class="nav-btn" onclick="showTab('protestos')">Protestos</button>
             <div style="width: 1px; height: 20px; background-color: #cbd5e1; margin: 0 5px;"></div>
-            <button class="nav-btn" style="color: #10b981;" onclick="showTab('chat-tab')">✨ Assistente IA</button>
+            <button class="nav-btn active" style="color: #10b981;" onclick="showTab('chat-tab')">✨ Assistente IA</button>
         </nav>
 
         <div class="user-profile">
@@ -227,7 +219,7 @@
 
     <main class="content">
         
-        <div id="conciliacao" class="tab-content active">
+        <div id="conciliacao" class="tab-content">
             <iframe src="https://hub-financeiro-eight.vercel.app/conciliacao.html"></iframe>
         </div>
 
@@ -244,7 +236,7 @@
             <p>Procedimentos para baixas, cartas de anuência e negociações.</p>
         </div>
 
-        <div id="chat-tab" class="tab-content">
+        <div id="chat-tab" class="tab-content active">
             <div class="chat-header-full">
                 <h2>Assistente Financeiro IA</h2>
                 <button class="new-chat-btn" onclick="novoChat()">+ Novo Chat</button>
