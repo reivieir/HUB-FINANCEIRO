@@ -85,8 +85,9 @@
 
         .btn-novo-dia { background: #0284c7; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 10px; transition: 0.2s;}
         .btn-novo-dia:hover { background: #0369a1; }
-        .btn-excluir-dia { background: #ef4444; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-left: auto; white-space: nowrap; transition: 0.2s;}
-        .btn-excluir-dia:hover { background: #dc2626; }
+        
+        .btn-acao-dia { color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; transition: 0.2s;}
+        .btn-acao-dia:hover { filter: brightness(0.9); }
 
         .nav-empresas { display: flex; background: white; border-bottom: 1px solid var(--border); overflow-x: auto; padding: 0 15px; height: 34px; flex-shrink: 0; align-items: center;}
         .tab-btn { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; white-space: nowrap;}
@@ -139,7 +140,6 @@
         .btn-limpar-lote { background: #3b82f6; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; }
         .btn-limpar-lote:hover { background: #2563eb; }
 
-        /* CORRIGIDO: Cor fixa #10b981 para o botão do calendário */
         .btn-modal-acao { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
         .btn-modal-acao:hover { background: #059669; }
     </style>
@@ -245,7 +245,7 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwY3B1am1xbmp0YWx1cHh6cXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MjI3ODMsImV4cCI6MjA4ODI5ODc4M30.TYVtILJNISNR3aDejRM5fsWKt9TuIHgN1dS2deVbQwQ"; 
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // VARIÁVEIS GLOBAIS (Agora geradas dinamicamente)
+        // VARIÁVEIS GLOBAIS
         let empresasConfig = {};
         let plano = [];
         let mapConta = {}; 
@@ -271,7 +271,6 @@
                         .filter(c => c.empresa_id === emp.id)
                         .map(c => ({ id: c.id, b: c.banco_nome, c: c.agencia_conta }));
                     
-                    // Mapa reverso para os lançamentos
                     empresasConfig[emp.nome].forEach((ct, idx) => {
                         mapConta[ct.id] = { emp: emp.nome, idx: idx };
                     });
@@ -286,23 +285,34 @@
                     readOnly: cat.is_readonly
                 }));
 
-                // 3. Busca Dias Cadastrados
+                // 3. Define a Data de Hoje Dinamicamente
+                const h = new Date();
+                const dataHojeStr = `${String(h.getDate()).padStart(2, '0')}/${String(h.getMonth() + 1).padStart(2, '0')}/${h.getFullYear()}`;
+
+                // 4. Busca Dias Cadastrados
                 const { data: dbDias } = await sb.from('caixa_dias').select('*').order('criado_em');
                 if(!dbDias || dbDias.length === 0) {
-                    await sb.from('caixa_dias').insert([{ nome_dia: 'Hoje' }]);
-                    diasCadastrados = ['Hoje'];
+                    // Se o banco está vazio, cria a aba do dia de hoje
+                    await sb.from('caixa_dias').insert([{ nome_dia: dataHojeStr }]);
+                    diasCadastrados = [dataHojeStr];
                 } else {
                     diasCadastrados = dbDias.map(d => d.nome_dia);
                 }
-                diaAtivo = diasCadastrados[diasCadastrados.length - 1];
+                
+                // Define a aba ativa: Abre Hoje se existir, senão abre a última disponível
+                if (diasCadastrados.includes(dataHojeStr)) {
+                    diaAtivo = dataHojeStr;
+                } else {
+                    diaAtivo = diasCadastrados[diasCadastrados.length - 1];
+                }
 
-                // 4. Estrutura a variável local de dados
+                // 5. Estrutura a variável local de dados
                 diasCadastrados.forEach(d => {
                     dadosPorDia[d] = {};
                     Object.keys(empresasConfig).forEach(e => dadosPorDia[d][e] = {});
                 });
 
-                // 5. Busca todos os lançamentos
+                // 6. Busca todos os lançamentos
                 const { data: dbLancamentos } = await sb.from('caixa_lancamentos').select('*');
                 if (dbLancamentos) {
                     dbLancamentos.forEach(lan => {
@@ -395,13 +405,79 @@
                 </div>
             `).join('');
             
-            // CORRIGIDO: Texto do botão alterado para CRIAR / RESTAURAR
             html += `<button class="btn-novo-dia" onclick="abrirModalCalendario()">📅 CRIAR / RESTAURAR</button>`;
 
             if(diaAtivo) {
-                html += `<button class="btn-excluir-dia" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}]</button>`;
+                // BOTÃO DE DUPLICAR E EXCLUIR
+                html += `<button class="btn-acao-dia" style="background:#f59e0b; margin-left: auto;" onclick="duplicarDiaAtual()">⧉ DUPLICAR [${diaAtivo}]</button>`;
+                html += `<button class="btn-acao-dia" style="background:#ef4444; margin-left: 10px;" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}]</button>`;
             }
             container.innerHTML = html;
+        }
+
+        // ==============================================
+        // LÓGICA DE DUPLICAR O DIA
+        // ==============================================
+        async function duplicarDiaAtual() {
+            let novoNome = prompt(`Você está duplicando o caixa do dia [${diaAtivo}].\n\nDigite a nova data (DD/MM/YYYY):`);
+            if (!novoNome || novoNome.trim() === "") return;
+            novoNome = novoNome.trim();
+
+            if (diasCadastrados.includes(novoNome) || dadosPorDia[novoNome]) { 
+                alert("Esta data/guia já existe no sistema!"); 
+                return; 
+            }
+
+            salvarEstadoLocal(); 
+
+            // Cria o dia no Banco
+            const { error: errDia } = await sb.from('caixa_dias').insert([{ nome_dia: novoNome }]);
+            if (errDia) { alert("Erro ao duplicar dia: " + errDia.message); return; }
+
+            // Copia 100% dos dados para a nova chave
+            dadosPorDia[novoNome] = JSON.parse(JSON.stringify(dadosPorDia[diaAtivo]));
+            
+            // Prepara a carga para o Supabase
+            let upsertsNovaCopia = [];
+            let estadoCopia = dadosPorDia[novoNome];
+            
+            Object.keys(empresasConfig).forEach(emp => {
+                let contasEmpresa = empresasConfig[emp];
+                contasEmpresa.forEach((c, idx) => {
+                    if(!estadoCopia[emp] || !estadoCopia[emp][idx]) return;
+                    
+                    plano.forEach(l => {
+                        let catCodigo = l.id;
+                        if(estadoCopia[emp][idx][catCodigo] !== undefined) {
+                            let valFormatado = estadoCopia[emp][idx][catCodigo] || "0,00";
+                            let v = parseFloat(valFormatado.replace(/\./g, '').replace(',', '.')) || 0;
+                            let p = parseFloat(estadoCopia[emp][idx][`pendente-${catCodigo}`] || 0);
+                            let b = estadoCopia[emp][idx][`banco-${catCodigo}`] || null;
+                            
+                            if (v !== 0 || p !== 0 || b !== null) {
+                                upsertsNovaCopia.push({
+                                    nome_dia: novoNome,
+                                    conta_id: c.id,
+                                    categoria_codigo: catCodigo,
+                                    valor: v,
+                                    valor_pendente: p,
+                                    banco_destino: b
+                                });
+                            }
+                        }
+                    });
+                });
+            });
+
+            diasCadastrados.push(novoNome);
+            diaAtivo = novoNome;
+            
+            carregarEstado();
+            renderTabsDias();
+
+            if(upsertsNovaCopia.length > 0) {
+                await sb.from('caixa_lancamentos').insert(upsertsNovaCopia);
+            }
         }
 
         // ==============================================
