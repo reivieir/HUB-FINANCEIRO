@@ -38,48 +38,56 @@
         }
 
         /* ==========================================
-           MENU SUPERIOR GLOBAL (PADRÃO PRINT)
+           TELA DE LOGIN E LOADING
+        ========================================== */
+        #login-screen {
+            position: fixed; inset: 0; background: var(--primary);
+            display: flex; justify-content: center; align-items: center; z-index: 200000;
+        }
+        .login-card {
+            background: white; padding: 40px; border-radius: 8px;
+            width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .login-card h2 { color: var(--primary); margin-bottom: 5px; font-weight: 700; }
+        .login-card p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+        .login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 4px; outline: none; text-align: center; font-size: 14px; }
+        .login-card input:focus { border-color: var(--accent); }
+        .login-card button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; font-size: 14px; }
+        .login-card button:hover { background: #059669; }
+
+        #loading-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 100000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; color: white;
+        }
+        #loading-overlay h2 { margin-bottom: 10px; font-weight: 700; letter-spacing: 1px;}
+        #loading-overlay p { color: #94a3b8; font-size: 14px;}
+
+        /* ==========================================
+           MENU SUPERIOR GLOBAL
         ========================================== */
         .hub-top-nav {
-            position: fixed;
-            top: 0; left: 0; width: 100%;
-            background-color: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-            height: 65px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100%; background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0; height: 65px; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 9999;
         }
         
-        .hub-logo-box {
-            display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 18px;
-        }
+        .hub-logo-box { display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 18px; }
         .hub-title { font-weight: 800; color: #0f172a; }
         .hub-subtitle { font-weight: 700; color: #10b981; }
 
         .hub-menu-links { display: flex; align-items: center; gap: 20px; }
-        
-        .hub-nav-item {
-            text-decoration: none; color: #475569; font-weight: 600; font-size: 13px; transition: 0.2s; padding: 5px 10px; border-radius: 6px;
-        }
+        .hub-nav-item { text-decoration: none; color: #475569; font-weight: 600; font-size: 13px; transition: 0.2s; padding: 5px 10px; border-radius: 6px; }
         .hub-nav-item:hover { color: #10b981; background-color: #f8fafc; }
-        .hub-nav-item.active { color: #10b981; } /* Página Atual */
+        .hub-nav-item.active { color: #10b981; } 
         
         .hub-nav-divider { width: 1px; height: 24px; background-color: #cbd5e1; margin: 0 5px; }
 
-        .hub-nav-ia {
-            text-decoration: none; color: #059669; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #ecfdf5; display: flex; align-items: center; gap: 6px; transition: 0.2s;
-        }
+        .hub-nav-ia { text-decoration: none; color: #059669; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #ecfdf5; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
         .hub-nav-ia:hover { background-color: #d1fae5; }
         
         .hub-user-box { display: flex; align-items: center; gap: 12px; }
         .hub-greeting { color: #475569; font-size: 13px; font-weight: 500; }
-        .hub-avatar {
-            width: 36px; height: 36px; background-color: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px;
-        }
+        .hub-avatar { width: 36px; height: 36px; background-color: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; }
 
         /* ==========================================
            O CARTÃO BRANCO PRINCIPAL DO SISTEMA
@@ -89,65 +97,31 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex;
+            display: none; /* Só mostra depois do login */
             flex-direction: column;
             overflow: hidden; 
             min-height: 0; 
-            margin: 20px; /* Margem da tela */
+            margin: 20px; 
         }
 
-        /* ÁREA DE CONTEÚDO */
-        .app-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+        .app-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
         /* ==========================================
-           TELA DE LOGIN INTERNA
+           CABEÇALHOS INTERNOS E NAVEGAÇÃO
         ========================================== */
-        #login-screen {
-            position: fixed; inset: 0; background: var(--primary);
-            display: flex; justify-content: center; align-items: center; z-index: 10000; /* Acima do menu novo */
-        }
-        .login-card {
-            background: white; padding: 40px; border-radius: 8px;
-            width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        .login-card h2 { color: var(--primary); margin-bottom: 5px; font-weight: 700; }
-        .login-card p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
-        .login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 4px; outline: none; text-align: center; }
-        .login-card button { width: 100%; padding: 12px; background: var(--link); color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; }
-        .login-card button:hover { background: #004494; }
-
-        /* ==========================================
-           CABEÇALHOS INTERNOS
-        ========================================== */
-        #app { display: none; height: 100%; }
-        
         header.interno {
             background-color: var(--primary); color: white; padding: 12px 20px;
             display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
         }
-        
         header.interno h1 { font-size: 14px; font-weight: 400; margin: 0; letter-spacing: 0.5px; }
-        
-        .header-actions button {
-            padding: 6px 15px; border: none; border-radius: 3px; font-weight: 600; cursor: pointer; font-size: 11px; transition: 0.2s;
-        }
+        .header-actions button { padding: 6px 15px; border: none; border-radius: 3px; font-weight: 600; cursor: pointer; font-size: 11px; transition: 0.2s; }
         .btn-export { background: white; color: #333; }
         .btn-export:hover { background: #f0f0f0; }
         .btn-lock { background: var(--danger); color: white; margin-left: 10px; }
         .btn-lock:hover { background: #a00000; }
 
-        .nav-bancos {
-            background: white; display: flex; align-items: center; gap: 10px; overflow-x: auto; padding: 10px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
-        }
-        
-        .banco-link { 
-            padding: 6px 12px; cursor: pointer; color: #64748b; font-weight: 600; border-radius: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
-        }
+        .nav-bancos { background: white; display: flex; align-items: center; gap: 10px; overflow-x: auto; padding: 10px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .banco-link { padding: 6px 12px; cursor: pointer; color: #64748b; font-weight: 600; border-radius: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
         .banco-link:hover { color: var(--primary); }
         .banco-link.ativo { background: var(--primary); color: white; }
 
@@ -157,10 +131,7 @@
         .main-container { padding: 20px; display: flex; flex-direction: column; flex: 1; min-height: 0; }
 
         .kpis { display: flex; gap: 20px; margin-bottom: 20px; flex-shrink: 0;}
-        .kpi-card { 
-            background: white; padding: 20px; border-radius: 6px; flex: 1; 
-            border: 1px solid var(--border); font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;
-        }
+        .kpi-card { background: white; padding: 20px; border-radius: 6px; flex: 1; border: 1px solid var(--border); font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
         .kpi { font-size: 28px; color: var(--primary); font-weight: 700; display: block; margin-top: 5px; line-height: 1; }
         
         .controls { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; flex-shrink: 0;}
@@ -169,24 +140,10 @@
         .btn-incluir { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
         .btn-incluir:hover { background: #218838; }
 
-        /* CONTAINER DA TABELA */
-        .table-container { 
-            background: white; border: 1px solid var(--border); border-radius: 6px; 
-            overflow-y: auto; 
-            flex: 1; 
-            position: relative; 
-        }
-        
+        .table-container { background: white; border: 1px solid var(--border); border-radius: 6px; overflow-y: auto; flex: 1; position: relative; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
         th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
-        
-        th { 
-            background: #f1f5f9; 
-            font-weight: 600; color: #475569; text-transform: uppercase; font-size: 11px; 
-            position: sticky; top: 0; z-index: 10;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
-        }
-        
+        th { background: #f1f5f9; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 11px; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: #f8fafc; }
         
@@ -224,13 +181,11 @@
         </a>
         
         <nav class="hub-menu-links">
-            <a href="conciliacao.html" class="hub-nav-item">CONCILIAÇÃO BANCÁRIA</a>
-            <a href="bancos.html" class="hub-nav-item active">GESTÃO DE BANCOS</a>
-            <a href="caixa.html" class="hub-nav-item">GESTÃO DE CAIXA</a>
-            <a href="protestos.html" class="hub-nav-item">PROTESTOS</a>
-            
+            <a href="conciliacao.html" class="hub-nav-item">Conciliação Bancária</a>
+            <a href="bancos.html" class="hub-nav-item active">Gestão de Bancos</a>
+            <a href="caixa.html" class="hub-nav-item">Gestão de Caixa</a>
+            <a href="protestos.html" class="hub-nav-item">Protestos</a>
             <div class="hub-nav-divider"></div>
-            
             <a href="index.html" class="hub-nav-ia">✨ Assistente IA</a>
         </nav>
 
@@ -239,7 +194,6 @@
             <div class="hub-avatar">O</div>
         </div>
     </header>
-
 
     <div id="login-screen">
         <div class="login-card">
@@ -251,8 +205,12 @@
         </div>
     </div>
 
+    <div id="loading-overlay">
+        <h2>DEXCO ASSIST</h2>
+        <p>Sincronizando banco de dados...</p>
+    </div>
+
     <div id="app" class="app-wrapper">
-        
         <header class="interno">
             <h1>Dexco S.A - Gestão de Bancos</h1>
             <div class="header-actions">
@@ -321,27 +279,53 @@
         let bancoSelecionado = "";
         let perfilSelecionado = "";
 
-        function entrar() {
+        // LÓGICA DE LOGIN NO BANCO DE DADOS
+        function handleEnter(e) { if(e.key === "Enter") entrar(); }
+
+        async function entrar() {
             const passInput = document.getElementById("pass");
-            const senha = passInput.value.trim();
-            if (senha === "") {
+            const senhaDigitada = passInput.value.trim();
+            const msg = document.getElementById("login-msg");
+
+            if(senhaDigitada === "") {
+                msg.innerText = "Por favor, digite a senha!";
+                return;
+            }
+
+            msg.innerText = "Verificando...";
+            msg.style.color = "#64748b";
+
+            const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_acesso').single();
+
+            if (error || !data) {
+                msg.innerText = "Erro ao validar senha no banco de dados.";
+                msg.style.color = "#c40000";
+                return;
+            }
+
+            if (senhaDigitada === data.valor) {
                 document.getElementById("login-screen").style.display = "none";
-                document.getElementById("app").style.display = "flex"; 
+                document.getElementById("loading-overlay").style.display = "flex";
                 carregar();
             } else {
-                document.getElementById("login-msg").innerText = "Acesso negado!";
+                msg.innerText = "Senha incorreta!";
+                msg.style.color = "#c40000";
                 passInput.value = "";
                 passInput.focus();
             }
         }
 
-        function handleEnter(e) { if(e.key === "Enter") entrar(); }
         function sair() { location.reload(); }
 
         async function carregar() {
             const { data, error } = await sb.from("gestao_acessos").select("*");
+            
+            document.getElementById("loading-overlay").style.display = "none";
+            
             if (error) { alert("Erro de conexão: " + error.message); return; }
+            
             dados = data || [];
+            document.getElementById("app").style.display = "flex"; 
             render();
         }
 
