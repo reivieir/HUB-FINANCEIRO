@@ -13,35 +13,37 @@
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
 
-        html, body {
-            margin: 0; padding: 0; height: 100vh; width: 100vw;
-            background-color: #f0f2f5; 
-            overflow: hidden; 
-            color: var(--text);
-        }
+        html, body { margin: 0; padding: 0; height: 100vh; width: 100vw; background-color: #f0f2f5; overflow: hidden; color: var(--text); }
+        body { padding-top: 65px; display: flex; flex-direction: column; }
 
-        body {
-            padding-top: 65px; 
-            display: flex;
-            flex-direction: column;
+        /* ==========================================
+           TELA DE LOGIN (NOVA)
+        ========================================== */
+        #login-screen {
+            position: fixed; inset: 0; background: var(--primary);
+            display: flex; justify-content: center; align-items: center; z-index: 200000;
         }
+        .login-card {
+            background: white; padding: 40px; border-radius: 8px; width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .login-card h2 { color: var(--primary); margin-bottom: 5px; font-weight: 700; }
+        .login-card p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+        .login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 4px; outline: none; text-align: center; font-size: 14px; }
+        .login-card input:focus { border-color: #10b981; }
+        .login-card button { width: 100%; padding: 12px; background: #10b981; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; font-size: 14px; }
+        .login-card button:hover { background: #059669; }
 
         /* ==========================================
            TELAS DE CARREGAMENTO E MENU
         ========================================== */
         #loading-overlay {
             position: fixed; inset: 0; background: var(--primary); z-index: 100000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; color: white;
+            display: none; flex-direction: column; justify-content: center; align-items: center; color: white;
         }
         #loading-overlay h2 { margin-bottom: 10px; font-weight: 700; letter-spacing: 1px;}
         #loading-overlay p { color: #94a3b8; font-size: 14px;}
 
-        .hub-top-nav {
-            position: fixed; top: 0; left: 0; width: 100%; background-color: #ffffff;
-            border-bottom: 1px solid #e2e8f0; height: 65px; display: flex; align-items: center;
-            justify-content: space-between; padding: 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 9999;
-        }
-        
+        .hub-top-nav { position: fixed; top: 0; left: 0; width: 100%; background-color: #ffffff; border-bottom: 1px solid #e2e8f0; height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 9999; }
         .hub-logo-box { display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 18px; }
         .hub-title { font-weight: 800; color: #0f172a; }
         .hub-subtitle { font-weight: 700; color: #10b981; }
@@ -52,7 +54,6 @@
         .hub-nav-divider { width: 1px; height: 24px; background-color: #cbd5e1; margin: 0 5px; }
         .hub-nav-ia { text-decoration: none; color: #059669; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #ecfdf5; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
         .hub-nav-ia:hover { background-color: #d1fae5; }
-        
         .hub-user-box { display: flex; align-items: center; gap: 12px; }
         .hub-greeting { color: #475569; font-size: 13px; font-weight: 500; }
         .hub-avatar { width: 36px; height: 36px; background-color: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; }
@@ -85,7 +86,6 @@
 
         .btn-novo-dia { background: #0284c7; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 10px; transition: 0.2s;}
         .btn-novo-dia:hover { background: #0369a1; }
-        
         .btn-acao-dia { color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; white-space: nowrap; transition: 0.2s;}
         .btn-acao-dia:hover { filter: brightness(0.9); }
 
@@ -127,7 +127,6 @@
         .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
         .modal-content { background-color: #ffffff; padding: 25px; width: 100%; max-width: 400px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;}
         .modal-content-resumo { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 800px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
-        
         .close { color: #94a3b8; position: absolute; right: 20px; top: 20px; font-size: 24px; font-weight: bold; cursor: pointer; line-height: 20px; transition: 0.2s;}
         .close:hover { color: var(--danger); }
         
@@ -139,12 +138,21 @@
         .btn-copiar:hover { background: #059669; }
         .btn-limpar-lote { background: #3b82f6; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; }
         .btn-limpar-lote:hover { background: #2563eb; }
-
         .btn-modal-acao { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
         .btn-modal-acao:hover { background: #059669; }
     </style>
 </head>
 <body>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>DEXCO ASSIST</h2>
+            <p>Gestão Diária de Caixa</p>
+            <input type="password" id="input-senha-login" placeholder="Senha de Acesso" onkeypress="seEnterLogin(event)">
+            <button onclick="fazerLogin()">ENTRAR NO PAINEL</button>
+            <p id="login-msg" style="color: #c40000; font-size: 12px; margin-top: 15px; height: 15px;"></p>
+        </div>
+    </div>
 
     <div id="loading-overlay">
         <h2>DEXCO ASSIST</h2>
@@ -259,11 +267,49 @@
         const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
 
         // ==============================================
+        // LÓGICA DE LOGIN COM BANCO DE DADOS
+        // ==============================================
+        function seEnterLogin(e) {
+            if(e.key === 'Enter') fazerLogin();
+        }
+
+        async function fazerLogin() {
+            const senhaDigitada = document.getElementById('input-senha-login').value.trim();
+            const msg = document.getElementById('login-msg');
+
+            if(!senhaDigitada) {
+                msg.innerText = "Por favor, digite a senha!";
+                return;
+            }
+
+            msg.innerText = "Verificando...";
+            msg.style.color = "#64748b";
+
+            const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_acesso').single();
+
+            if (error || !data) {
+                msg.innerText = "Erro ao validar senha no banco de dados.";
+                msg.style.color = "#c40000";
+                return;
+            }
+
+            if (senhaDigitada === data.valor) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('loading-overlay').style.display = 'flex'; 
+                inicializarCaixa(); 
+            } else {
+                msg.innerText = "Senha incorreta!";
+                msg.style.color = "#c40000";
+                document.getElementById('input-senha-login').value = '';
+                document.getElementById('input-senha-login').focus();
+            }
+        }
+
+        // ==============================================
         // INICIALIZAÇÃO E SINCRONIZAÇÃO COM O BANCO
         // ==============================================
         async function inicializarCaixa() {
             try {
-                // 1. Busca Empresas e Contas
                 const { data: dbEmpresas } = await sb.from('caixa_empresas').select('*').order('ordem');
                 const { data: dbContas } = await sb.from('caixa_contas').select('*').order('ordem');
                 
@@ -277,7 +323,6 @@
                     });
                 });
 
-                // 2. Busca Plano de Categorias
                 const { data: dbCategorias } = await sb.from('caixa_categorias').select('*').order('ordem');
                 plano = dbCategorias.map(cat => ({
                     id: cat.codigo,
@@ -286,11 +331,9 @@
                     readOnly: cat.is_readonly
                 }));
 
-                // 3. Define a Data de Hoje Dinamicamente
                 const h = new Date();
                 const dataHojeStr = `${String(h.getDate()).padStart(2, '0')}/${String(h.getMonth() + 1).padStart(2, '0')}/${h.getFullYear()}`;
 
-                // 4. Busca Dias Cadastrados
                 const { data: dbDias } = await sb.from('caixa_dias').select('*').order('criado_em');
                 if(!dbDias || dbDias.length === 0) {
                     await sb.from('caixa_dias').insert([{ nome_dia: dataHojeStr }]);
@@ -305,13 +348,11 @@
                     diaAtivo = diasCadastrados[diasCadastrados.length - 1];
                 }
 
-                // 5. Estrutura a variável local de dados
                 diasCadastrados.forEach(d => {
                     dadosPorDia[d] = {};
                     Object.keys(empresasConfig).forEach(e => dadosPorDia[d][e] = {});
                 });
 
-                // 6. Busca todos os lançamentos
                 const { data: dbLancamentos } = await sb.from('caixa_lancamentos').select('*');
                 if (dbLancamentos) {
                     dbLancamentos.forEach(lan => {
@@ -389,7 +430,6 @@
             let diaDados = dadosPorDia[diaAtivo];
             if(!diaDados) { alert("Nenhum dado para exportar neste dia."); return; }
 
-            // Layout Base de Dados (Flat) - O melhor para sistemas e BI
             let csv = "\uFEFFData;Empresa;Banco;Conta;Categoria da Linha;Tipo da Linha;Valor (R$);Banco Destino/Origem;Possui Pendencia?\n";
 
             Object.keys(empresasConfig).forEach(emp => {
@@ -403,7 +443,6 @@
                         let valFormatado = contaDados[l.id] || "0,00";
                         let v = parseFloat(valFormatado.replace(/\./g, '').replace(',', '.')) || 0;
                         
-                        // Filtra o tipo para ficar mais legível no Excel
                         let tipoLegivel = l.tipo;
                         if(tipoLegivel.includes('grupo-soma')) tipoLegivel = 'Soma';
                         else if(tipoLegivel.includes('bg-')) tipoLegivel = 'Totalizador';
@@ -412,7 +451,6 @@
                         let pendente = contaDados[`pendente-${l.id}`] ? parseFloat(contaDados[`pendente-${l.id}`]) : 0;
                         let bancoDestino = contaDados[`banco-${l.id}`] || "";
 
-                        // Vamos exportar todas as linhas para manter o fechamento matemático no Excel
                         csv += `${diaAtivo};${emp};${c.b};${c.c};${l.nome};${tipoLegivel};${valFormatado};${bancoDestino};${pendente > 0 ? 'Sim' : 'Não'}\n`;
                     });
                 });
@@ -426,9 +464,8 @@
         }
 
         // ==============================================
-        // CÓDIGO DA TELA (INTERAÇÕES)
+        // CÓDIGO DA TELA E NAVEGAÇÃO
         // ==============================================
-
         function renderTabsEmpresas() {
             const container = document.getElementById('nav-empresas-container');
             let html = '';
@@ -456,9 +493,6 @@
             container.innerHTML = html;
         }
 
-        // ==============================================
-        // LÓGICA DE DUPLICAR O DIA
-        // ==============================================
         async function duplicarDiaAtual() {
             let novoNome = prompt(`Você está duplicando o caixa do dia [${diaAtivo}].\n\nDigite a nova data (DD/MM/YYYY):`);
             if (!novoNome || novoNome.trim() === "") return;
@@ -518,9 +552,6 @@
             }
         }
 
-        // ==============================================
-        // LÓGICA DO MODAL DO CALENDÁRIO
-        // ==============================================
         function abrirModalCalendario() {
             salvarEstadoLocal(); 
             
@@ -626,9 +657,6 @@
             renderTabsDias();
         }
 
-        // ==============================================
-        // RESTANTE DAS FUNÇÕES
-        // ==============================================
         function mudarEmpresa(novaEmpresa) {
             salvarEstadoLocal(); 
             empresaAtiva = novaEmpresa; contas = empresasConfig[empresaAtiva]; 
@@ -957,8 +985,6 @@
                 });
             } catch (err) { alert("Erro ao gerar."); btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; }
         }
-
-        window.onload = inicializarCaixa;
 
     </script>
 </body>
