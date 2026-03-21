@@ -139,7 +139,8 @@
         .btn-limpar-lote { background: #3b82f6; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; }
         .btn-limpar-lote:hover { background: #2563eb; }
 
-        .btn-modal-acao { background: var(--success); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
+        /* CORRIGIDO: Cor fixa #10b981 para o botão do calendário */
+        .btn-modal-acao { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
         .btn-modal-acao:hover { background: #059669; }
     </style>
 </head>
@@ -394,7 +395,8 @@
                 </div>
             `).join('');
             
-            html += `<button class="btn-novo-dia" onclick="abrirModalCalendario()">📅 CALENDÁRIO / GUIAS</button>`;
+            // CORRIGIDO: Texto do botão alterado para CRIAR / RESTAURAR
+            html += `<button class="btn-novo-dia" onclick="abrirModalCalendario()">📅 CRIAR / RESTAURAR</button>`;
 
             if(diaAtivo) {
                 html += `<button class="btn-excluir-dia" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}]</button>`;
@@ -435,19 +437,16 @@
             const inputData = document.getElementById('input-data-cal').value;
             if(!inputData) { alert("Selecione uma data no calendário!"); return; }
             
-            // Converte YYYY-MM-DD para DD/MM/YYYY
             const partes = inputData.split('-');
             const nomeDia = `${partes[2]}/${partes[1]}/${partes[0]}`;
             
             fecharModalCalendario();
 
-            // Se o dia já está na barra, só muda pra ele
             if (diasCadastrados.includes(nomeDia)) { 
                 mudarDia(nomeDia); 
                 return; 
             }
 
-            // Se o dia existe no banco mas foi "fechado" na tela, restaura ele
             let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
             if (guiasOcultas.includes(nomeDia)) {
                 diasCadastrados.push(nomeDia);
@@ -457,7 +456,6 @@
                 return;
             }
 
-            // SE CHEGOU AQUI, O DIA NÃO EXISTE. VAMOS CRIAR UM NOVO!
             salvarEstadoLocal(); 
             await sb.from('caixa_dias').insert([{ nome_dia: nomeDia }]);
 
@@ -468,13 +466,11 @@
                 Object.keys(empresasConfig).forEach(emp => {
                     dadosPorDia[nomeDia][emp] = {};
                     
-                    // Pega os dados de onde estávamos antes de abrir o modal
                     let estadoAntigo = (dadosPorDia[diaAtivo] && dadosPorDia[diaAtivo][emp]) ? dadosPorDia[diaAtivo][emp] : {};
                     
                     empresasConfig[emp].forEach((c, idx) => {
                         dadosPorDia[nomeDia][emp][idx] = {};
                         
-                        // LÓGICA DE TRANSFERÊNCIA DE SALDO (Puxa o Final pro Inicial)
                         let saldoFinalAnterior = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
                         dadosPorDia[nomeDia][emp][idx]['si'] = saldoFinalAnterior;
 
@@ -495,7 +491,6 @@
             diasCadastrados.push(nomeDia); 
             diaAtivo = nomeDia; 
             
-            // Atualiza a tela para o novo dia
             carregarEstado(); 
             renderTabsDias();
 
@@ -683,7 +678,6 @@
                 const v = parseFloat(e.target.value.replace(',', '.'));
                 if(isNaN(v)) return;
                 
-                // Agora Margem Segura também soma/subtrai normalmente
                 setV(lid, cidx, getV(lid, cidx) + v); 
                 
                 if (lid === 'o3' || lid === 'so7') {
@@ -697,7 +691,6 @@
                 e.target.value = "";
                 recalcularColuna(cidx); 
                 
-                // MANDA PRO BANCO
                 salvarEstadoLocal();
                 await syncSupabase();
             }
@@ -721,7 +714,6 @@
                 e.target.value = ""; selectDestino.value = "";
                 recalcularColuna(fromIdx); recalcularColuna(toIdx);
                 
-                // MANDA PRO BANCO
                 salvarEstadoLocal();
                 await syncSupabase();
             }
