@@ -17,7 +17,7 @@
         body { padding-top: 65px; display: flex; flex-direction: column; }
 
         /* ==========================================
-           TELA DE LOGIN (NOVA)
+           TELA DE LOGIN
         ========================================== */
         #login-screen {
             position: fixed; inset: 0; background: var(--primary);
@@ -103,7 +103,7 @@
 
         .cell-wrapper { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
         .cell-acumulado { font-weight: normal; font-size: 11px; margin-bottom: 1px; }
-        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 2px; box-sizing: border-box; text-align: right; font-size: 9px; outline: none; background: #f8fafc; }
+        .input-lancar { width: 100%; border: 1px solid #e2e8f0; border-radius: 2px; padding: 2px; box-sizing: border-box; text-align: right; font-size: 10px; outline: none; background: #f8fafc; }
         .input-lancar:focus { border-color: var(--primary); background: #fffbeb; }
 
         .bg-total-entradas { background-color: var(--azul-entrada) !important; color: white !important; font-weight: bold; }
@@ -127,6 +127,7 @@
         .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
         .modal-content { background-color: #ffffff; padding: 25px; width: 100%; max-width: 400px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;}
         .modal-content-resumo { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 800px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
+        
         .close { color: #94a3b8; position: absolute; right: 20px; top: 20px; font-size: 24px; font-weight: bold; cursor: pointer; line-height: 20px; transition: 0.2s;}
         .close:hover { color: var(--danger); }
         
@@ -138,6 +139,7 @@
         .btn-copiar:hover { background: #059669; }
         .btn-limpar-lote { background: #3b82f6; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; }
         .btn-limpar-lote:hover { background: #2563eb; }
+
         .btn-modal-acao { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
         .btn-modal-acao:hover { background: #059669; }
     </style>
@@ -267,6 +269,29 @@
         const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
 
         // ==============================================
+        // FUNÇÕES UNIVERSAIS DE FORMATAÇÃO (PADRÃO BRASIL)
+        // ==============================================
+        
+        // Pega qualquer número (ex: "5.000,00" ou "5000") e transforma em Float limpo
+        function parseMoeda(str) {
+            if (!str) return 0;
+            str = str.toString().trim();
+            // Remove os pontos de milhar e troca a vírgula decimal por ponto de Float
+            str = str.replace(/\./g, '').replace(',', '.');
+            const num = parseFloat(str);
+            return isNaN(num) ? 0 : num;
+        }
+
+        // Pega um Float e transforma em String BR com 2 casas e separador de milhar
+        function formatarMoeda(valor) {
+            return new Intl.NumberFormat('pt-BR', { 
+                style: 'decimal', 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            }).format(valor);
+        }
+
+        // ==============================================
         // LÓGICA DE LOGIN COM BANCO DE DADOS
         // ==============================================
         function seEnterLogin(e) {
@@ -362,7 +387,7 @@
                             let i = info.idx;
                             if(!dadosPorDia[lan.nome_dia][e][i]) dadosPorDia[lan.nome_dia][e][i] = {};
                             
-                            dadosPorDia[lan.nome_dia][e][i][lan.categoria_codigo] = parseFloat(lan.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                            dadosPorDia[lan.nome_dia][e][i][lan.categoria_codigo] = formatarMoeda(lan.valor);
                             
                             if(lan.valor_pendente > 0) {
                                 dadosPorDia[lan.nome_dia][e][i][`pendente-${lan.categoria_codigo}`] = lan.valor_pendente.toString();
@@ -401,7 +426,9 @@
                     let catCodigo = l.id;
                     if(estado[idx] && estado[idx][catCodigo] !== undefined) {
                         let valFormatado = estado[idx][catCodigo] || "0,00";
-                        let v = parseFloat(valFormatado.replace(/\./g, '').replace(',', '.')) || 0;
+                        
+                        // Parse correto utilizando a nova função
+                        let v = parseMoeda(valFormatado);
                         let p = parseFloat(estado[idx][`pendente-${catCodigo}`] || 0);
                         let b = estado[idx][`banco-${catCodigo}`] || null;
                         
@@ -441,8 +468,9 @@
                     
                     plano.forEach(l => {
                         let valFormatado = contaDados[l.id] || "0,00";
-                        let v = parseFloat(valFormatado.replace(/\./g, '').replace(',', '.')) || 0;
-                        
+                        // Evita escrever 0,00 para todas as linhas vazias no CSV para deixar mais limpo (Opcional)
+                        if (valFormatado === "0,00") return;
+
                         let tipoLegivel = l.tipo;
                         if(tipoLegivel.includes('grupo-soma')) tipoLegivel = 'Soma';
                         else if(tipoLegivel.includes('bg-')) tipoLegivel = 'Totalizador';
@@ -522,7 +550,9 @@
                         let catCodigo = l.id;
                         if(estadoCopia[emp][idx][catCodigo] !== undefined) {
                             let valFormatado = estadoCopia[emp][idx][catCodigo] || "0,00";
-                            let v = parseFloat(valFormatado.replace(/\./g, '').replace(',', '.')) || 0;
+                            
+                            // Usando parseMoeda no duplicar também
+                            let v = parseMoeda(valFormatado);
                             let p = parseFloat(estadoCopia[emp][idx][`pendente-${catCodigo}`] || 0);
                             let b = estadoCopia[emp][idx][`banco-${catCodigo}`] || null;
                             
@@ -619,7 +649,8 @@
                         let saldoFinalAnterior = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
                         dadosPorDia[nomeDia][emp][idx]['si'] = saldoFinalAnterior;
 
-                        let v = parseFloat(saldoFinalAnterior.replace(/\./g, '').replace(',', '.')) || 0;
+                        // Usando parseMoeda
+                        let v = parseMoeda(saldoFinalAnterior);
                         if(v !== 0) {
                             upsertsNovoDia.push({
                                 nome_dia: nomeDia,
@@ -788,8 +819,9 @@
             }).join('');
         }
 
-        function getV(id, cidx) { let el = document.getElementById(`val-${id}-${cidx}`); return el ? parseFloat(el.innerText.replace(/\./g, '').replace(',', '.')) || 0 : 0; }
-        function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = val.toLocaleString('pt-BR', {minimumFractionDigits: 2}); }
+        // Alterados para usar as funções novas de formatação correta
+        function getV(id, cidx) { let el = document.getElementById(`val-${id}-${cidx}`); return el ? parseMoeda(el.innerText) : 0; }
+        function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = formatarMoeda(val); }
 
         function recalcularColuna(idx) {
             let sc = getV('c1',idx) + getV('c2',idx) + getV('c3',idx) + getV('c4',idx) + getV('c5',idx); setV('sc', idx, sc);
@@ -817,8 +849,9 @@
 
         async function lancar(e, lid, cidx) {
             if(e.key === 'Enter') {
-                const v = parseFloat(e.target.value.replace(',', '.'));
-                if(isNaN(v)) return;
+                // ParseMoeda limpa a sujeira do BR para transformar em Float no sistema
+                const v = parseMoeda(e.target.value);
+                if(isNaN(v) || e.target.value.trim() === '') return;
                 
                 setV(lid, cidx, getV(lid, cidx) + v); 
                 
@@ -843,7 +876,7 @@
                 const selectDestino = document.getElementById(`sel-${lid}-${fromIdx}`);
                 const toIdx = selectDestino.value;
                 if(toIdx === "") { alert("Selecione o destino primeiro."); return; }
-                const v = parseFloat(e.target.value.replace(',', '.'));
+                const v = parseMoeda(e.target.value);
                 if(isNaN(v) || v === 0) return; 
                 
                 setV(lid, fromIdx, getV(lid, fromIdx) + v);
@@ -882,8 +915,8 @@
 
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = empDados[idx] || {};
-                    let resg = parseFloat((contaDados['o3'] || '0').replace(/\./g,'').replace(',','.')) || 0;
-                    let aplic = parseFloat((contaDados['so7'] || '0').replace(/\./g,'').replace(',','.')) || 0;
+                    let resg = parseMoeda(contaDados['o3']);
+                    let aplic = parseMoeda(contaDados['so7']);
                     let pendR = parseFloat(contaDados['pendente-o3']) || 0;
                     let pendA = parseFloat(contaDados['pendente-so7']) || 0;
 
@@ -900,19 +933,19 @@
                     htmlCardsPendente += `
                     <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 5px; background: #f8fafc; min-width: 150px; flex: 1;">
                         <h4 style="margin: 0 0 5px 0; color: var(--primary); text-align: center;">${emp}</h4>
-                        <div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${pResg.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
-                        <div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${pAplic.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+                        <div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${formatarMoeda(pResg)}</div>
+                        <div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${formatarMoeda(pAplic)}</div>
                     </div>`;
 
                     totPendResgGeral += pResg; totPendAplicGeral += pAplic;
                     let strBancoP = pBancos.size > 0 ? Array.from(pBancos).join(', ') : '-';
-                    linhasPendente += `<tr><td style="font-weight:bold;">${emp}</td><td style="text-align:right; color:#10b981; font-weight:bold;">${pResg !== 0 ? pResg.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:right; color:var(--vermelho-saida); font-weight:bold;">${pAplic !== 0 ? pAplic.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:center;">${strBancoP}</td></tr>`;
+                    linhasPendente += `<tr><td style="font-weight:bold;">${emp}</td><td style="text-align:right; color:#10b981; font-weight:bold;">${pResg !== 0 ? formatarMoeda(pResg) : '-'}</td><td style="text-align:right; color:var(--vermelho-saida); font-weight:bold;">${pAplic !== 0 ? formatarMoeda(pAplic) : '-'}</td><td style="text-align:center;">${strBancoP}</td></tr>`;
                 }
 
                 if(cResg !== 0 || cAplic !== 0) {
                     totConsResgGeral += cResg; totConsAplicGeral += cAplic;
                     let strBancoC = cBancos.size > 0 ? Array.from(cBancos).join(', ') : '-';
-                    linhasConsolidado += `<tr><td>${emp}</td><td style="text-align:right;">${cResg !== 0 ? cResg.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:right;">${cAplic !== 0 ? cAplic.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="text-align:center;">${strBancoC}</td></tr>`;
+                    linhasConsolidado += `<tr><td>${emp}</td><td style="text-align:right;">${cResg !== 0 ? formatarMoeda(cResg) : '-'}</td><td style="text-align:right;">${cAplic !== 0 ? formatarMoeda(cAplic) : '-'}</td><td style="text-align:center;">${strBancoC}</td></tr>`;
                 }
             });
             htmlCardsPendente += '</div>';
@@ -924,7 +957,7 @@
                 <table class="resumo-table-print">
                     <thead><tr><th style="text-align:left;">Empresa</th><th style="text-align:right;">Resgate</th><th style="text-align:right;">Aplicação</th><th style="text-align:center;">Banco</th></tr></thead>
                     <tbody>${linhasPendente}</tbody>
-                    <tfoot><tr><th style="text-align:left;">Total a Enviar</th><th style="text-align:right;">${totPendResgGeral !== 0 ? totPendResgGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</th><th style="text-align:right;">${totPendAplicGeral !== 0 ? totPendAplicGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</th><th></th></tr></tfoot>
+                    <tfoot><tr><th style="text-align:left;">Total a Enviar</th><th style="text-align:right;">${totPendResgGeral !== 0 ? formatarMoeda(totPendResgGeral) : '-'}</th><th style="text-align:right;">${totPendAplicGeral !== 0 ? formatarMoeda(totPendAplicGeral) : '-'}</th><th></th></tr></tfoot>
                 </table>`;
             }
 
@@ -935,7 +968,7 @@
                 <table style="width:100%; border-collapse:collapse; font-size:11px; background:white;">
                     <thead><tr style="background:#cbd5e1; color:#1e293b;"><th style="padding:4px; text-align:left;">Empresa</th><th style="padding:4px; text-align:right;">Resgate</th><th style="padding:4px; text-align:right;">Aplicação</th><th style="padding:4px; text-align:center;">Banco</th></tr></thead>
                     <tbody>${linhasConsolidado}</tbody>
-                    <tfoot><tr style="font-weight:bold;"><td style="padding:4px;">Total</td><td style="padding:4px; text-align:right;">${totConsResgGeral !== 0 ? totConsResgGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td style="padding:4px; text-align:right;">${totConsAplicGeral !== 0 ? totConsAplicGeral.toLocaleString('pt-BR',{minimumFractionDigits:2}) : '-'}</td><td></td></tr></tfoot>
+                    <tfoot><tr style="font-weight:bold;"><td style="padding:4px;">Total</td><td style="padding:4px; text-align:right;">${totConsResgGeral !== 0 ? formatarMoeda(totConsResgGeral) : '-'}</td><td style="padding:4px; text-align:right;">${totConsAplicGeral !== 0 ? formatarMoeda(totConsAplicGeral) : '-'}</td><td></td></tr></tfoot>
                 </table>`;
             }
 
@@ -985,6 +1018,8 @@
                 });
             } catch (err) { alert("Erro ao gerar."); btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; }
         }
+
+        window.onload = inicializarCaixa;
 
     </script>
 </body>
