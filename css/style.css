@@ -1,73 +1,188 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-body { display: flex; height: 100vh; background-color: #f4f7f6; }
-
-/* Menu Lateral */
-.sidebar { width: 250px; background-color: #1e293b; color: white; padding: 20px; display: flex; flex-direction: column; }
-.sidebar h2 { margin-bottom: 30px; font-size: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-.nav-btn { background: none; border: none; color: #cbd5e1; padding: 12px; text-align: left; cursor: pointer; border-radius: 5px; margin-bottom: 10px; font-size: 1rem; transition: 0.3s; width: 100%; }
-.nav-btn:hover, .nav-btn.active { background-color: #334155; color: white; }
-
-/* Conteúdo Padrão */
-.content { flex: 1; padding: 40px; overflow-y: auto; height: 100vh; }
-.tab-content { display: none; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-.tab-content.active { display: block; }
-.tab-content h1 { color: #0f172a; margin-bottom: 15px; }
-.tab-content p { color: #475569; }
-
-/* Layout do Chat em Ecrã Inteiro */
-.chat-layout { display: none; flex-direction: column; height: calc(100vh - 80px); padding: 0; overflow: hidden; }
-.chat-layout.active { display: flex; }
-.chat-header-full { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #e2e8f0; background: #ffffff; border-radius: 8px 8px 0 0; }
-.chat-header-full h2 { margin: 0; color: #0f172a; font-size: 1.5rem; }
-.new-chat-btn { background-color: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-.new-chat-btn:hover { background-color: #059669; }
-
-.chat-messages-full { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-color: #f8fafc; }
-.ai-message, .user-message { padding: 15px; border-radius: 8px; max-width: 85%; font-size: 1rem; line-height: 1.5; }
-.ai-message { background: #e2e8f0; align-self: flex-start; color: #1e293b; }
-.user-message { background: #2563eb; color: white; align-self: flex-end; }
-
-.chat-input-full { display: flex; padding: 20px; background: white; border-top: 1px solid #e2e8f0; border-radius: 0 0 8px 8px; }
-.chat-input-full input { flex: 1; padding: 15px; border: 1px solid #cbd5e1; border-radius: 5px; outline: none; font-size: 1rem; }
-.chat-input-full button { padding: 15px 30px; background: #2563eb; border: none; cursor: pointer; font-weight: bold; color: white; border-radius: 5px; margin-left: 10px; transition: 0.3s; font-size: 1rem; }
-.chat-input-full button:hover { background: #1d4ed8; }
-
-/* Tabela e Filtros de Conciliação */
-.filters-container { display: flex; gap: 15px; margin-bottom: 20px; }
-.filters-container select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 1rem; outline: none; background-color: white; color: #1e293b; min-width: 200px; cursor: pointer; }
-.filters-container select:hover { border-color: #94a3b8; }
-
-.table-container { overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #e2e8f0; }
-#tabelaConciliacao { width: 100%; border-collapse: collapse; text-align: left; }
-#tabelaConciliacao th, #tabelaConciliacao td { padding: 15px; border-bottom: 1px solid #e2e8f0; }
-#tabelaConciliacao th { background-color: #f8fafc; font-weight: 600; color: #475569; }
-#tabelaConciliacao tbody tr:hover { background-color: #f1f5f9; transition: 0.2s; }
-
-/* Cores de Status */
-.status-ok { color: #10b981; font-weight: bold; background: #d1fae5; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
-.status-pendente { color: #ef4444; font-weight: bold; background: #fee2e2; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
-
 /* ==================================================================
-   A MÁGICA DO CAIXA: Margens negativas para furar a barreira do Hub
-================================================================== */
-.tab-caixa {
-    padding: 0 !important;
-    margin: -40px !important; /* Anula o padding de 40px da classe .content */
-    width: calc(100% + 80px) !important; /* Estica para as laterais */
-    height: 100vh !important; /* Estica até ao rodapé exato */
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    display: none; 
-    overflow: hidden; /* Remove barras de rolagem duplas */
-}
+           1. VARIÁVEIS E BASE
+        ================================================================== */
+        :root {
+            --bg-color: #f0f2f5;       
+            --topbar-bg: #ffffff;      
+            --text-main: #1e293b;      
+            --text-light: #64748b;     
+            --accent-color: #10b981;   
+            --border-color: #e2e8f0;   
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); 
+        }
 
-.tab-caixa.active {
-    display: block !important; 
-}
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
-.tab-caixa iframe {
-    width: 100%;
-    height: 100%; /* Agora o iframe consegue ocupar os 100% livremente */
-    border: none;
-    display: block;
-}
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh; 
+            overflow: hidden; 
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column; /* Fundamental para empilhar Menu e Conteúdo */
+        }
+
+        /* ==================================================================
+           2. MENU HORIZONTAL GLOBAL (TOP-NAV)
+        ================================================================== */
+        .top-navbar {
+            background-color: var(--topbar-bg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            height: 65px;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0f172a;
+            text-decoration: none;
+        }
+        .logo span { color: var(--accent-color); }
+
+        .nav-links {
+            display: flex;
+            gap: 5px;
+            height: 100%;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 8px 14px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-main);
+            background-color: #f8fafc;
+        }
+
+        /* A classe active marca a página atual */
+        .nav-links a.active {
+            color: #2563eb; 
+            background-color: #eff6ff;
+            font-weight: 600;
+        }
+
+        .nav-links a.active-ia {
+            color: #10b981;
+            background-color: #ecfdf5;
+            font-weight: 600;
+        }
+
+        .user-profile {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .user-profile div {
+            width: 32px; height: 32px;
+            background-color: var(--accent-color);
+            color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
+
+        /* ==================================================================
+           3. ÁREA DE CONTEÚDO PADRÃO
+        ================================================================== */
+        .content { 
+            flex: 1; 
+            padding: 40px; 
+            overflow-y: auto; 
+            height: 100%; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-content { 
+            display: none; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: var(--shadow-sm); 
+            flex: 1;
+        }
+        .tab-content.active { display: block; }
+        .tab-content h1 { color: #0f172a; margin-bottom: 15px; }
+        .tab-content p { color: #475569; }
+
+        /* ==================================================================
+           4. LAYOUT DO CHAT EM ECRÃ INTEIRO
+        ================================================================== */
+        .chat-layout { display: none; flex-direction: column; height: 100%; padding: 0; overflow: hidden; background: white; border-radius: 8px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);}
+        .chat-layout.active { display: flex; }
+        
+        .chat-header-full { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border-color); background: #ffffff; border-radius: 8px 8px 0 0; }
+        .chat-header-full h2 { margin: 0; color: #0f172a; font-size: 1.5rem; }
+        .new-chat-btn { background-color: var(--accent-color); color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .new-chat-btn:hover { background-color: #059669; }
+
+        .chat-messages-full { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-color: #f8fafc; }
+        .ai-message, .user-message { padding: 15px; border-radius: 8px; max-width: 85%; font-size: 1rem; line-height: 1.5; }
+        .ai-message { background: #e2e8f0; align-self: flex-start; color: #1e293b; }
+        .user-message { background: #2563eb; color: white; align-self: flex-end; }
+
+        .chat-input-full { display: flex; padding: 20px; background: white; border-top: 1px solid var(--border-color); border-radius: 0 0 8px 8px; }
+        .chat-input-full input { flex: 1; padding: 15px; border: 1px solid #cbd5e1; border-radius: 5px; outline: none; font-size: 1rem; }
+        .chat-input-full button { padding: 15px 30px; background: #2563eb; border: none; cursor: pointer; font-weight: bold; color: white; border-radius: 5px; margin-left: 10px; transition: 0.3s; font-size: 1rem; }
+        .chat-input-full button:hover { background: #1d4ed8; }
+
+        /* ==================================================================
+           5. TABELA E FILTROS DE CONCILIAÇÃO
+        ================================================================== */
+        .filters-container { display: flex; gap: 15px; margin-bottom: 20px; }
+        .filters-container select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 1rem; outline: none; background-color: white; color: #1e293b; min-width: 200px; cursor: pointer; }
+        .filters-container select:hover { border-color: #94a3b8; }
+
+        .table-container { overflow-x: auto; background: white; border-radius: 8px; border: 1px solid var(--border-color); }
+        #tabelaConciliacao { width: 100%; border-collapse: collapse; text-align: left; }
+        #tabelaConciliacao th, #tabelaConciliacao td { padding: 15px; border-bottom: 1px solid var(--border-color); }
+        #tabelaConciliacao th { background-color: #f8fafc; font-weight: 600; color: #475569; }
+        #tabelaConciliacao tbody tr:hover { background-color: #f1f5f9; transition: 0.2s; }
+
+        /* Cores de Status */
+        .status-ok { color: var(--accent-color); font-weight: bold; background: #d1fae5; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
+        .status-pendente { color: #ef4444; font-weight: bold; background: #fee2e2; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
+
+        /* ==================================================================
+           6. A MÁGICA DO CAIXA/BANCOS: Fura a barreira do Hub
+        ================================================================== */
+        .tab-caixa {
+            padding: 0 !important;
+            margin: -40px !important; /* Anula o padding de 40px da classe .content */
+            width: calc(100% + 80px) !important; /* Estica para as laterais */
+            height: calc(100% + 80px) !important; /* Estica até o rodapé */
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            display: none; 
+            overflow: hidden; /* Remove barras de rolagem duplas */
+        }
+
+        .tab-caixa.active { display: block !important; }
+
+        .tab-caixa iframe {
+            width: 100%;
+            height: 100%; 
+            border: none;
+            display: block;
+        }
