@@ -147,7 +147,7 @@
 <body>
 
     <div id="loading-overlay">
-        <h2>DEXCO GESTÃO DE CAIXA DIÁRIO</h2>
+        <h2>DEXCO ASSIST</h2>
         <p>Sincronizando banco de dados...</p>
     </div>
 
@@ -174,6 +174,7 @@
             <header class="header-dexco">
                 <h1>Dexco S.A - Gestão Diária de Caixa</h1> 
                 <div class="header-actions">
+                    <button class="btn-export" style="background:#10b981;" onclick="exportarCSV()">📥 Exportar CSV</button>
                     <button class="btn-export" onclick="abrirResumo()">📊 Resumo do Dia</button>
                     <button class="btn-exit" onclick="window.parent.location.reload()">Sair / Bloquear</button>
                 </div>
@@ -292,14 +293,12 @@
                 // 4. Busca Dias Cadastrados
                 const { data: dbDias } = await sb.from('caixa_dias').select('*').order('criado_em');
                 if(!dbDias || dbDias.length === 0) {
-                    // Se o banco está vazio, cria a aba do dia de hoje
                     await sb.from('caixa_dias').insert([{ nome_dia: dataHojeStr }]);
                     diasCadastrados = [dataHojeStr];
                 } else {
                     diasCadastrados = dbDias.map(d => d.nome_dia);
                 }
                 
-                // Define a aba ativa: Abre Hoje se existir, senão abre a última disponível
                 if (diasCadastrados.includes(dataHojeStr)) {
                     diaAtivo = dataHojeStr;
                 } else {
@@ -334,7 +333,6 @@
                     });
                 }
 
-                // Ativa a primeira empresa
                 empresaAtiva = dbEmpresas[0].nome;
                 contas = empresasConfig[empresaAtiva];
 
@@ -384,6 +382,50 @@
         }
 
         // ==============================================
+        // LÓGICA DE EXPORTAÇÃO CSV
+        // ==============================================
+        function exportarCSV() {
+            salvarEstadoLocal();
+            let diaDados = dadosPorDia[diaAtivo];
+            if(!diaDados) { alert("Nenhum dado para exportar neste dia."); return; }
+
+            // Layout Base de Dados (Flat) - O melhor para sistemas e BI
+            let csv = "\uFEFFData;Empresa;Banco;Conta;Categoria da Linha;Tipo da Linha;Valor (R$);Banco Destino/Origem;Possui Pendencia?\n";
+
+            Object.keys(empresasConfig).forEach(emp => {
+                let contasEmpresa = empresasConfig[emp];
+                if(!diaDados[emp]) return;
+
+                contasEmpresa.forEach((c, idx) => {
+                    let contaDados = diaDados[emp][idx] || {};
+                    
+                    plano.forEach(l => {
+                        let valFormatado = contaDados[l.id] || "0,00";
+                        let v = parseFloat(valFormatado.replace(/\./g, '').replace(',', '.')) || 0;
+                        
+                        // Filtra o tipo para ficar mais legível no Excel
+                        let tipoLegivel = l.tipo;
+                        if(tipoLegivel.includes('grupo-soma')) tipoLegivel = 'Soma';
+                        else if(tipoLegivel.includes('bg-')) tipoLegivel = 'Totalizador';
+                        else tipoLegivel = 'Lançamento';
+
+                        let pendente = contaDados[`pendente-${l.id}`] ? parseFloat(contaDados[`pendente-${l.id}`]) : 0;
+                        let bancoDestino = contaDados[`banco-${l.id}`] || "";
+
+                        // Vamos exportar todas as linhas para manter o fechamento matemático no Excel
+                        csv += `${diaAtivo};${emp};${c.b};${c.c};${l.nome};${tipoLegivel};${valFormatado};${bancoDestino};${pendente > 0 ? 'Sim' : 'Não'}\n`;
+                    });
+                });
+            });
+
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            let nomeArquivo = diaAtivo.replace(/\//g, '-');
+            link.download = `Caixa_Dexco_${nomeArquivo}.csv`;
+            link.click();
+        }
+
+        // ==============================================
         // CÓDIGO DA TELA (INTERAÇÕES)
         // ==============================================
 
@@ -408,7 +450,6 @@
             html += `<button class="btn-novo-dia" onclick="abrirModalCalendario()">📅 CRIAR / RESTAURAR</button>`;
 
             if(diaAtivo) {
-                // BOTÃO DE DUPLICAR E EXCLUIR
                 html += `<button class="btn-acao-dia" style="background:#f59e0b; margin-left: auto;" onclick="duplicarDiaAtual()">⧉ DUPLICAR [${diaAtivo}]</button>`;
                 html += `<button class="btn-acao-dia" style="background:#ef4444; margin-left: 10px;" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}]</button>`;
             }
@@ -430,14 +471,11 @@
 
             salvarEstadoLocal(); 
 
-            // Cria o dia no Banco
             const { error: errDia } = await sb.from('caixa_dias').insert([{ nome_dia: novoNome }]);
             if (errDia) { alert("Erro ao duplicar dia: " + errDia.message); return; }
 
-            // Copia 100% dos dados para a nova chave
             dadosPorDia[novoNome] = JSON.parse(JSON.stringify(dadosPorDia[diaAtivo]));
             
-            // Prepara a carga para o Supabase
             let upsertsNovaCopia = [];
             let estadoCopia = dadosPorDia[novoNome];
             
