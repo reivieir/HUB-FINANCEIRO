@@ -104,7 +104,7 @@
         
         .linha-destaque { font-weight: bold; background: white; }
         
-        /* CORREÇÃO DO CINZA MAIS ESCURO PARA LINHAS DE SOMA */
+        /* NOVO DESIGN MAIS ESCURO PARA LINHAS DE SOMA (CINZA CHUMBO) */
         .grupo-soma { 
             background-color: #334155 !important; 
             color: #ffffff !important; 
@@ -112,7 +112,7 @@
             text-transform: uppercase; 
             font-size: 11px;
         }
-        
+
         .indent { padding-left: 15px !important; }
         .no-input .input-lancar { display: none; }
         .no-input .cell-acumulado { font-weight: bold; font-size: 11px; }
@@ -142,7 +142,7 @@
         .btn-modal-acao:hover { background: #059669; }
 
         .input-transparent {
-            border: 1px dashed #cbd5e1; background: transparent; width: 100%; box-sizing: border-box; font-size: 11px; outline: none; font-family: inherit; color: var(--text); padding: 2px; border-radius: 3px; transition: 0.2s; text-overflow: ellipsis;
+            border: 1px dashed #cbd5e1; background: transparent; width: 100%; box-sizing: border-box; font-size: 11px; outline: none; font-family: inherit; color: var(--text); padding: 4px; border-radius: 3px; transition: 0.2s; text-overflow: ellipsis;
         }
         .input-transparent:focus { border-style: solid; border-color: var(--primary); background: white; }
 
@@ -190,7 +190,7 @@
     <div class="zoom-wrapper">
         <div class="app-wrapper">
             <header class="header-dexco">
-                <h1>Dexco S.A - Gestão Diária de Caixa</h1> 
+                <h1 id="dia-atual-display">Dexco S.A - Gestão Diária de Caixa</h1> 
                 <div class="header-actions">
                     <button class="btn-export" style="background:#10b981;" onclick="exportarCSV()">📥 Exportar CSV</button>
                     <button class="btn-export" style="background:#0284c7;" onclick="abrirAprovacoes()">✅ Aprovações</button>
@@ -363,7 +363,7 @@
         }
 
         // ==============================================
-        // BANCO DE DADOS E CARGA (CORRIGIDO LIMITE DE 1000 LINHAS)
+        // BANCO DE DADOS E CARGA (CORRIGIDO LIMITE SUPABASE)
         // ==============================================
         async function inicializarCaixa() {
             try {
@@ -403,7 +403,7 @@
                     Object.keys(empresasConfig).forEach(e => dadosPorDia[d][e] = {});
                 });
 
-                // LAÇO DE PAGINAÇÃO PARA BUSCAR TODO O HISTÓRICO SEM PERDER DADOS
+                // LAÇO DE PAGINAÇÃO: GARANTE QUE TODOS OS DADOS SÃO BAIXADOS SEM CORTES DO SUPABASE
                 let dbLancamentos = [];
                 let pag = 0;
                 while(true) {
@@ -454,7 +454,7 @@
                 document.getElementById('loading-overlay').style.display = 'none';
 
             } catch (err) { 
-                alert("Erro ao conectar com banco de dados: " + err.message); 
+                alert("Erro ao carregar banco: " + err.message); 
                 document.getElementById('loading-overlay').style.display = 'none';
             }
         }
@@ -497,16 +497,16 @@
                 }
             });
             
-            if(upserts.length > 0) { 
-                const chunkSize = 500;
+            if(upserts.length > 0) {
+                const chunkSize = 500; // Divide o pacote para não estourar o limite de upload do Supabase
                 for (let i = 0; i < upserts.length; i += chunkSize) {
-                    await sb.from('caixa_lancamentos').upsert(upserts.slice(i, i + chunkSize), { onConflict: 'nome_dia, conta_id, categoria_codigo' }); 
+                    await sb.from('caixa_lancamentos').upsert(upserts.slice(i, i + chunkSize), { onConflict: 'nome_dia, conta_id, categoria_codigo' });
                 }
             }
         }
 
         // ==============================================
-        // CONTROLE DA TABELA E DIGITAÇÃO (SOMAS CORRIGIDAS)
+        // CONTROLE DA TABELA E DIGITAÇÃO (SOMAS CORRETAS)
         // ==============================================
         function getV(id, cidx) { let el = document.getElementById(`val-${id}-${cidx}`); return el ? parseMoeda(el.innerText) : 0; }
         function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = formatarMoeda(val); }
@@ -710,7 +710,7 @@
         }
 
         async function confirmarEnvioAprovacoes() {
-            if(!confirm("Confirma que esta planilha de Aprovações já foi enviada?\n\nIsso limpará as aplicações e TEDs deste lote na tela de Aprovação.")) return;
+            if(!confirm("Confirma que esta planilha de Aprovações já foi enviada?\n\nIsso limpará as aplicações e TEDs deste lote na tela de Aprovação (Mas elas continuarão normais no Resumo do Dia).")) return;
             
             salvarEstadoLocal(); 
             let diaDados = dadosPorDia[diaAtivo];
@@ -959,7 +959,10 @@
             const container = document.getElementById('nav-dias-container');
             let html = diasCadastrados.map(d => `<div class="dia-btn ${d === diaAtivo ? 'active' : ''}" onclick="mudarDia('${d}')"><span>${d}</span><span class="btn-acao fechar" onclick="event.stopPropagation(); fecharAba('${d}')" title="Ocultar Guia">&times;</span></div>`).join('');
             html += `<button class="btn-novo-dia" onclick="abrirModalCalendario()">📅 ABRIR / RESTAURAR</button>`;
-            document.getElementById('dia-atual-display').innerText = `Fluxo Diário: ${diaAtivo}`;
+            
+            let titleEl = document.getElementById('dia-atual-display');
+            if (titleEl) titleEl.innerText = `Fluxo Diário: ${diaAtivo}`;
+            
             container.innerHTML = html;
         }
 
