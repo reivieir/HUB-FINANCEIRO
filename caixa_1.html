@@ -133,9 +133,15 @@
         .btn-modal-acao:hover { background: #059669; }
 
         .input-transparent {
-            border: 1px dashed #cbd5e1; background: transparent; width: 100%; box-sizing: border-box; font-size: 11px; outline: none; font-family: inherit; color: var(--text); padding: 4px; border-radius: 3px; transition: 0.2s; text-overflow: ellipsis;
+            border: 1px dashed #cbd5e1; background: transparent; width: 100%; box-sizing: border-box; font-size: 11px; outline: none; font-family: inherit; color: var(--text); padding: 2px; border-radius: 3px; transition: 0.2s; text-overflow: ellipsis;
         }
         .input-transparent:focus { border-style: solid; border-color: var(--primary); background: white; }
+
+        /* Estilo invisível para a lista de Aprovadores na hora de copiar */
+        select.select-aprov {
+            width: 100%; border: none; background: transparent; font-size: 13px; font-weight: bold; text-align: center; text-align-last: center; outline: none; cursor: pointer; font-family: inherit; color: var(--text); appearance: none; padding: 4px; border-radius: 3px;
+        }
+        select.select-aprov:focus { background: white; border: 1px dashed var(--primary); }
     </style>
 </head>
 <body>
@@ -292,6 +298,22 @@
         };
 
         // ==============================================
+        // LISTA DE APROVADORES OFICIAL
+        // ==============================================
+        const selectAprovadoresHTML = `
+            <option value="">Selecione...</option>
+            <option value="CLAUDIA">CLAUDIA</option>
+            <option value="CRISTIANE">CRISTIANE</option>
+            <option value="DOUGLAS">DOUGLAS</option>
+            <option value="FERNANDO">FERNANDO</option>
+            <option value="GIORGINNI">GIORGINNI</option>
+            <option value="RAFAELLA">RAFAELLA</option>
+            <option value="REINALDO">REINALDO</option>
+            <option value="RICARDO">RICARDO</option>
+            <option value="VANESSA">VANESSA</option>
+        `;
+
+        // ==============================================
         // FUNÇÕES DE FORMATAÇÃO
         // ==============================================
         function parseMoeda(str) {
@@ -415,7 +437,6 @@
             if(!diaAtivo) return;
             let upserts = [];
             
-            // Agora varre todas as empresas do dia, salvando TUDO (corrige o bug do lote)
             Object.keys(empresasConfig).forEach(emp => {
                 let contasDaEmpresa = empresasConfig[emp];
                 let estado = dadosPorDia[diaAtivo][emp];
@@ -543,7 +564,7 @@
         }
 
         // ==============================================
-        // PLANILHA DE APROVAÇÕES E LIMPEZA DE LOTE
+        // PLANILHA DE APROVAÇÕES
         // ==============================================
         function abrirAprovacoes() {
             salvarEstadoLocal();
@@ -557,7 +578,6 @@
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = diaDados[emp][idx] || {};
 
-                    // TEDs para Itaú
                     let pendStenv = parseFloat(contaDados['pendente-aprov-stenv']) || 0;
                     if(pendStenv > 0) {
                         let bancoDest = contaDados['banco-stenv'] || '';
@@ -568,7 +588,6 @@
                         });
                     }
 
-                    // Aplicações
                     let pendSo7 = parseFloat(contaDados['pendente-aprov-so7']) || 0;
                     if(pendSo7 > 0) {
                         items.push({ 
@@ -586,9 +605,12 @@
                 return;
             }
 
-            // Agrupa as aprovações por Banco de Origem (Ex: Tudo que sai do Bradesco fica no mesmo bloco)
             const bancosOrigem = [...new Set(items.map(i => i.bancoOrigem))];
             let htmlTotal = `<h2 style="color:var(--primary); margin-top:0; margin-bottom: 25px;">Planilha de Aprovações: <span style="color:#64748b">${diaAtivo}</span></h2>`;
+
+            // Criando os selects de aprovadores baseados na lista gerada no topo do código
+            let selectRic = `<select class="select-aprov" onchange="this.setAttribute('value', this.value)">${selectAprovadoresHTML.replace('value="RICARDO"', 'value="RICARDO" selected')}</select>`;
+            let selectAm = `<select class="select-aprov" onchange="this.setAttribute('value', this.value)">${selectAprovadoresHTML}</select>`;
 
             bancosOrigem.forEach(banco => {
                 let itensBanco = items.filter(i => i.bancoOrigem === banco);
@@ -597,7 +619,6 @@
                 let linhasHtml = itensBanco.map(item => {
                     let nomeEmpresaFull = nomesCompletosEmpresas[item.empresa] || item.empresa;
                     
-                    // Favorecido vazio para aplicação, preenchido para TED
                     let favHtml = `<input type="text" class="input-transparent" style="font-weight:bold;" value="${item.isAplicacao ? '' : nomeEmpresaFull}" placeholder="${item.isAplicacao ? 'Digite Favorecido...' : ''}" oninput="this.setAttribute('value', this.value)">`;
                     
                     let destText = item.contaDestino ? `BANCO ${item.contaDestino.replace(' - ', ' AG ').replace('/', 'C.C')}` : '';
@@ -621,11 +642,11 @@
                     <table style="width: 450px; border-collapse: collapse; text-align: center; margin-bottom: 10px; font-size: 13px; font-family: 'Segoe UI', Arial, sans-serif;">
                         <tr>
                             <td rowspan="2" style="border: 1px solid #000; font-weight: bold; background: #fff; width: 120px;">APROVADORES</td>
-                            <td style="border: 1px solid #000; background: #f2f2f2; font-weight: bold; width: 150px;">RICARDO</td>
+                            <td style="border: 1px solid #000; background: #f2f2f2; width: 150px; padding: 0;">${selectRic}</td>
                             <td style="border: 1px solid #000; background: #fff; font-weight: bold; width: 180px;">INSTITUIÇÃO BANCÁRIA</td>
                         </tr>
                         <tr>
-                            <td style="border: 1px solid #000; background: #f2f2f2; font-weight: bold;">AMANDA</td>
+                            <td style="border: 1px solid #000; background: #f2f2f2; padding: 0;">${selectAm}</td>
                             <td style="border: 1px solid #000; background: #e2efda; font-weight: bold; color: var(--primary);">${banco}</td>
                         </tr>
                     </table>
@@ -661,12 +682,10 @@
         async function confirmarEnvioAprovacoes() {
             if(!confirm("Confirma que esta planilha de Aprovações já foi enviada?\n\nIsso limpará as aplicações e TEDs deste lote na tela de Aprovação (Mas elas continuarão normais no Resumo do Dia).")) return;
             
-            salvarEstadoLocal(); // Salva qualquer alteração digitada
-
+            salvarEstadoLocal(); 
             let diaDados = dadosPorDia[diaAtivo];
             if(!diaDados) return;
 
-            // Zera as variáveis de aprovação globalmente
             Object.keys(empresasConfig).forEach(emp => {
                 if(diaDados[emp]) {
                     Object.keys(diaDados[emp]).forEach(idx => {
@@ -678,11 +697,12 @@
                 }
             });
             
-            carregarEstado(); // Puxa os zeros para a tela
-            await syncSupabase(); // Salva a limpeza de todos os bancos no DB
-            abrirAprovacoes();   
+            carregarEstado(); await syncSupabase(); abrirAprovacoes();   
         }
 
+        // ==============================================
+        // RESUMO DO DIA
+        // ==============================================
         function abrirResumo() {
             salvarEstadoLocal(); 
             document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
@@ -755,26 +775,17 @@
 
         async function confirmarEnvioLoteResumo() {
             if(!confirm("Confirma que este lote de Aplicação/Resgate já foi enviado?\n\nIsso NÃO afeta a Planilha de Aprovações.")) return;
-            
-            salvarEstadoLocal(); // Salva qualquer alteração digitada
-
+            salvarEstadoLocal();
             let diaDados = dadosPorDia[diaAtivo];
             if(!diaDados) return;
-
             Object.keys(empresasConfig).forEach(emp => {
                 if(diaDados[emp]) {
                     Object.keys(diaDados[emp]).forEach(idx => {
-                        if(diaDados[emp][idx]) {
-                            diaDados[emp][idx]['pendente-o3'] = "0"; 
-                            diaDados[emp][idx]['pendente-so7'] = "0"; 
-                        }
+                        if(diaDados[emp][idx]) { diaDados[emp][idx]['pendente-o3'] = "0"; diaDados[emp][idx]['pendente-so7'] = "0"; }
                     });
                 }
             });
-            
-            carregarEstado(); 
-            await syncSupabase(); 
-            abrirResumo();   
+            carregarEstado(); await syncSupabase(); abrirResumo();   
         }
 
         // ==============================================
