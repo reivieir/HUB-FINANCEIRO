@@ -1,4 +1,3 @@
-CAIXA_1
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -85,7 +84,7 @@ CAIXA_1
         .tab-btn { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; white-space: nowrap;}
         .tab-btn.active { background: var(--bg); border-color: var(--border); color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        /* TABELA */
+        /* TABELA E LINHAS DE SOMA ESCURAS */
         .grid-container { flex: 1; min-height: 0; overflow: auto; background: white; position: relative; }
         table { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; font-size: 10px; }
         th, td { border: 1px solid var(--border); padding: 2px 4px; min-width: 135px; box-sizing: border-box; vertical-align: middle; background: white; }
@@ -104,7 +103,15 @@ CAIXA_1
         .bg-saldo-seguro { background-color: #1e293b !important; color: white !important; font-weight: bold; }
         
         .linha-destaque { font-weight: bold; background: white; }
-        .grupo-soma { font-weight: normal; text-transform: uppercase; background: white; }
+        
+        /* LINHA DE SOMA MAIS ESCURA E SALIENTE */
+        .grupo-soma { 
+            background-color: #94a3b8 !important; 
+            color: #0f172a !important; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+        }
+
         .indent { padding-left: 15px !important; }
         .no-input .input-lancar { display: none; }
         .no-input .cell-acumulado { font-weight: bold; font-size: 11px; }
@@ -134,11 +141,10 @@ CAIXA_1
         .btn-modal-acao:hover { background: #059669; }
 
         .input-transparent {
-            border: 1px dashed #cbd5e1; background: transparent; width: 100%; box-sizing: border-box; font-size: 11px; outline: none; font-family: inherit; color: var(--text); padding: 2px; border-radius: 3px; transition: 0.2s; text-overflow: ellipsis;
+            border: 1px dashed #cbd5e1; background: transparent; width: 100%; box-sizing: border-box; font-size: 11px; outline: none; font-family: inherit; color: var(--text); padding: 4px; border-radius: 3px; transition: 0.2s; text-overflow: ellipsis;
         }
         .input-transparent:focus { border-style: solid; border-color: var(--primary); background: white; }
 
-        /* Estilo invisível para a lista de Aprovadores na hora de copiar */
         select.select-aprov {
             width: 100%; border: none; background: transparent; font-size: 13px; font-weight: bold; text-align: center; text-align-last: center; outline: none; cursor: pointer; font-family: inherit; color: var(--text); appearance: none; padding: 4px; border-radius: 3px;
         }
@@ -277,61 +283,32 @@ CAIXA_1
         let dadosPorDia = {};
         const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
 
-        // ==============================================
-        // MAPA OFICIAL DE NOMES DE EMPRESAS
-        // ==============================================
         const nomesCompletosEmpresas = {
-            'BRDX': 'DEXCO S.A',
-            'BRDF': 'DURATEX FLORESTAL',
-            'BRHY': 'HYDRA CORONA',
-            'BRCF': 'CAETEX FLORESTAL',
-            'BRS1': 'AROEIRA FLORESTAL',
-            'BRS3': 'JATOBA FLORESTAL',
-            'BRS2': 'CAMBUI FLORESTAL',
-            'BREM': 'DEXCO EMPREENDIMENTOS',
-            'BRBC': 'DEXCO COM',
-            'BRSF': 'ESTRELA DO SUL',
-            'BRIT': 'INSTITUTO DEXCO',
-            'DFL II': 'DURATEX FLORESTAL II',
-            'DFLII': 'DURATEX FLORESTAL II',
-            'BRSD': 'PDX',
-            'BRTR': 'DX STORE'
+            'BRDX': 'DEXCO S.A', 'BRDF': 'DURATEX FLORESTAL', 'BRHY': 'HYDRA CORONA', 'BRCF': 'CAETEX FLORESTAL',
+            'BRS1': 'AROEIRA FLORESTAL', 'BRS3': 'JATOBA FLORESTAL', 'BRS2': 'CAMBUI FLORESTAL', 'BREM': 'DEXCO EMPREENDIMENTOS',
+            'BRBC': 'DEXCO COM', 'BRSF': 'ESTRELA DO SUL', 'BRIT': 'INSTITUTO DEXCO', 'DFL II': 'DURATEX FLORESTAL II',
+            'DFLII': 'DURATEX FLORESTAL II', 'BRSD': 'PDX', 'BRTR': 'DX STORE'
         };
 
-        // ==============================================
-        // LISTA DE APROVADORES OFICIAL
-        // ==============================================
         const selectAprovadoresHTML = `
             <option value="">Selecione...</option>
-            <option value="CLAUDIA">CLAUDIA</option>
-            <option value="CRISTIANE">CRISTIANE</option>
-            <option value="DOUGLAS">DOUGLAS</option>
-            <option value="FERNANDO">FERNANDO</option>
-            <option value="GIORGINNI">GIORGINNI</option>
-            <option value="RAFAELLA">RAFAELLA</option>
-            <option value="REINALDO">REINALDO</option>
-            <option value="RICARDO">RICARDO</option>
+            <option value="CLAUDIA">CLAUDIA</option><option value="CRISTIANE">CRISTIANE</option>
+            <option value="DOUGLAS">DOUGLAS</option><option value="FERNANDO">FERNANDO</option>
+            <option value="GIORGINNI">GIORGINNI</option><option value="RAFAELLA">RAFAELLA</option>
+            <option value="REINALDO">REINALDO</option><option value="RICARDO">RICARDO</option>
             <option value="VANESSA">VANESSA</option>
         `;
 
-        // ==============================================
-        // FUNÇÕES DE FORMATAÇÃO
-        // ==============================================
         function parseMoeda(str) {
             if (!str) return 0;
-            str = str.toString().trim();
-            str = str.replace(/\./g, '').replace(',', '.');
-            const num = parseFloat(str);
-            return isNaN(num) ? 0 : num;
+            str = str.toString().trim().replace(/\./g, '').replace(',', '.');
+            const num = parseFloat(str); return isNaN(num) ? 0 : num;
         }
 
         function formatarMoeda(valor) {
             return new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(valor);
         }
 
-        // ==============================================
-        // LOGIN E ACESSO
-        // ==============================================
         function seEnterLogin(e) { if(e.key === 'Enter') fazerLogin(); }
 
         async function fazerLogin() {
@@ -342,7 +319,7 @@ CAIXA_1
             msg.innerText = "Verificando..."; msg.style.color = "#64748b";
 
             const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_acesso').single();
-            if (error || !data) { msg.innerText = "Erro ao validar senha no banco de dados."; msg.style.color = "#c40000"; return; }
+            if (error || !data) { msg.innerText = "Erro ao validar senha."; msg.style.color = "#c40000"; return; }
 
             if (senhaDigitada === data.valor) {
                 document.getElementById('login-screen').style.display = 'none';
@@ -355,28 +332,18 @@ CAIXA_1
             }
         }
 
-        // ==============================================
-        // BANCO DE DADOS E CARGA
-        // ==============================================
         async function inicializarCaixa() {
             try {
                 const { data: dbEmpresas } = await sb.from('caixa_empresas').select('*').order('ordem');
                 const { data: dbContas } = await sb.from('caixa_contas').select('*').order('ordem');
                 
                 dbEmpresas.forEach(emp => {
-                    empresasConfig[emp.nome] = dbContas
-                        .filter(c => c.empresa_id === emp.id)
-                        .map(c => ({ id: c.id, b: c.banco_nome, c: c.agencia_conta }));
-                    
-                    empresasConfig[emp.nome].forEach((ct, idx) => {
-                        mapConta[ct.id] = { emp: emp.nome, idx: idx };
-                    });
+                    empresasConfig[emp.nome] = dbContas.filter(c => c.empresa_id === emp.id).map(c => ({ id: c.id, b: c.banco_nome, c: c.agencia_conta }));
+                    empresasConfig[emp.nome].forEach((ct, idx) => { mapConta[ct.id] = { emp: emp.nome, idx: idx }; });
                 });
 
                 const { data: dbCategorias } = await sb.from('caixa_categorias').select('*').order('ordem');
-                plano = dbCategorias.map(cat => ({
-                    id: cat.codigo, nome: cat.nome, tipo: cat.tipo, readOnly: cat.is_readonly
-                }));
+                plano = dbCategorias.map(cat => ({ id: cat.codigo, nome: cat.nome, tipo: cat.tipo, readOnly: cat.is_readonly }));
 
                 const h = new Date();
                 const dataHojeStr = `${String(h.getDate()).padStart(2, '0')}/${String(h.getMonth() + 1).padStart(2, '0')}/${h.getFullYear()}`;
@@ -392,8 +359,7 @@ CAIXA_1
                 diaAtivo = diasCadastrados.includes(dataHojeStr) ? dataHojeStr : diasCadastrados[diasCadastrados.length - 1];
 
                 diasCadastrados.forEach(d => {
-                    dadosPorDia[d] = {};
-                    Object.keys(empresasConfig).forEach(e => dadosPorDia[d][e] = {});
+                    dadosPorDia[d] = {}; Object.keys(empresasConfig).forEach(e => dadosPorDia[d][e] = {});
                 });
 
                 const { data: dbLancamentos } = await sb.from('caixa_lancamentos').select('*');
@@ -403,7 +369,6 @@ CAIXA_1
                         if(info && dadosPorDia[lan.nome_dia]) {
                             let e = info.emp; let i = info.idx;
                             if(!dadosPorDia[lan.nome_dia][e][i]) dadosPorDia[lan.nome_dia][e][i] = {};
-                            
                             dadosPorDia[lan.nome_dia][e][i][lan.categoria_codigo] = formatarMoeda(lan.valor);
                             
                             try {
@@ -418,30 +383,26 @@ CAIXA_1
                                 dadosPorDia[lan.nome_dia][e][i][`banco-${lan.categoria_codigo}`] = lan.banco_destino || "";
                             }
                             
-                            if(lan.valor_pendente > 0) {
-                                dadosPorDia[lan.nome_dia][e][i][`pendente-${lan.categoria_codigo}`] = lan.valor_pendente.toString();
-                            }
+                            if(lan.valor_pendente > 0) dadosPorDia[lan.nome_dia][e][i][`pendente-${lan.categoria_codigo}`] = lan.valor_pendente.toString();
                         }
                     });
                 }
 
-                empresaAtiva = dbEmpresas[0].nome;
-                contas = empresasConfig[empresaAtiva];
-
+                empresaAtiva = dbEmpresas[0].nome; contas = empresasConfig[empresaAtiva];
                 renderTabsEmpresas(); renderTabela(); renderTabsDias(); carregarEstado();
                 document.getElementById('loading-overlay').style.display = 'none';
 
-            } catch (err) { alert("Erro ao conectar com banco de dados."); }
+            } catch (err) { alert("Erro ao carregar banco."); }
         }
 
         async function syncSupabase() {
             if(!diaAtivo) return;
             let upserts = [];
             
+            // Chunking - Fatiamento para evitar limite de payload no Supabase e perda de dados
             Object.keys(empresasConfig).forEach(emp => {
                 let contasDaEmpresa = empresasConfig[emp];
                 let estado = dadosPorDia[diaAtivo][emp];
-                
                 if (estado) {
                     contasDaEmpresa.forEach((c, idx) => {
                         let contaId = c.id;
@@ -457,31 +418,27 @@ CAIXA_1
                                 if (pAprov > 0 || String(b).startsWith('{')) {
                                     bancoStr = JSON.stringify({ banco: b, pAprov: pAprov });
                                 }
-
-                                upserts.push({
-                                    nome_dia: diaAtivo,
-                                    conta_id: contaId,
-                                    categoria_codigo: catCodigo,
-                                    valor: v,
-                                    valor_pendente: p,
-                                    banco_destino: bancoStr
-                                });
+                                upserts.push({ nome_dia: diaAtivo, conta_id: contaId, categoria_codigo: catCodigo, valor: v, valor_pendente: p, banco_destino: bancoStr });
                             }
                         });
                     });
                 }
             });
             
-            if(upserts.length > 0) { await sb.from('caixa_lancamentos').upsert(upserts, { onConflict: 'nome_dia, conta_id, categoria_codigo' }); }
+            if(upserts.length > 0) {
+                const chunkSize = 500;
+                for (let i = 0; i < upserts.length; i += chunkSize) {
+                    const chunk = upserts.slice(i, i + chunkSize);
+                    await sb.from('caixa_lancamentos').upsert(chunk, { onConflict: 'nome_dia, conta_id, categoria_codigo' });
+                }
+            }
         }
 
-        // ==============================================
-        // CONTROLE DA TABELA E DIGITAÇÃO
-        // ==============================================
         function getV(id, cidx) { let el = document.getElementById(`val-${id}-${cidx}`); return el ? parseMoeda(el.innerText) : 0; }
         function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = formatarMoeda(val); }
 
         function recalcularColuna(idx) {
+            // SOMAS ENTRADAS
             let sc = getV('c1',idx) + getV('c2',idx) + getV('c3',idx) + getV('c4',idx) + getV('c5',idx); setV('sc', idx, sc);
             let sco = getV('co1',idx) + getV('co2',idx); setV('sco', idx, sco);
             let so = getV('o1',idx) + getV('o2',idx) + getV('o3',idx) + getV('o4',idx) + getV('o5',idx) + getV('o6',idx) + getV('o7',idx) + getV('o8',idx); setV('so', idx, so);
@@ -490,6 +447,7 @@ CAIXA_1
             
             let te = sc + sco + so + sf + sint + getV('tr',idx); setV('te', idx, te);
 
+            // SOMAS SAÍDAS
             let sfor = getV('s1',idx) + getV('s2',idx) + getV('s3',idx) + getV('s4',idx) + getV('s5',idx) + getV('s6',idx) + getV('s7',idx); setV('sfor', idx, sfor);
             let ssal = getV('sa1',idx) + getV('sa2',idx); setV('ssal', idx, ssal);
             let ssout = getV('so1',idx) + getV('so2',idx) + getV('so3',idx) + getV('so4',idx) + getV('so5',idx) + getV('so6',idx) + getV('so7',idx) + getV('so8',idx); setV('ssout', idx, ssout);
@@ -508,24 +466,17 @@ CAIXA_1
                 if(isNaN(v) || e.target.value.trim() === '') return;
                 
                 setV(lid, cidx, getV(lid, cidx) + v); 
-                
                 let el = document.getElementById(`val-${lid}-${cidx}`);
                 
                 if (lid === 'o3' || lid === 'so7') {
-                    let p = parseFloat(el.getAttribute('data-pendente')) || 0;
-                    el.setAttribute('data-pendente', p + v);
+                    let p = parseFloat(el.getAttribute('data-pendente')) || 0; el.setAttribute('data-pendente', p + v);
                 }
-                
                 if (lid === 'so7') {
-                    let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0;
-                    el.setAttribute('data-pendente-aprov', pAprov + v);
+                    let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0; el.setAttribute('data-pendente-aprov', pAprov + v);
                 }
                 
-                e.target.parentElement.parentElement.classList.add('flash');
-                setTimeout(() => e.target.parentElement.parentElement.classList.remove('flash'), 500);
-                e.target.value = ""; recalcularColuna(cidx); 
-                
-                salvarEstadoLocal(); await syncSupabase();
+                e.target.parentElement.parentElement.classList.add('flash'); setTimeout(() => e.target.parentElement.parentElement.classList.remove('flash'), 500);
+                e.target.value = ""; recalcularColuna(cidx); salvarEstadoLocal(); await syncSupabase();
             }
         }
 
@@ -534,32 +485,22 @@ CAIXA_1
                 const selectDestino = document.getElementById(`sel-${lid}-${fromIdx}`);
                 const toIdx = selectDestino.value;
                 if(toIdx === "") { alert("Selecione o destino primeiro."); return; }
-                const v = parseMoeda(e.target.value);
-                if(isNaN(v) || v === 0) return; 
+                const v = parseMoeda(e.target.value); if(isNaN(v) || v === 0) return; 
                 
-                setV(lid, fromIdx, getV(lid, fromIdx) + v);
-                setV('tr', toIdx, getV('tr', toIdx) + v);
+                setV(lid, fromIdx, getV(lid, fromIdx) + v); setV('tr', toIdx, getV('tr', toIdx) + v);
                 
-                const fromBanco = contas[fromIdx].b.toUpperCase();
-                const toBanco = contas[toIdx].b.toUpperCase();
+                const fromBanco = contas[fromIdx].b.toUpperCase(); const toBanco = contas[toIdx].b.toUpperCase();
 
                 if (!fromBanco.includes('ITAÚ') && toBanco.includes('ITAÚ')) {
                     let el = document.getElementById(`val-${lid}-${fromIdx}`);
-                    let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0;
-                    el.setAttribute('data-pendente-aprov', pAprov + v);
-
+                    let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0; el.setAttribute('data-pendente-aprov', pAprov + v);
                     if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
                     if(!dadosPorDia[diaAtivo][empresaAtiva][fromIdx]) dadosPorDia[diaAtivo][empresaAtiva][fromIdx] = {};
                     dadosPorDia[diaAtivo][empresaAtiva][fromIdx][`banco-${lid}`] = `${toBanco} - ${contas[toIdx].c}`;
                 }
                 
-                e.target.parentElement.parentElement.classList.add('flash');
-                document.getElementById(`val-tr-${toIdx}`).parentElement.parentElement.classList.add('flash-in');
-                setTimeout(() => { document.querySelectorAll('.flash, .flash-in').forEach(el => { el.classList.remove('flash'); el.classList.remove('flash-in'); }); }, 800);
-                
-                e.target.value = ""; selectDestino.value = "";
-                recalcularColuna(fromIdx); recalcularColuna(toIdx);
-                
+                e.target.parentElement.parentElement.classList.add('flash'); document.getElementById(`val-tr-${toIdx}`).parentElement.parentElement.classList.add('flash-in'); setTimeout(() => { document.querySelectorAll('.flash, .flash-in').forEach(el => { el.classList.remove('flash'); el.classList.remove('flash-in'); }); }, 800);
+                e.target.value = ""; selectDestino.value = ""; recalcularColuna(fromIdx); recalcularColuna(toIdx);
                 salvarEstadoLocal(); await syncSupabase();
             }
         }
@@ -568,49 +509,32 @@ CAIXA_1
         // PLANILHA DE APROVAÇÕES
         // ==============================================
         function abrirAprovacoes() {
-            salvarEstadoLocal();
-            let diaDados = dadosPorDia[diaAtivo];
-            if(!diaDados) return;
-
+            salvarEstadoLocal(); let diaDados = dadosPorDia[diaAtivo]; if(!diaDados) return;
             let items = [];
 
             Object.keys(empresasConfig).forEach(emp => {
                 if(!diaDados[emp]) return;
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = diaDados[emp][idx] || {};
-
                     let pendStenv = parseFloat(contaDados['pendente-aprov-stenv']) || 0;
                     if(pendStenv > 0) {
                         let bancoDest = contaDados['banco-stenv'] || '';
-                        items.push({ 
-                            bancoOrigem: c.b, empresa: emp, 
-                            contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, 
-                            contaDestino: bancoDest, valor: pendStenv, isAplicacao: false 
-                        });
+                        items.push({ bancoOrigem: c.b, empresa: emp, contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, contaDestino: bancoDest, valor: pendStenv, isAplicacao: false });
                     }
-
                     let pendSo7 = parseFloat(contaDados['pendente-aprov-so7']) || 0;
                     if(pendSo7 > 0) {
-                        items.push({ 
-                            bancoOrigem: c.b, empresa: emp, 
-                            contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, 
-                            contaDestino: '', valor: pendSo7, isAplicacao: true 
-                        });
+                        items.push({ bancoOrigem: c.b, empresa: emp, contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, contaDestino: '', valor: pendSo7, isAplicacao: true });
                     }
                 });
             });
 
             if(items.length === 0) {
                 document.getElementById('aprovacoes-container').innerHTML = `<p style="text-align:center; color:#64748b;">Nenhuma transferência ou aplicação pendente para aprovação.</p>`;
-                document.getElementById('modal-aprovacoes').style.display = 'flex';
-                return;
+                document.getElementById('modal-aprovacoes').style.display = 'flex'; return;
             }
 
             const bancosOrigem = [...new Set(items.map(i => i.bancoOrigem))];
             let htmlTotal = `<h2 style="color:var(--primary); margin-top:0; margin-bottom: 25px;">Planilha de Aprovações: <span style="color:#64748b">${diaAtivo}</span></h2>`;
-
-            
-            // Criando os selects de aprovadores vazios para forçar a escolha
             let selectRic = `<select class="select-aprov" onchange="this.setAttribute('value', this.value)">${selectAprovadoresHTML}</select>`;
             let selectAm = `<select class="select-aprov" onchange="this.setAttribute('value', this.value)">${selectAprovadoresHTML}</select>`;
 
@@ -620,13 +544,9 @@ CAIXA_1
 
                 let linhasHtml = itensBanco.map(item => {
                     let nomeEmpresaFull = nomesCompletosEmpresas[item.empresa] || item.empresa;
-                    
                     let favHtml = `<input type="text" class="input-transparent" style="font-weight:bold;" value="${item.isAplicacao ? '' : nomeEmpresaFull}" placeholder="${item.isAplicacao ? 'Digite Favorecido...' : ''}" oninput="this.setAttribute('value', this.value)">`;
-                    
                     let destText = item.contaDestino ? `BANCO ${item.contaDestino.replace(' - ', ' AG ').replace('/', 'C.C')}` : '';
-                    let destHtml = item.isAplicacao 
-                        ? `<input type="text" class="input-transparent" placeholder="Conta Destino Aplicação..." oninput="this.setAttribute('value', this.value)">`
-                        : `<input type="text" class="input-transparent" value="${destText}" oninput="this.setAttribute('value', this.value)">`;
+                    let destHtml = item.isAplicacao ? `<input type="text" class="input-transparent" placeholder="Conta Destino Aplicação..." oninput="this.setAttribute('value', this.value)">` : `<input type="text" class="input-transparent" value="${destText}" oninput="this.setAttribute('value', this.value)">`;
 
                     return `
                     <tr>
@@ -642,151 +562,59 @@ CAIXA_1
                 htmlTotal += `
                 <div style="margin-bottom: 40px; page-break-inside: avoid;">
                     <table style="width: 450px; border-collapse: collapse; text-align: center; margin-bottom: 10px; font-size: 13px; font-family: 'Segoe UI', Arial, sans-serif;">
-                        <tr>
-                            <td rowspan="2" style="border: 1px solid #000; font-weight: bold; background: #fff; width: 120px;">APROVADORES</td>
-                            <td style="border: 1px solid #000; background: #f2f2f2; width: 150px; padding: 0;">${selectRic}</td>
-                            <td style="border: 1px solid #000; background: #fff; font-weight: bold; width: 180px;">INSTITUIÇÃO BANCÁRIA</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #000; background: #f2f2f2; padding: 0;">${selectAm}</td>
-                            <td style="border: 1px solid #000; background: #e2efda; font-weight: bold; color: var(--primary);">${banco}</td>
-                        </tr>
+                        <tr><td rowspan="2" style="border: 1px solid #000; font-weight: bold; background: #fff; width: 120px;">APROVADORES</td><td style="border: 1px solid #000; background: #f2f2f2; width: 150px; padding: 0;">${selectRic}</td><td style="border: 1px solid #000; background: #fff; font-weight: bold; width: 180px;">INSTITUIÇÃO BANCÁRIA</td></tr>
+                        <tr><td style="border: 1px solid #000; background: #f2f2f2; padding: 0;">${selectAm}</td><td style="border: 1px solid #000; background: #e2efda; font-weight: bold; color: var(--primary);">${banco}</td></tr>
                     </table>
-
                     <table style="width: 100%; border-collapse: collapse; font-size: 11px; font-family: 'Segoe UI', Arial, sans-serif; text-align: left;">
                         <thead style="background: #d9d9d9;">
-                            <tr>
-                                <th style="border: 1px solid #000; padding: 6px; width: 10%;">BANCO <span style="font-size: 9px; color:#555;">▼</span></th>
-                                <th style="border: 1px solid #000; padding: 6px; width: 20%;">EMPRESA <span style="font-size: 9px; color:#555;">▼</span></th>
-                                <th style="border: 1px solid #000; padding: 6px; width: 20%;">CONTA ORIGEM <span style="font-size: 9px; color:#555;">▼</span></th>
-                                <th style="border: 1px solid #000; padding: 6px; width: 20%;">FAVORECIDO <span style="font-size: 9px; color:#555;">▼</span></th>
-                                <th style="border: 1px solid #000; padding: 6px; width: 20%;">CONTA DESTINO <span style="font-size: 9px; color:#555;">▼</span></th>
-                                <th style="border: 1px solid #000; padding: 6px; width: 10%; text-align: right;">MONTANTE.</th>
-                            </tr>
+                            <tr><th style="border: 1px solid #000; padding: 6px; width: 10%;">BANCO <span style="font-size: 9px; color:#555;">▼</span></th><th style="border: 1px solid #000; padding: 6px; width: 20%;">EMPRESA <span style="font-size: 9px; color:#555;">▼</span></th><th style="border: 1px solid #000; padding: 6px; width: 20%;">CONTA ORIGEM <span style="font-size: 9px; color:#555;">▼</span></th><th style="border: 1px solid #000; padding: 6px; width: 20%;">FAVORECIDO <span style="font-size: 9px; color:#555;">▼</span></th><th style="border: 1px solid #000; padding: 6px; width: 20%;">CONTA DESTINO <span style="font-size: 9px; color:#555;">▼</span></th><th style="border: 1px solid #000; padding: 6px; width: 10%; text-align: right;">MONTANTE.</th></tr>
                         </thead>
-                        <tbody>
-                            ${linhasHtml}
-                        </tbody>
-                        <tfoot>
-                            <tr style="background: #d9d9d9; font-weight: bold;">
-                                <td colspan="5" style="border: 1px solid #000; padding: 6px;">Total Geral</td>
-                                <td style="border: 1px solid #000; padding: 6px; text-align: right; white-space: nowrap;">R$ ${formatarMoeda(totalBanco)}</td>
-                            </tr>
-                        </tfoot>
+                        <tbody>${linhasHtml}</tbody>
+                        <tfoot><tr style="background: #d9d9d9; font-weight: bold;"><td colspan="5" style="border: 1px solid #000; padding: 6px;">Total Geral</td><td style="border: 1px solid #000; padding: 6px; text-align: right; white-space: nowrap;">R$ ${formatarMoeda(totalBanco)}</td></tr></tfoot>
                     </table>
                 </div>`;
             });
-
-            document.getElementById('aprovacoes-container').innerHTML = htmlTotal;
-            document.getElementById('modal-aprovacoes').style.display = 'flex';
+            document.getElementById('aprovacoes-container').innerHTML = htmlTotal; document.getElementById('modal-aprovacoes').style.display = 'flex';
         }
 
         async function confirmarEnvioAprovacoes() {
             if(!confirm("Confirma que esta planilha de Aprovações já foi enviada?\n\nIsso limpará as aplicações e TEDs deste lote na tela de Aprovação (Mas elas continuarão normais no Resumo do Dia).")) return;
-            
-            salvarEstadoLocal(); 
-            let diaDados = dadosPorDia[diaAtivo];
-            if(!diaDados) return;
-
-            Object.keys(empresasConfig).forEach(emp => {
-                if(diaDados[emp]) {
-                    Object.keys(diaDados[emp]).forEach(idx => {
-                        if(diaDados[emp][idx]) {
-                            diaDados[emp][idx]['pendente-aprov-stenv'] = "0";
-                            diaDados[emp][idx]['pendente-aprov-so7'] = "0";
-                        }
-                    });
-                }
-            });
-            
+            salvarEstadoLocal(); let diaDados = dadosPorDia[diaAtivo]; if(!diaDados) return;
+            Object.keys(empresasConfig).forEach(emp => { if(diaDados[emp]) { Object.keys(diaDados[emp]).forEach(idx => { if(diaDados[emp][idx]) { diaDados[emp][idx]['pendente-aprov-stenv'] = "0"; diaDados[emp][idx]['pendente-aprov-so7'] = "0"; } }); } });
             carregarEstado(); await syncSupabase(); abrirAprovacoes();   
         }
 
-        // ==============================================
-        // RESUMO DO DIA
-        // ==============================================
         function abrirResumo() {
-            salvarEstadoLocal(); 
-            document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
-            let diaDados = dadosPorDia[diaAtivo];
-            if(!diaDados) return;
-
-            let linhasPendente = ''; let linhasConsolidado = '';
-            let totPendResgGeral = 0, totPendAplicGeral = 0;
-            let totConsResgGeral = 0, totConsAplicGeral = 0;
-            let htmlCardsPendente = '<div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom: 20px;">';
-
+            salvarEstadoLocal(); document.getElementById('resumo-dia-titulo').innerText = diaAtivo; let diaDados = dadosPorDia[diaAtivo]; if(!diaDados) return;
+            let linhasPendente = ''; let linhasConsolidado = ''; let totPendResgGeral = 0, totPendAplicGeral = 0; let totConsResgGeral = 0, totConsAplicGeral = 0; let htmlCardsPendente = '<div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom: 20px;">';
             Object.keys(empresasConfig).forEach(emp => {
-                if(!diaDados[emp]) return;
-                let pResg = 0, pAplic = 0, cResg = 0, cAplic = 0;
-                let pBancos = new Set(), cBancos = new Set();
-
+                if(!diaDados[emp]) return; let pResg = 0, pAplic = 0, cResg = 0, cAplic = 0; let pBancos = new Set(), cBancos = new Set();
                 empresasConfig[emp].forEach((c, idx) => {
-                    let contaDados = diaDados[emp][idx] || {};
-                    let resg = parseMoeda(contaDados['o3']); let aplic = parseMoeda(contaDados['so7']);
-                    let pendR = parseFloat(contaDados['pendente-o3']) || 0; let pendA = parseFloat(contaDados['pendente-so7']) || 0;
-
+                    let contaDados = diaDados[emp][idx] || {}; let resg = parseMoeda(contaDados['o3']); let aplic = parseMoeda(contaDados['so7']); let pendR = parseFloat(contaDados['pendente-o3']) || 0; let pendA = parseFloat(contaDados['pendente-so7']) || 0;
                     cResg += resg; cAplic += aplic; pResg += pendR; pAplic += pendA;
-
-                    if(resg !== 0 && contaDados['banco-o3']) cBancos.add(contaDados['banco-o3']);
-                    if(aplic !== 0 && contaDados['banco-so7']) cBancos.add(contaDados['banco-so7']);
-                    if(pendR !== 0 && contaDados['banco-o3']) pBancos.add(contaDados['banco-o3']);
-                    if(pendA !== 0 && contaDados['banco-so7']) pBancos.add(contaDados['banco-so7']);
+                    if(resg !== 0 && contaDados['banco-o3']) cBancos.add(contaDados['banco-o3']); if(aplic !== 0 && contaDados['banco-so7']) cBancos.add(contaDados['banco-so7']); if(pendR !== 0 && contaDados['banco-o3']) pBancos.add(contaDados['banco-o3']); if(pendA !== 0 && contaDados['banco-so7']) pBancos.add(contaDados['banco-so7']);
                 });
-
                 if(pResg !== 0 || pAplic !== 0) {
-                    htmlCardsPendente += `
-                    <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 5px; background: #f8fafc; min-width: 150px; flex: 1;">
-                        <h4 style="margin: 0 0 5px 0; color: var(--primary); text-align: center;">${emp}</h4>
-                        <div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${formatarMoeda(pResg)}</div>
-                        <div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${formatarMoeda(pAplic)}</div>
-                    </div>`;
-                    totPendResgGeral += pResg; totPendAplicGeral += pAplic;
-                    let strBancoP = pBancos.size > 0 ? Array.from(pBancos).join(', ') : '-';
+                    htmlCardsPendente += `<div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 5px; background: #f8fafc; min-width: 150px; flex: 1;"><h4 style="margin: 0 0 5px 0; color: var(--primary); text-align: center;">${emp}</h4><div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${formatarMoeda(pResg)}</div><div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${formatarMoeda(pAplic)}</div></div>`;
+                    totPendResgGeral += pResg; totPendAplicGeral += pAplic; let strBancoP = pBancos.size > 0 ? Array.from(pBancos).join(', ') : '-';
                     linhasPendente += `<tr><td style="font-weight:bold;">${emp}</td><td style="text-align:right; color:#10b981; font-weight:bold;">${pResg !== 0 ? formatarMoeda(pResg) : '-'}</td><td style="text-align:right; color:var(--vermelho-saida); font-weight:bold;">${pAplic !== 0 ? formatarMoeda(pAplic) : '-'}</td><td style="text-align:center;">${strBancoP}</td></tr>`;
                 }
-
                 if(cResg !== 0 || cAplic !== 0) {
-                    totConsResgGeral += cResg; totConsAplicGeral += cAplic;
-                    let strBancoC = cBancos.size > 0 ? Array.from(cBancos).join(', ') : '-';
+                    totConsResgGeral += cResg; totConsAplicGeral += cAplic; let strBancoC = cBancos.size > 0 ? Array.from(cBancos).join(', ') : '-';
                     linhasConsolidado += `<tr><td>${emp}</td><td style="text-align:right;">${cResg !== 0 ? formatarMoeda(cResg) : '-'}</td><td style="text-align:right;">${cAplic !== 0 ? formatarMoeda(cAplic) : '-'}</td><td style="text-align:center;">${strBancoC}</td></tr>`;
                 }
             });
             htmlCardsPendente += '</div>';
-
-            if (linhasPendente === '') {
-                document.getElementById('resumo-content-pendente').innerHTML = "<p style='text-align: center; color: #64748b; font-size: 14px;'>Nenhuma nova pendência para enviar.</p>";
-            } else {
-                document.getElementById('resumo-content-pendente').innerHTML = htmlCardsPendente + `
-                <table class="resumo-table-print">
-                    <thead><tr><th style="text-align:left;">Empresa</th><th style="text-align:right;">Resgate</th><th style="text-align:right;">Aplicação</th><th style="text-align:center;">Banco</th></tr></thead>
-                    <tbody>${linhasPendente}</tbody>
-                    <tfoot><tr><th style="text-align:left;">Total a Enviar</th><th style="text-align:right;">${totPendResgGeral !== 0 ? formatarMoeda(totPendResgGeral) : '-'}</th><th style="text-align:right;">${totPendAplicGeral !== 0 ? formatarMoeda(totPendAplicGeral) : '-'}</th><th></th></tr></tfoot>
-                </table>`;
-            }
-
-            document.getElementById('resumo-content-consolidado').innerHTML = linhasConsolidado === '' ? "<p style='font-size:12px; color:#64748b; margin:0;'>O dia está zerado.</p>" : `
-                <table style="width:100%; border-collapse:collapse; font-size:11px; background:white;">
-                    <thead><tr style="background:#cbd5e1; color:#1e293b;"><th style="padding:4px; text-align:left;">Empresa</th><th style="padding:4px; text-align:right;">Resgate</th><th style="padding:4px; text-align:right;">Aplicação</th><th style="padding:4px; text-align:center;">Banco</th></tr></thead>
-                    <tbody>${linhasConsolidado}</tbody>
-                    <tfoot><tr style="font-weight:bold;"><td style="padding:4px;">Total</td><td style="padding:4px; text-align:right;">${totConsResgGeral !== 0 ? formatarMoeda(totConsResgGeral) : '-'}</td><td style="padding:4px; text-align:right;">${totConsAplicGeral !== 0 ? formatarMoeda(totConsAplicGeral) : '-'}</td><td></td></tr></tfoot>
-                </table>`;
-
+            if (linhasPendente === '') { document.getElementById('resumo-content-pendente').innerHTML = "<p style='text-align: center; color: #64748b; font-size: 14px;'>Nenhuma nova pendência para enviar.</p>";
+            } else { document.getElementById('resumo-content-pendente').innerHTML = htmlCardsPendente + `<table class="resumo-table-print"><thead><tr><th style="text-align:left;">Empresa</th><th style="text-align:right;">Resgate</th><th style="text-align:right;">Aplicação</th><th style="text-align:center;">Banco</th></tr></thead><tbody>${linhasPendente}</tbody><tfoot><tr><th style="text-align:left;">Total a Enviar</th><th style="text-align:right;">${totPendResgGeral !== 0 ? formatarMoeda(totPendResgGeral) : '-'}</th><th style="text-align:right;">${totPendAplicGeral !== 0 ? formatarMoeda(totPendAplicGeral) : '-'}</th><th></th></tr></tfoot></table>`; }
+            document.getElementById('resumo-content-consolidado').innerHTML = linhasConsolidado === '' ? "<p style='font-size:12px; color:#64748b; margin:0;'>O dia está zerado.</p>" : `<table style="width:100%; border-collapse:collapse; font-size:11px; background:white;"><thead><tr style="background:#cbd5e1; color:#1e293b;"><th style="padding:4px; text-align:left;">Empresa</th><th style="padding:4px; text-align:right;">Resgate</th><th style="padding:4px; text-align:right;">Aplicação</th><th style="padding:4px; text-align:center;">Banco</th></tr></thead><tbody>${linhasConsolidado}</tbody><tfoot><tr style="font-weight:bold;"><td style="padding:4px;">Total</td><td style="padding:4px; text-align:right;">${totConsResgGeral !== 0 ? formatarMoeda(totConsResgGeral) : '-'}</td><td style="padding:4px; text-align:right;">${totConsAplicGeral !== 0 ? formatarMoeda(totConsAplicGeral) : '-'}</td><td></td></tr></tfoot></table>`;
             document.getElementById('modal-resumo').style.display = 'flex';
         }
 
         async function confirmarEnvioLoteResumo() {
             if(!confirm("Confirma que este lote de Aplicação/Resgate já foi enviado?\n\nIsso NÃO afeta a Planilha de Aprovações.")) return;
-            salvarEstadoLocal();
-            let diaDados = dadosPorDia[diaAtivo];
-            if(!diaDados) return;
-            Object.keys(empresasConfig).forEach(emp => {
-                if(diaDados[emp]) {
-                    Object.keys(diaDados[emp]).forEach(idx => {
-                        if(diaDados[emp][idx]) { diaDados[emp][idx]['pendente-o3'] = "0"; diaDados[emp][idx]['pendente-so7'] = "0"; }
-                    });
-                }
-            });
+            salvarEstadoLocal(); let diaDados = dadosPorDia[diaAtivo]; if(!diaDados) return;
+            Object.keys(empresasConfig).forEach(emp => { if(diaDados[emp]) { Object.keys(diaDados[emp]).forEach(idx => { if(diaDados[emp][idx]) { diaDados[emp][idx]['pendente-o3'] = "0"; diaDados[emp][idx]['pendente-so7'] = "0"; } }); } });
             carregarEstado(); await syncSupabase(); abrirResumo();   
         }
 
@@ -794,87 +622,41 @@ CAIXA_1
         // CALENDÁRIO, DUPLICAÇÃO E MENU DE DIAS
         // ==============================================
         function abrirModalCalendario() {
-            salvarEstadoLocal(); 
-            const hoje = new Date();
-            document.getElementById('input-data-cal').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
-            
-            const selOcultas = document.getElementById('sel-guias-ocultas');
-            let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
-            if (guiasOcultas.length === 0) {
-                selOcultas.innerHTML = '<option value="">Nenhuma guia oculta...</option>';
-                selOcultas.disabled = true;
-            } else {
-                selOcultas.innerHTML = '<option value="">Selecione para restaurar...</option>' + guiasOcultas.map(d => `<option value="${d}">${d}</option>`).join('');
-                selOcultas.disabled = false;
-            }
-            document.getElementById('modal-calendario').style.display = 'flex';
+            salvarEstadoLocal(); const hoje = new Date(); document.getElementById('input-data-cal').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+            const selOcultas = document.getElementById('sel-guias-ocultas'); let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
+            if (guiasOcultas.length === 0) { selOcultas.innerHTML = '<option value="">Nenhuma guia oculta...</option>'; selOcultas.disabled = true; } else { selOcultas.innerHTML = '<option value="">Selecione para restaurar...</option>' + guiasOcultas.map(d => `<option value="${d}">${d}</option>`).join(''); selOcultas.disabled = false; }
+            document.getElementById('modal-cal').style.display = 'flex';
         }
 
-        function fecharModalCalendario() { document.getElementById('modal-calendario').style.display = 'none'; }
-
         async function processarDataCalendario() {
-            const inputData = document.getElementById('input-data-cal').value;
-            if(!inputData) { alert("Selecione uma data no calendário!"); return; }
-            
-            const partes = inputData.split('-');
-            const nomeDia = `${partes[2]}/${partes[1]}/${partes[0]}`;
-            
-            fecharModalCalendario();
-
+            const inputData = document.getElementById('input-data-cal').value; if(!inputData) { alert("Selecione uma data no calendário!"); return; }
+            const partes = inputData.split('-'); const nomeDia = `${partes[2]}/${partes[1]}/${partes[0]}`; document.getElementById('modal-cal').style.display = 'none';
             if (diasCadastrados.includes(nomeDia)) { mudarDia(nomeDia); return; }
-
-            let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d));
-            if (guiasOcultas.includes(nomeDia)) {
-                diasCadastrados.push(nomeDia); diaAtivo = nomeDia; carregarEstado(); renderTabsDias(); return;
-            }
-
-            salvarEstadoLocal(); 
-            await sb.from('caixa_dias').insert([{ nome_dia: nomeDia }]);
-
+            let guiasOcultas = Object.keys(dadosPorDia).filter(d => !diasCadastrados.includes(d)); if (guiasOcultas.includes(nomeDia)) { diasCadastrados.push(nomeDia); diaAtivo = nomeDia; carregarEstado(); renderTabsDias(); return; }
+            salvarEstadoLocal(); await sb.from('caixa_dias').insert([{ nome_dia: nomeDia }]);
             let upsertsNovoDia = [];
             if(!dadosPorDia[nomeDia]) {
                 dadosPorDia[nomeDia] = {};
                 Object.keys(empresasConfig).forEach(emp => {
-                    dadosPorDia[nomeDia][emp] = {};
-                    let estadoAntigo = (dadosPorDia[diaAtivo] && dadosPorDia[diaAtivo][emp]) ? dadosPorDia[diaAtivo][emp] : {};
-                    
+                    dadosPorDia[nomeDia][emp] = {}; let estadoAntigo = (dadosPorDia[diaAtivo] && dadosPorDia[diaAtivo][emp]) ? dadosPorDia[diaAtivo][emp] : {};
                     empresasConfig[emp].forEach((c, idx) => {
-                        dadosPorDia[nomeDia][emp][idx] = {};
-                        let saldoFinalAnterior = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
-                        dadosPorDia[nomeDia][emp][idx]['si'] = saldoFinalAnterior;
-
-                        let v = parseMoeda(saldoFinalAnterior);
-                        if(v !== 0) {
-                            upsertsNovoDia.push({ nome_dia: nomeDia, conta_id: c.id, categoria_codigo: 'si', valor: v, valor_pendente: 0, banco_destino: null });
-                        }
+                        dadosPorDia[nomeDia][emp][idx] = {}; let saldoFinalAnterior = estadoAntigo[idx] ? (estadoAntigo[idx]['calc'] || "0,00") : "0,00";
+                        dadosPorDia[nomeDia][emp][idx]['si'] = saldoFinalAnterior; let v = parseMoeda(saldoFinalAnterior);
+                        if(v !== 0) { upsertsNovoDia.push({ nome_dia: nomeDia, conta_id: c.id, categoria_codigo: 'si', valor: v, valor_pendente: 0, banco_destino: null }); }
                     });
                 });
             }
             diasCadastrados.push(nomeDia); diaAtivo = nomeDia; carregarEstado(); renderTabsDias();
-
             if(upsertsNovoDia.length > 0) { await sb.from('caixa_lancamentos').insert(upsertsNovoDia); }
         }
 
-        function restaurarGuiaOcultaModal() {
-            const nomeParaRestaurar = document.getElementById('sel-guias-ocultas').value;
-            if(!nomeParaRestaurar) { alert("Selecione uma guia na lista para restaurar."); return; }
-            fecharModalCalendario(); salvarEstadoLocal(); diasCadastrados.push(nomeParaRestaurar); diaAtivo = nomeParaRestaurar; carregarEstado(); renderTabsDias();
-        }
+        function restaurarGuiaOcultaModal() { const nomeParaRestaurar = document.getElementById('sel-guias-ocultas').value; if(!nomeParaRestaurar) return; document.getElementById('modal-cal').style.display = 'none'; salvarEstadoLocal(); diasCadastrados.push(nomeParaRestaurar); diaAtivo = nomeParaRestaurar; carregarEstado(); renderTabsDias(); }
 
         async function duplicarDiaAtual() {
-            let novoNome = prompt(`Você está duplicando o caixa do dia [${diaAtivo}].\n\nDigite a nova data (DD/MM/YYYY):`);
-            if (!novoNome || novoNome.trim() === "") return;
-            novoNome = novoNome.trim();
-
+            let novoNome = prompt(`Você está duplicando o caixa do dia [${diaAtivo}].\n\nDigite a nova data (DD/MM/YYYY):`); if (!novoNome || novoNome.trim() === "") return; novoNome = novoNome.trim();
             if (diasCadastrados.includes(novoNome) || dadosPorDia[novoNome]) { alert("Esta data/guia já existe!"); return; }
-            salvarEstadoLocal(); 
-
-            const { error: errDia } = await sb.from('caixa_dias').insert([{ nome_dia: novoNome }]);
-            if (errDia) { alert("Erro ao duplicar dia: " + errDia.message); return; }
-
-            dadosPorDia[novoNome] = JSON.parse(JSON.stringify(dadosPorDia[diaAtivo]));
-            let upsertsNovaCopia = [];
-            
+            salvarEstadoLocal(); const { error: errDia } = await sb.from('caixa_dias').insert([{ nome_dia: novoNome }]); if (errDia) { alert("Erro ao duplicar dia: " + errDia.message); return; }
+            dadosPorDia[novoNome] = JSON.parse(JSON.stringify(dadosPorDia[diaAtivo])); let upsertsNovaCopia = [];
             Object.keys(empresasConfig).forEach(emp => {
                 empresasConfig[emp].forEach((c, idx) => {
                     if(!dadosPorDia[novoNome][emp] || !dadosPorDia[novoNome][emp][idx]) return;
@@ -885,27 +667,19 @@ CAIXA_1
                             let p = parseFloat(dadosPorDia[novoNome][emp][idx][`pendente-${catCodigo}`] || 0);
                             let pAprov = parseFloat(dadosPorDia[novoNome][emp][idx][`pendente-aprov-${catCodigo}`] || 0);
                             let b = dadosPorDia[novoNome][emp][idx][`banco-${catCodigo}`] || null;
-                            
-                            let bancoStr = b;
-                            if (pAprov > 0 || String(b).startsWith('{')) { bancoStr = JSON.stringify({ banco: b, pAprov: pAprov }); }
-
-                            if (v !== 0 || p !== 0 || b !== null) {
-                                upsertsNovaCopia.push({ nome_dia: novoNome, conta_id: c.id, categoria_codigo: catCodigo, valor: v, valor_pendente: p, banco_destino: bancoStr });
-                            }
+                            let bancoStr = b; if (pAprov > 0 || String(b).startsWith('{')) { bancoStr = JSON.stringify({ banco: b, pAprov: pAprov }); }
+                            if (v !== 0 || p !== 0 || b !== null) { upsertsNovaCopia.push({ nome_dia: novoNome, conta_id: c.id, categoria_codigo: catCodigo, valor: v, valor_pendente: p, banco_destino: bancoStr }); }
                         }
                     });
                 });
             });
-
             diasCadastrados.push(novoNome); diaAtivo = novoNome; carregarEstado(); renderTabsDias();
-            if(upsertsNovaCopia.length > 0) { await sb.from('caixa_lancamentos').insert(upsertsNovaCopia); }
-        }
-
-        async function excluirDiaDoBanco() {
-            if(confirm(`ATENÇÃO! Excluir a data [${diaAtivo}] DE FORMA DEFINITIVA DO BANCO DE DADOS?`)) {
-                await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
-                delete dadosPorDia[diaAtivo]; diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
-                diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); renderTabsDias();
+            if(upsertsNovaCopia.length > 0) { 
+                const chunkSize = 500;
+                for (let i = 0; i < upsertsNovaCopia.length; i += chunkSize) {
+                    const chunk = upsertsNovaCopia.slice(i, i + chunkSize);
+                    await sb.from('caixa_lancamentos').insert(chunk);
+                }
             }
         }
 
@@ -916,8 +690,7 @@ CAIXA_1
         // ESTRUTURA BASE DA TABELA E UTILITÁRIOS
         // ==============================================
         function renderTabsEmpresas() {
-            const container = document.getElementById('nav-empresas-container');
-            let html = '';
+            const container = document.getElementById('nav-empresas-container'); let html = '';
             Object.keys(empresasConfig).forEach(emp => { html += `<div class="tab-btn ${emp === empresaAtiva ? 'active' : ''}" onclick="mudarEmpresa('${emp}')">${emp}</div>`; });
             container.innerHTML = html;
         }
@@ -925,11 +698,8 @@ CAIXA_1
         function renderTabsDias() {
             const container = document.getElementById('nav-dias-container');
             let html = diasCadastrados.map(d => `<div class="dia-btn ${d === diaAtivo ? 'active' : ''}" onclick="mudarDia('${d}')"><span>${d}</span><span class="btn-acao fechar" onclick="event.stopPropagation(); fecharAba('${d}')" title="Ocultar Guia">&times;</span></div>`).join('');
-            html += `<button class="btn-novo-dia" onclick="abrirModalCalendario()">📅 CRIAR / RESTAURAR</button>`;
-            if(diaAtivo) {
-                html += `<button class="btn-acao-dia" style="background:#f59e0b; margin-left: auto;" onclick="duplicarDiaAtual()">⧉ DUPLICAR [${diaAtivo}]</button>`;
-                html += `<button class="btn-acao-dia" style="background:#ef4444; margin-left: 10px;" onclick="excluirDiaDoBanco()">🗑️ EXCLUIR [${diaAtivo}]</button>`;
-            }
+            html += `<button class="btn-novo-dia" onclick="abrirModalCalendario()">📅 ABRIR / RESTAURAR</button>`;
+            document.getElementById('dia-atual-display').innerText = `Fluxo Diário: ${diaAtivo}`;
             container.innerHTML = html;
         }
 
@@ -1007,16 +777,15 @@ CAIXA_1
             });
         }
 
-        async function copiarImagem(areaId, btnId) {
-            const exportArea = document.getElementById(areaId); const btn = document.getElementById(btnId); const textoOriginal = btn.innerHTML;
-            btn.innerHTML = "⏳ Copiando..."; btn.style.background = "#64748b"; 
+        async function copiarImagem(areaId) {
+            const exportArea = document.getElementById(areaId); 
             try {
                 const canvas = await html2canvas(exportArea, { backgroundColor: "#ffffff", scale: 2 });
                 canvas.toBlob(async function(blob) {
-                    try { const item = new ClipboardItem({ "image/png": blob }); await navigator.clipboard.write([item]); btn.innerHTML = "✅ Copiado!"; btn.style.background = "#10b981"; setTimeout(() => { btn.innerHTML = textoOriginal; }, 2000);
-                    } catch (err) { alert("Não foi possível copiar."); btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; }
+                    try { const item = new ClipboardItem({ "image/png": blob }); await navigator.clipboard.write([item]); alert("✅ Imagem copiada com sucesso!");
+                    } catch (err) { alert("Não foi possível copiar. Verifique permissões."); }
                 });
-            } catch (err) { alert("Erro ao gerar."); btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; }
+            } catch (err) { alert("Erro ao gerar."); }
         }
 
         function exportarCSV() {
