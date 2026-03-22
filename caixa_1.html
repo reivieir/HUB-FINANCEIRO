@@ -112,6 +112,12 @@
             text-transform: uppercase; 
         }
 
+        /* CLASSE DE ALERTA PARA SALDO NEGATIVO */
+        .saldo-negativo {
+            background-color: #ef4444 !important;
+            color: #ffffff !important;
+        }
+
         .indent { padding-left: 15px !important; }
         .no-input .input-lancar { display: none; }
         .no-input .cell-acumulado { font-weight: bold; font-size: 11px; }
@@ -363,7 +369,7 @@
         }
 
         // ==============================================
-        // BANCO DE DADOS E CARGA - COM PAGINAÇÃO ANTI-ERRO
+        // BANCO DE DADOS E CARGA (COM PAGINAÇÃO)
         // ==============================================
         async function inicializarCaixa() {
             try {
@@ -453,7 +459,10 @@
                 renderTabsEmpresas(); renderTabela(); renderTabsDias(); carregarEstado();
                 document.getElementById('loading-overlay').style.display = 'none';
 
-            } catch (err) { alert("Erro ao conectar com banco de dados."); }
+            } catch (err) { 
+                alert("Erro ao conectar com banco de dados: " + err.message); 
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
         }
 
         async function syncSupabase() {
@@ -495,7 +504,7 @@
             });
             
             if(upserts.length > 0) {
-                const chunkSize = 500; // Divide em pacotes para não estourar o limite do Supabase
+                const chunkSize = 500;
                 for (let i = 0; i < upserts.length; i += chunkSize) {
                     await sb.from('caixa_lancamentos').upsert(upserts.slice(i, i + chunkSize), { onConflict: 'nome_dia, conta_id, categoria_codigo' });
                 }
@@ -513,6 +522,8 @@
             let sco = getV('co1',idx) + getV('co2',idx); setV('sco', idx, sco);
             let so = getV('o1',idx) + getV('o2',idx) + getV('o3',idx) + getV('o4',idx) + getV('o5',idx) + getV('o6',idx) + getV('o7',idx) + getV('o8',idx); setV('so', idx, so);
             let sf = getV('f1',idx) + getV('f2',idx); setV('sf', idx, sf);
+            
+            // INCLUSÃO DO sviv E scri NA SOMA INTERCOMPANY
             let sint = getV('i1',idx) + getV('i2',idx) + getV('i3',idx) + getV('m1',idx) + getV('a1',idx); setV('sint', idx, sint);
             
             let te = sc + sco + so + sf + sint + getV('tr',idx); setV('te', idx, te);
@@ -521,11 +532,25 @@
             let ssal = getV('sa1',idx) + getV('sa2',idx); setV('ssal', idx, ssal);
             let ssout = getV('so1',idx) + getV('so2',idx) + getV('so3',idx) + getV('so4',idx) + getV('so5',idx) + getV('so6',idx) + getV('so7',idx) + getV('so8',idx); setV('ssout', idx, ssout);
             let ssfin = getV('sfi1',idx) + getV('sfi2',idx) + getV('sfi3',idx) + getV('sfi4',idx) + getV('sfi5',idx); setV('ssfin', idx, ssfin);
-            let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx) + getV('smut',idx) + getV('sapo',idx); setV('ssint', idx, ssint);
+            
+            // INCLUSÃO DO sviv E scri NA SOMA INTERCOMPANY DE SAÍDA
+            let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx) + getV('smut',idx) + getV('sapo',idx) + getV('sviv',idx) + getV('scri',idx); setV('ssint', idx, ssint);
 
-            let tsai = sfor + ssal + ssout + ssfin + ssint + getV('sviv',idx) + getV('scri',idx) + getV('stenv',idx); setV('tsai', idx, tsai);
+            let tsai = sfor + ssal + ssout + ssfin + ssint + getV('stenv',idx); setV('tsai', idx, tsai);
 
             let si = getV('si', idx); let calc = si + te - tsai; setV('calc', idx, calc);
+            
+            // ALERTA DE SALDO NEGATIVO (PINTA DE VERMELHO)
+            let tdCalc = document.getElementById(`val-calc-${idx}`);
+            if (tdCalc) {
+                let cellTr = tdCalc.closest('td');
+                if (calc < 0) {
+                    cellTr.classList.add('saldo-negativo');
+                } else {
+                    cellTr.classList.remove('saldo-negativo');
+                }
+            }
+
             let marg = getV('marg', idx); let seg = calc - marg; setV('seg', idx, seg); 
         }
 
@@ -955,7 +980,7 @@
         function renderTabsDias() {
             const container = document.getElementById('nav-dias-container');
             let html = diasCadastrados.map(d => `<div class="dia-btn ${d === diaAtivo ? 'active' : ''}" onclick="mudarDia('${d}')"><span>${d}</span><span class="btn-acao fechar" onclick="event.stopPropagation(); fecharAba('${d}')" title="Ocultar Guia">&times;</span></div>`).join('');
-            html += `<button class="btn-novo-dia" onclick="abrirModalCalendario()">📅 ABRIR / RESTAURAR</button>`;
+            html += `<button class="btn-novo-dia" onclick="abrirModalCalendario()">📅 CRIAR / RESTAURAR</button>`;
             
             if(diaAtivo) {
                 html += `<button class="btn-acao-dia" style="background:#f59e0b; margin-left: auto;" onclick="duplicarDiaAtual()">⧉ DUPLICAR [${diaAtivo}]</button>`;
@@ -972,24 +997,26 @@
             h.innerHTML = `<tr><th class="col-categoria">Categorias / Contas</th>${contas.map(c => `<th>${c.b}<br><span style="font-weight:normal;">${c.c}</span></th>`).join('')}</tr>`;
             b.innerHTML = plano.map(l => {
                 const noInputClass = l.readOnly ? 'no-input' : '';
+                const classeSoma = l.id === 'stenv' ? 'grupo-soma' : ''; // Aplica o fundo escuro na linha TED ENVIADA
+                
                 return `<tr>
-                    <td class="col-categoria ${l.tipo} ${l.tipo === 'item' || l.tipo === 'linha-banco' ? 'indent' : ''}">${l.nome}</td>
+                    <td class="col-categoria ${l.tipo} ${classeSoma} ${l.tipo === 'item' || l.tipo === 'linha-banco' ? 'indent' : ''}">${l.nome}</td>
                     ${contas.map((c, i) => {
                         if (l.tipo === 'linha-banco') {
-                            return `<td><div class="cell-wrapper">
+                            return `<td class="${classeSoma}"><div class="cell-wrapper">
                                     <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente="0" data-pendente-aprov="0">0,00</span>
                                     <select id="banco-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;" onchange="salvarEstadoLocal(); syncSupabase();"><option value="">Banco Destino/Origem...</option>${listaBancosPadrao.map(bco => `<option value="${bco}">${bco}</option>`).join('')}</select>
                                     <input type="text" class="input-lancar" placeholder="Valor" onkeypress="lancar(event, '${l.id}', ${i})">
                                 </div></td>`;
                         }
                         if (l.tipo === 'linha-transferencia') {
-                            return `<td><div class="cell-wrapper">
+                            return `<td class="${classeSoma}"><div class="cell-wrapper">
                                     <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente-aprov="0">0,00</span>
                                     <select id="sel-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;"><option value="">Conta Destino...</option>${contas.map((ct, idx) => idx !== i ? `<option value="${idx}">${ct.b} ${ct.c.split('/')[1] || ct.c}</option>` : '').join('')}</select>
                                     <input type="text" class="input-lancar" placeholder="Valor + Enter" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
                                 </div></td>`;
                         }
-                        return `<td class="${l.tipo} ${noInputClass}"><div class="cell-wrapper"><span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span><input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})"></div></td>`;
+                        return `<td class="${l.tipo} ${classeSoma} ${noInputClass}"><div class="cell-wrapper"><span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span><input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})"></div></td>`;
                     }).join('')}
                 </tr>`;
             }).join('');
