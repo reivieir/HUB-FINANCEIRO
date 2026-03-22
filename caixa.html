@@ -156,6 +156,13 @@
             width: 100%; border: none; background: transparent; font-size: 13px; font-weight: bold; text-align: center; text-align-last: center; outline: none; cursor: pointer; font-family: inherit; color: var(--text); appearance: none; padding: 4px; border-radius: 3px;
         }
         select.select-aprov:focus { background: white; border: 1px dashed var(--primary); }
+
+        /* BOTÃO E LIXEIRA - APROVAÇÃO MANUAL */
+        .btn-add-manual { background: #f59e0b; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; transition: background 0.2s; }
+        .btn-add-manual:hover { background: #d97706; }
+        .btn-excluir-linha { background: transparent; border: none; color: #ef4444; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-excluir-linha:hover { color: #b91c1c; }
+        .print-hide { /* Ocultar colunas e botões na hora do print */ }
     </style>
 </head>
 <body>
@@ -266,6 +273,7 @@
                 <div style="display: flex; align-items: center;">
                     <button class="btn-copiar" id="btn-copiar-aprov" onclick="copiarImagem('aprovacoes-export-area', 'btn-copiar-aprov')">📋 Copiar Imagem</button>
                     <button class="btn-limpar-lote" onclick="confirmarEnvioAprovacoes()">✅ Marcar Lote de Aprovação Enviado</button>
+                    <button class="btn-add-manual" onclick="adicionarLinhaManual()">➕ Nova Transferência Manual</button>
                 </div>
                 <span class="close" style="position:static;" onclick="document.getElementById('modal-aprovacoes').style.display='none'">&times;</span>
             </div>
@@ -288,6 +296,7 @@
         let diasCadastrados = [];
         let diaAtivo = '';
         let dadosPorDia = {};
+        let itemsAprovacaoGlobal = []; // Variável global para manter os itens da tabela de aprovação e permitir edições manuais
         const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
 
         // ==============================================
@@ -595,15 +604,16 @@
                 const fromBanco = contas[fromIdx].b.toUpperCase();
                 const toBanco = contas[toIdx].b.toUpperCase();
 
-                if (!fromBanco.includes('ITAÚ') && toBanco.includes('ITAÚ')) {
-                    let el = document.getElementById(`val-${lid}-${fromIdx}`);
-                    let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0;
-                    el.setAttribute('data-pendente-aprov', pAprov + v);
+                // ----------------------------------------------------
+                // AGORA QUALQUER TED É REGISTRADA PARA APROVAÇÃO
+                // ----------------------------------------------------
+                let el = document.getElementById(`val-${lid}-${fromIdx}`);
+                let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0;
+                el.setAttribute('data-pendente-aprov', pAprov + v);
 
-                    if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
-                    if(!dadosPorDia[diaAtivo][empresaAtiva][fromIdx]) dadosPorDia[diaAtivo][empresaAtiva][fromIdx] = {};
-                    dadosPorDia[diaAtivo][empresaAtiva][fromIdx][`banco-${lid}`] = `${toBanco} - ${contas[toIdx].c}`;
-                }
+                if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
+                if(!dadosPorDia[diaAtivo][empresaAtiva][fromIdx]) dadosPorDia[diaAtivo][empresaAtiva][fromIdx] = {};
+                dadosPorDia[diaAtivo][empresaAtiva][fromIdx][`banco-${lid}`] = `${toBanco} - ${contas[toIdx].c}`;
                 
                 e.target.parentElement.parentElement.classList.add('flash');
                 document.getElementById(`val-tr-${toIdx}`).parentElement.parentElement.classList.add('flash-in');
@@ -617,14 +627,12 @@
         }
 
         // ==============================================
-        // PLANILHA DE APROVAÇÕES
+        // PLANILHA DE APROVAÇÕES E EDIÇÃO MANUAL
         // ==============================================
-        function abrirAprovacoes() {
-            salvarEstadoLocal();
+        function carregarItemsParaAprovacao() {
+            itemsAprovacaoGlobal = []; 
             let diaDados = dadosPorDia[diaAtivo];
             if(!diaDados) return;
-
-            let items = [];
 
             Object.keys(empresasConfig).forEach(emp => {
                 if(!diaDados[emp]) return;
@@ -634,7 +642,8 @@
                     let pendStenv = parseFloat(contaDados['pendente-aprov-stenv']) || 0;
                     if(pendStenv > 0) {
                         let bancoDest = contaDados['banco-stenv'] || '';
-                        items.push({ 
+                        itemsAprovacaoGlobal.push({ 
+                            id: `auto_${emp}_${c.b}_stenv_${Math.random().toString(36).substring(7)}`,
                             bancoOrigem: c.b, empresa: emp, 
                             contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, 
                             contaDestino: bancoDest, valor: pendStenv, isAplicacao: false 
@@ -643,7 +652,8 @@
 
                     let pendSo7 = parseFloat(contaDados['pendente-aprov-so7']) || 0;
                     if(pendSo7 > 0) {
-                        items.push({ 
+                        itemsAprovacaoGlobal.push({ 
+                            id: `auto_${emp}_${c.b}_so7_${Math.random().toString(36).substring(7)}`,
                             bancoOrigem: c.b, empresa: emp, 
                             contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, 
                             contaDestino: '', valor: pendSo7, isAplicacao: true 
@@ -651,41 +661,53 @@
                     }
                 });
             });
+        }
 
-            if(items.length === 0) {
+        function renderizarAprovacoes() {
+            if(itemsAprovacaoGlobal.length === 0) {
                 document.getElementById('aprovacoes-container').innerHTML = `<p style="text-align:center; color:#64748b;">Nenhuma transferência ou aplicação pendente para aprovação.</p>`;
-                document.getElementById('modal-aprovacoes').style.display = 'flex';
                 return;
             }
 
-            const bancosOrigem = [...new Set(items.map(i => i.bancoOrigem))];
+            const bancosOrigem = [...new Set(itemsAprovacaoGlobal.map(i => i.bancoOrigem))];
             let htmlTotal = `<h2 style="color:var(--primary); margin-top:0; margin-bottom: 25px;">Planilha de Aprovações: <span style="color:#64748b">${diaAtivo}</span></h2>`;
 
             let selectRic = `<select class="select-aprov" onchange="this.setAttribute('value', this.value)">${selectAprovadoresHTML}</select>`;
             let selectAm = `<select class="select-aprov" onchange="this.setAttribute('value', this.value)">${selectAprovadoresHTML}</select>`;
 
             bancosOrigem.forEach(banco => {
-                let itensBanco = items.filter(i => i.bancoOrigem === banco);
+                let itensBanco = itemsAprovacaoGlobal.filter(i => i.bancoOrigem === banco);
                 let totalBanco = itensBanco.reduce((acc, curr) => acc + curr.valor, 0);
 
                 let linhasHtml = itensBanco.map(item => {
                     let nomeEmpresaFull = nomesCompletosEmpresas[item.empresa] || item.empresa;
                     
-                    let favHtml = `<input type="text" class="input-transparent" style="font-weight:bold;" value="${item.isAplicacao ? '' : nomeEmpresaFull}" placeholder="${item.isAplicacao ? 'Digite Favorecido...' : ''}" oninput="this.setAttribute('value', this.value)">`;
+                    let inputBancoOrigem = item.id.startsWith('manual_') ? `<input type="text" class="input-transparent" value="${item.bancoOrigem}" style="font-weight:bold;" onchange="atualizarItemManual('${item.id}', 'bancoOrigem', this.value)">` : item.bancoOrigem;
+                    let inputEmpresa = item.id.startsWith('manual_') ? `<input type="text" class="input-transparent" value="${item.empresa}" style="font-weight:bold;" onchange="atualizarItemManual('${item.id}', 'empresa', this.value)">` : nomeEmpresaFull;
+                    let inputContaOrigem = item.id.startsWith('manual_') ? `<input type="text" class="input-transparent" value="${item.contaOrigem}" style="font-size:11px;" onchange="atualizarItemManual('${item.id}', 'contaOrigem', this.value)">` : item.contaOrigem;
                     
-                    let destText = item.contaDestino ? `BANCO ${item.contaDestino.replace(' - ', ' AG ').replace('/', 'C.C')}` : '';
-                    let destHtml = item.isAplicacao 
-                        ? `<input type="text" class="input-transparent" placeholder="Conta Destino Aplicação..." oninput="this.setAttribute('value', this.value)">`
-                        : `<input type="text" class="input-transparent" value="${destText}" oninput="this.setAttribute('value', this.value)">`;
+                    let favHtml = `<input type="text" class="input-transparent" style="font-weight:bold;" value="${item.id.startsWith('manual_') ? item.favorecido : (item.isAplicacao ? '' : nomeEmpresaFull)}" placeholder="${item.isAplicacao ? 'Digite Favorecido...' : 'Favorecido...'}" onchange="atualizarItemManual('${item.id}', 'favorecido', this.value)">`;
+                    
+                    let destText = item.contaDestino && !item.id.startsWith('manual_') ? `BANCO ${item.contaDestino.replace(' - ', ' AG ').replace('/', 'C.C')}` : item.contaDestino;
+                    let destHtml = `<input type="text" class="input-transparent" value="${destText}" placeholder="Conta Destino..." onchange="atualizarItemManual('${item.id}', 'contaDestino', this.value)">`;
+                    
+                    let valorHtml = item.id.startsWith('manual_') 
+                        ? `R$ <input type="text" class="input-transparent" value="${formatarMoeda(item.valor)}" style="width: 80px; display: inline-block; text-align:right;" onchange="atualizarItemManual('${item.id}', 'valor', this.value)">` 
+                        : `R$ ${formatarMoeda(item.valor)}`;
 
                     return `
                     <tr>
-                        <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${item.bancoOrigem}</td>
-                        <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${nomeEmpresaFull}</td>
-                        <td style="border: 1px solid #000; padding: 6px; font-size:11px;">${item.contaOrigem}</td>
+                        <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${inputBancoOrigem}</td>
+                        <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${inputEmpresa}</td>
+                        <td style="border: 1px solid #000; padding: 6px; font-size:11px;">${inputContaOrigem}</td>
                         <td style="border: 1px solid #000; padding: 6px;">${favHtml}</td>
                         <td style="border: 1px solid #000; padding: 6px; font-size:11px;">${destHtml}</td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: right; white-space: nowrap;">R$ ${formatarMoeda(item.valor)}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: right; white-space: nowrap;">
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <span>${valorHtml}</span>
+                                <button class="btn-excluir-linha print-hide" onclick="excluirItemAprovacao('${item.id}')" title="Excluir Linha">🗑️</button>
+                            </div>
+                        </td>
                     </tr>`;
                 }).join('');
 
@@ -728,7 +750,49 @@
             });
 
             document.getElementById('aprovacoes-container').innerHTML = htmlTotal;
+        }
+
+        function abrirAprovacoes() {
+            salvarEstadoLocal();
+            carregarItemsParaAprovacao();
+            renderizarAprovacoes();
             document.getElementById('modal-aprovacoes').style.display = 'flex';
+        }
+
+        function adicionarLinhaManual() {
+            let banco = prompt("Digite o nome do Banco (ex: ITAÚ, BRADESCO):");
+            if (!banco) return;
+            
+            itemsAprovacaoGlobal.push({
+                id: `manual_${Math.random().toString(36).substring(7)}`,
+                bancoOrigem: banco.toUpperCase(),
+                empresa: "Clique para Editar",
+                contaOrigem: "Banco Ag e C.C...",
+                favorecido: "",
+                contaDestino: "",
+                valor: 0,
+                isAplicacao: false
+            });
+            renderizarAprovacoes();
+        }
+
+        function atualizarItemManual(id, campo, valor) {
+            let item = itemsAprovacaoGlobal.find(i => i.id === id);
+            if (item) {
+                if (campo === 'valor') {
+                    item[campo] = parseMoeda(valor);
+                } else {
+                    item[campo] = valor;
+                }
+                renderizarAprovacoes(); 
+            }
+        }
+
+        function excluirItemAprovacao(id) {
+            if(confirm("Tem certeza que deseja remover esta linha da aprovação?")) {
+                itemsAprovacaoGlobal = itemsAprovacaoGlobal.filter(i => i.id !== id);
+                renderizarAprovacoes();
+            }
         }
 
         async function confirmarEnvioAprovacoes() {
@@ -1067,15 +1131,36 @@
         }
 
         async function copiarImagem(areaId, btnId) {
-            const exportArea = document.getElementById(areaId); const btn = document.getElementById(btnId); const textoOriginal = btn.innerHTML;
+            const exportArea = document.getElementById(areaId); 
+            const btn = document.getElementById(btnId); 
+            const textoOriginal = btn.innerHTML;
+            
+            // Ocultar os botões da lixeira antes de tirar a foto
+            const elementsToHide = exportArea.querySelectorAll('.print-hide');
+            elementsToHide.forEach(el => el.style.display = 'none');
+
             btn.innerHTML = "⏳ Copiando..."; btn.style.background = "#64748b"; 
             try {
                 const canvas = await html2canvas(exportArea, { backgroundColor: "#ffffff", scale: 2 });
                 canvas.toBlob(async function(blob) {
-                    try { const item = new ClipboardItem({ "image/png": blob }); await navigator.clipboard.write([item]); btn.innerHTML = "✅ Copiado!"; btn.style.background = "#10b981"; setTimeout(() => { btn.innerHTML = textoOriginal; }, 2000);
-                    } catch (err) { alert("Não foi possível copiar. Verifique permissões."); btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; }
+                    try { 
+                        const item = new ClipboardItem({ "image/png": blob }); 
+                        await navigator.clipboard.write([item]); 
+                        btn.innerHTML = "✅ Copiado!"; btn.style.background = "#10b981"; 
+                        setTimeout(() => { btn.innerHTML = textoOriginal; }, 2000);
+                    } catch (err) { 
+                        alert("Não foi possível copiar. Verifique permissões."); 
+                        btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; 
+                    } finally {
+                        // Devolver as lixeiras
+                        elementsToHide.forEach(el => el.style.display = '');
+                    }
                 });
-            } catch (err) { alert("Erro ao gerar."); btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; }
+            } catch (err) { 
+                alert("Erro ao gerar."); 
+                btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; 
+                elementsToHide.forEach(el => el.style.display = '');
+            }
         }
 
         function exportarCSV() {
