@@ -1350,7 +1350,8 @@
         }
 
         function gerarContextoCaixa() {
-            let contexto = `Você é o assistente financeiro corporativo da Dexco. Responda de forma clara, educada, direta e sem inventar dados.\n`;
+            let contexto = `Você é o Assistente de Inteligência Artificial do Hub Financeiro da Dexco.\n`;
+            contexto += `Sua missão é ajudar o operador de caixa a analisar os dados, tomar decisões estratégicas e realizar cálculos matemáticos e financeiros (como juros, somas, projeções, sugestões de transferências para cobrir saldos, etc).\n\n`;
             contexto += `Hoje é dia ${diaAtivo}. A empresa que o usuário está visualizando no painel agora é: ${empresaAtiva}.\n\n`;
             contexto += `Aqui está o resumo financeiro em tempo real desta empresa:\n`;
             
@@ -1362,11 +1363,16 @@
                 contexto += `- Banco ${c.b} (Conta: ${c.c}):\n`;
                 contexto += `  * Entradas Hoje: R$ ${formatarMoeda(totalEntradas)}\n`;
                 contexto += `  * Saídas Hoje: R$ ${formatarMoeda(totalSaidas)}\n`;
-                contexto += `  * Saldo Final: R$ ${formatarMoeda(saldoFinal)} ${saldoFinal < 0 ? '(ATENÇÃO: NEGATIVO)' : '(Positivo)'}\n\n`;
+                contexto += `  * Saldo Final: R$ ${formatarMoeda(saldoFinal)} ${saldoFinal < 0 ? '(ATENÇÃO: CONTA NEGATIVA)' : '(Positivo)'}\n\n`;
             });
 
-            contexto += `Regra: Baseie suas respostas EXCLUSIVAMENTE nos dados numéricos acima. Se o usuário perguntar de outra empresa ou dia, diga que você só tem acesso à visualização atual da tela (${empresaAtiva}).`;
+            contexto += `Diretrizes de Ação:\n`;
+            contexto += `1. Você PODE e DEVE atuar como uma calculadora. Se o usuário pedir para somar, subtrair, calcular porcentagens ou juros, faça o cálculo com precisão e mostre o passo a passo.\n`;
+            contexto += `2. Se o usuário perguntar como cobrir uma conta negativa, analise os bancos com saldo positivo e sugira o valor exato da transferência (TED) necessária.\n`;
+            contexto += `3. Responda de forma natural, prestativa e bem estruturada.\n`;
+            
             return contexto;
+        };
         }
 
         async function enviarMensagemIA() {
