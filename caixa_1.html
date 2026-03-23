@@ -24,9 +24,9 @@
         .login-card h2 { color: var(--primary); margin-bottom: 5px; font-weight: 700; }
         .login-card p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
         .login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 4px; outline: none; text-align: center; font-size: 14px; }
-        .login-card input:focus { border-color: #10b981; }
-        .login-card button { width: 100%; padding: 12px; background: #10b981; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; font-size: 14px; }
-        .login-card button:hover { background: #059669; }
+        .login-card input:focus { border-color: #d97706; }
+        .login-card button { width: 100%; padding: 12px; background: #d97706; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; font-size: 14px; }
+        .login-card button:hover { background: #c2410c; }
 
         /* ==========================================
            TELAS DE CARREGAMENTO E MENU
@@ -38,17 +38,17 @@
         .hub-top-nav { position: fixed; top: 0; left: 0; width: 100%; background-color: #ffffff; border-bottom: 1px solid #e2e8f0; height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 9999; }
         .hub-logo-box { display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 18px; }
         .hub-title { font-weight: 800; color: #0f172a; }
-        .hub-subtitle { font-weight: 700; color: #10b981; }
+        .hub-subtitle { font-weight: 700; color: #d97706; }
         .hub-menu-links { display: flex; align-items: center; gap: 20px; }
         .hub-nav-item { text-decoration: none; color: #475569; font-weight: 600; font-size: 13px; transition: 0.2s; padding: 5px 10px; border-radius: 6px; }
-        .hub-nav-item:hover { color: #10b981; background-color: #f8fafc; }
-        .hub-nav-item.active { color: #10b981; } 
+        .hub-nav-item:hover { color: #d97706; background-color: #f8fafc; }
+        .hub-nav-item.active { color: #d97706; } 
         .hub-nav-divider { width: 1px; height: 24px; background-color: #cbd5e1; margin: 0 5px; }
-        .hub-nav-ia { text-decoration: none; color: #059669; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #ecfdf5; display: flex; align-items: center; gap: 6px; transition: 0.2s; cursor: pointer; border: none; outline: none; }
-        .hub-nav-ia:hover { background-color: #d1fae5; }
+        .hub-nav-ia { text-decoration: none; color: #c2410c; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #fff7ed; display: flex; align-items: center; gap: 6px; transition: 0.2s; cursor: pointer; border: none; outline: none; }
+        .hub-nav-ia:hover { background-color: #ffedd5; }
         .hub-user-box { display: flex; align-items: center; gap: 12px; }
         .hub-greeting { color: #475569; font-size: 13px; font-weight: 500; }
-        .hub-avatar { width: 36px; height: 36px; background-color: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; }
+        .hub-avatar { width: 36px; height: 36px; background-color: #d97706; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; }
 
         /* ==========================================
            ÁREA DO CAIXA E ZOOM
@@ -57,7 +57,7 @@
         .app-wrapper { flex: 1; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
         .header-dexco { background-color: #002b45; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .header-dexco h1 { font-size: 14px; font-weight: 400; margin: 0; letter-spacing: 0.5px;}
-        .header-actions { display: flex; gap: 10px; }
+        
         /* Botões padronizados em Preto Esfumaçado */
         .header-actions { display: flex; gap: 10px; }
         .btn-top-dark {
@@ -77,6 +77,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.4);
             transform: translateY(-1px);
         }
+
         .app-content { flex: 1; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
 
         /* NAVEGAÇÃO INTERNA */
@@ -183,13 +184,13 @@
         .ai-chat-messages { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; font-size: 13px; }
         
         .msg-ia { background: white; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 10px 10px 10px 0; align-self: flex-start; max-width: 85%; color: #334155; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word;}
-        .msg-user { background: #d1fae5; color: #065f46; padding: 10px 15px; border-radius: 10px 10px 0 10px; align-self: flex-end; max-width: 85%; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word;}
+        .msg-user { background: #ffedd5; color: #c2410c; padding: 10px 15px; border-radius: 10px 10px 0 10px; align-self: flex-end; max-width: 85%; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word;}
         
         .ai-chat-input-area { padding: 12px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; }
         .ai-chat-input-area input { flex: 1; padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 20px; outline: none; font-size: 13px; }
-        .ai-chat-input-area input:focus { border-color: #10b981; }
-        .ai-chat-input-area button { background: #10b981; color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .ai-chat-input-area button:hover { background: #059669; }
+        .ai-chat-input-area input:focus { border-color: #d97706; }
+        .ai-chat-input-area button { background: #d97706; color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .ai-chat-input-area button:hover { background: #c2410c; }
     </style>
 </head>
 <body>
@@ -198,6 +199,7 @@
         <div class="login-card">
             <h2>DEXCO ASSIST</h2>
             <p>Gestão Diária de Caixa</p>
+            <input type="text" id="input-login" placeholder="Usuário (ex: reinaldo)" onkeypress="seEnterLogin(event)">
             <input type="password" id="input-senha-login" placeholder="Senha de Acesso" onkeypress="seEnterLogin(event)">
             <button onclick="fazerLogin()">ENTRAR NO PAINEL</button>
             <p id="login-msg" style="color: #c40000; font-size: 12px; margin-top: 15px; height: 15px;"></p>
@@ -211,7 +213,7 @@
 
     <header class="hub-top-nav">
         <a href="index.html" class="hub-logo-box">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>
             </svg>
             <span class="hub-title">Hub</span> <span class="hub-subtitle">Financeiro</span>
@@ -231,13 +233,13 @@
         <div class="app-wrapper">
             <header class="header-dexco">
                 <h1>Dexco S.A - Gestão Diária de Caixa</h1> 
-             <div class="header-actions">
+                <div class="header-actions">
                     <input type="file" id="input-import-csv" accept=".csv" style="display:none" onchange="importarCSV(event)">
-                    <button class="btn-top-dark" onclick="document.getElementById('input-import-csv').click()">IMPORTAR CAIXA (EXCEL)</button>
-                    <button class="btn-top-dark" onclick="exportarCSV()">EXPORTAR CAIXA (EXCEL)</button>
-                    <button class="btn-top-dark" onclick="abrirAprovacoes()">APROVAÇÕES</button>
-                    <button class="btn-top-dark" onclick="abrirResumo()">RESUMO APLICAÇÕES - RESGATES</button>
-                    <button class="btn-top-dark" onclick="window.parent.location.reload()">BLOQUEAR CAIXA</button>
+                    <button class="btn-top-dark" onclick="document.getElementById('input-import-csv').click()">📤 Importar CSV</button>
+                    <button class="btn-top-dark" onclick="exportarCSV()">📥 Exportar CSV</button>
+                    <button class="btn-top-dark" onclick="abrirAprovacoes()">✅ Aprovações</button>
+                    <button class="btn-top-dark" onclick="abrirResumo()">📊 Resumo do Dia</button>
+                    <button class="btn-top-dark" onclick="window.parent.location.reload()">🔒 Sair / Bloquear</button>
                 </div>
             </header>
 
@@ -292,6 +294,17 @@
         </div>
     </div>
 
+    <div id="modal-senha-exclusao" class="modal">
+        <div class="modal-content" style="max-width: 350px; text-align: center;">
+            <span class="close" onclick="fecharModalSenha()">&times;</span>
+            <h3 style="color: #c40000; margin-top:0; font-size: 16px;">Ação Restrita</h3>
+            <p style="font-size: 13px; color: #64748b; margin: 15px 0;">Digite a sua senha pessoal para excluir definitivamente o caixa do dia <b id="dia-excluir-label"></b>.</p>
+            <input type="password" id="input-senha-excluir" class="input-lancar" style="width: 100%; padding: 12px; font-size: 16px; text-align: center; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="*** Senha ***" onkeypress="seEnterSenhaExcluir(event)">
+            <p id="msg-erro-exclusao" style="color: #c40000; font-size: 12px; height: 15px; margin-bottom: 10px;"></p>
+            <button class="btn-modal-acao" style="background: #ef4444; width: 100%; padding: 12px; font-size: 13px;" onclick="confirmarExclusaoComSenha()">CONFIRMAR EXCLUSÃO</button>
+        </div>
+    </div>
+
     <div id="modal-resumo" class="modal" style="align-items: flex-start; padding-top: 30px;">
         <div class="modal-content-resumo">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;">
@@ -327,16 +340,6 @@
             </div>
         </div>
     </div>
-    <div id="modal-senha-exclusao" class="modal">
-        <div class="modal-content" style="max-width: 350px; text-align: center;">
-            <span class="close" onclick="fecharModalSenha()">&times;</span>
-            <h3 style="color: #c40000; margin-top:0; font-size: 16px;">Ação Restrita</h3>
-            <p style="font-size: 13px; color: #64748b; margin: 15px 0;">Digite a senha de administrador para excluir definitivamente o caixa do dia <b id="dia-excluir-label"></b>.</p>
-            <input type="password" id="input-senha-excluir" class="input-lancar" style="width: 100%; padding: 12px; font-size: 16px; text-align: center; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="*** Senha ***" onkeypress="seEnterSenhaExcluir(event)">
-            <p id="msg-erro-exclusao" style="color: #c40000; font-size: 12px; height: 15px; margin-bottom: 10px;"></p>
-            <button class="btn-modal-acao" style="background: #ef4444; width: 100%; padding: 12px; font-size: 13px;" onclick="confirmarExclusaoComSenha()">CONFIRMAR EXCLUSÃO</button>
-        </div>
-    </div>
 
     <script>
         const SUPABASE_URL = "https://spcpujmqnjtalupxzqpp.supabase.co";
@@ -352,6 +355,8 @@
         let diaAtivo = '';
         let dadosPorDia = {};
         let itemsAprovacaoGlobal = []; 
+        let usuarioLogado = { login: '', nome: '' }; // Guarda o usuário logado
+        
         const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
 
         const nomesCompletosEmpresas = {
@@ -388,15 +393,32 @@
         function seEnterLogin(e) { if(e.key === 'Enter') fazerLogin(); }
 
         async function fazerLogin() {
+            const loginDigitado = document.getElementById('input-login').value.trim();
             const senhaDigitada = document.getElementById('input-senha-login').value.trim();
             const msg = document.getElementById('login-msg');
-            if(!senhaDigitada) { msg.innerText = "Por favor, digite a senha!"; return; }
-            msg.innerText = "Verificando..."; msg.style.color = "#64748b";
 
-            const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_acesso').single();
-            if (error || !data) { msg.innerText = "Erro ao validar senha."; msg.style.color = "#c40000"; return; }
+            if(!loginDigitado || !senhaDigitada) { 
+                msg.innerText = "Preencha usuário e senha!"; 
+                return; 
+            }
+            msg.innerText = "Autenticando..."; msg.style.color = "#64748b";
 
-            if (senhaDigitada === data.valor) {
+            // Busca a pessoa na tabela usuarios
+            const { data, error } = await sb.from('usuarios').select('nome, senha').eq('login', loginDigitado).single();
+
+            if (error || !data) { 
+                msg.innerText = "Usuário não encontrado!"; 
+                msg.style.color = "#c40000"; 
+                return; 
+            }
+
+            if (senhaDigitada === data.senha) {
+                usuarioLogado = { login: loginDigitado, nome: data.nome };
+                
+                const primeiroNome = data.nome.split(' ')[0];
+                document.querySelector('.hub-greeting').innerText = `Olá, ${primeiroNome}`;
+                document.querySelector('.hub-avatar').innerText = primeiroNome.charAt(0).toUpperCase();
+
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('loading-overlay').style.display = 'flex'; 
                 inicializarCaixa(); 
@@ -1157,15 +1179,7 @@
             }
         }
 
-       //* async function excluirDiaDoBanco() {
-          //*  if(confirm(`ATENÇÃO! Excluir a data [${diaAtivo}] DE FORMA DEFINITIVA DO BANCO DE DADOS?`)) {
-             //*   await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
-                //*delete dadosPorDia[diaAtivo]; diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
-                //*diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); renderTabsDias();
-            //*}
-        //*}
-       function excluirDiaDoBanco() {
-            // Apenas abre a nossa janelinha segura e foca no campo de senha
+        function excluirDiaDoBanco() {
             if(confirm(`Tem certeza absoluta que deseja excluir o dia [${diaAtivo}]? Esta ação não tem volta.`)) {
                 document.getElementById('dia-excluir-label').innerText = diaAtivo;
                 document.getElementById('input-senha-excluir').value = '';
@@ -1187,35 +1201,28 @@
             const senhaDigitada = document.getElementById('input-senha-excluir').value.trim();
             const msgErro = document.getElementById('msg-erro-exclusao');
             
-            if(!senhaDigitada) { msgErro.innerText = "Digite a senha!"; return; }
+            if(!senhaDigitada) { msgErro.innerText = "Digite sua senha!"; return; }
             msgErro.innerText = "Verificando...";
             msgErro.style.color = "#64748b";
 
-            // Busca a senha no Supabase
-            const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_acesso').single();
+            const { data, error } = await sb.from('usuarios').select('senha').eq('login', usuarioLogado.login).single();
             
-            if (error || !data) { 
-                msgErro.innerText = "Erro ao validar a senha no servidor."; 
-                msgErro.style.color = "#c40000";
-                return; 
-            }
-
-            // Compara as senhas
-            if (senhaDigitada === data.valor) {
-                fecharModalSenha(); // Fecha a caixinha
-                await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
-                delete dadosPorDia[diaAtivo]; 
-                diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
-                diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; 
-                carregarEstado(); 
-                renderTabsDias();
-                alert("Caixa do dia excluído com sucesso!");
-            } else {
-                msgErro.innerText = "Senha incorreta!"; 
+            if (error || !data || data.senha !== senhaDigitada) { 
+                msgErro.innerText = "Senha incorreta! Exclusão negada."; 
                 msgErro.style.color = "#c40000";
                 document.getElementById('input-senha-excluir').value = '';
                 document.getElementById('input-senha-excluir').focus();
+                return; 
             }
+
+            fecharModalSenha(); 
+            await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
+            delete dadosPorDia[diaAtivo]; 
+            diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
+            diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; 
+            carregarEstado(); 
+            renderTabsDias();
+            alert("Caixa do dia excluído com sucesso!");
         }
 
         function mudarDia(novoDia) { salvarEstadoLocal(); diaAtivo = novoDia; carregarEstado(); renderTabsDias(); }
@@ -1374,10 +1381,9 @@
             }
         }
 
-       function exportarCSV() {
+        function exportarCSV() {
             salvarEstadoLocal(); let diaDados = dadosPorDia[diaAtivo]; if(!diaDados) { alert("Nenhum dado."); return; }
             
-            // 1. Adicionamos a coluna "Código da Linha" para ser a nossa "impressão digital" blindada
             let csv = "\uFEFFData;Empresa;Banco;Conta;Código da Linha;Categoria da Linha;Tipo da Linha;Valor (R$);Banco Destino/Origem;Possui Pendencia?\n";
             
             Object.keys(empresasConfig).forEach(emp => {
@@ -1391,7 +1397,6 @@
                         let pendente = contaDados[`pendente-${l.id}`] ? parseFloat(contaDados[`pendente-${l.id}`]) : 0;
                         let bancoDestino = contaDados[`banco-${l.id}`] || "";
                         
-                        // 2. Colocamos o l.id logo depois da Conta
                         csv += `${diaAtivo};${emp};${c.b};${c.c};${l.id};${l.nome};${tipoLegivel};${valFormatado};${bancoDestino};${pendente > 0 ? 'Sim' : 'Não'}\n`;
                     });
                 });
@@ -1414,7 +1419,6 @@
                 let diasParaSalvar = new Set();
                 let mudouAlgo = false;
 
-                // 3. O código descobre sozinho se você está importando o CSV novo (seguro) ou um velho
                 const isNovoFormato = lines[0].includes("Código");
 
                 for (let i = 1; i < lines.length; i++) {
@@ -1434,12 +1438,10 @@
                     let bancoDest = "";
 
                     if (isNovoFormato) {
-                        // Se for o CSV novo, ele confia cegamente na coluna 4 (O ID único)
                         catId = cols[4].trim();
                         valorStr = cols[7].trim();
                         bancoDest = (cols[8] || "").trim();
                     } else {
-                        // Se for um CSV velho que você já tinha salvo, ele tenta achar pelo nome (pode errar salários)
                         const catNome = cols[4].trim();
                         valorStr = cols[6].trim();
                         bancoDest = (cols[7] || "").trim();
@@ -1464,7 +1466,6 @@
                     if (!dadosPorDia[dataStr][empresa]) dadosPorDia[dataStr][empresa] = {};
                     if (!dadosPorDia[dataStr][empresa][cidx]) dadosPorDia[dataStr][empresa][cidx] = {};
 
-                    // Grava pelo ID, então SALÁRIOS entrada e SALÁRIOS saída nunca mais vão brigar
                     dadosPorDia[dataStr][empresa][cidx][catId] = valorStr;
                     
                     if(bancoDest) {
@@ -1491,6 +1492,11 @@
             };
             reader.readAsText(file, 'UTF-8');
         }
+
+        window.onload = function() {
+            const passInput = document.getElementById('input-login');
+            if (passInput) passInput.focus();
+        };
 
         // ==============================================
         // LÓGICA DO ASSISTENTE IA (VERCEL)
@@ -1575,8 +1581,6 @@
             const contextoDoCaixa = gerarContextoCaixa();
 
             try {
-                // Agora o navegador chama o SEU servidor Vercel, e não o Google direto!
-                // A sua chave de API não existe mais aqui no código da página. Segurança 100%.
                 const response = await fetch('/api/chat-caixa', {
                     method: 'POST',
                     headers: {
