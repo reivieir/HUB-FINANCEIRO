@@ -3,7 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <title>Dexco S.A - Gestão de Bancos</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.ne<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Protestos - Dexco</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================
+           CORES E DESIGN BASE PADRÃO
+        ========================================== */
+        :root { 
+            --primary: #002b45; 
+            --bg: #f8fafc; 
+            --border: #e2e8f0;
+            --text: #334155;
+            --accent: #d97706; 
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        html, body {
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            background-color: #f0f2f5; 
+            color: var(--text);
+            overflow: hidden; 
+        }
+
+        body {
+            padding-top: 65px; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==========================================
+           MENU SUPERIOR GLOBAL
+        ========================================== */
+        .hub-top-nav {
+            position: fixed; top: 0; left: 0; width: 100%; background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0; height: 65px; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 9999;
+        }
+        
+        .hub-logo-box { display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 18px; }
+        .hub-title { font-weight: 800; color: #0f172a; }
+        .hub-subtitle { font-weight: 700; color: var(--accent); }
+
+        .hub-menu-links { display: flex; align-items: center; gap: 20px; }
+        .hub-nav-item { text-decoration: none; color: #475569; font-weight: 600; font-size: 13px; transition: 0.2s; padding: 5px 10px; border-radius: 6px; }
+        .hub-nav-item:hover { color: var(--accent); background-color: #f8fafc; }
+        .hub-nav-item.active { color: var(--accent); } 
+        
+        .hub-nav-divider { width: 1px; height: 24px; background-color: #cbd5e1; margin: 0 5px; }
+
+        .hub-nav-ia { text-decoration: none; color: #c2410c; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #fff7ed; display: flex; align-items: center; gap: 6px; transition: 0.2s; border: none; cursor: pointer; outline: none; }
+        .hub-nav-ia:hover { background-color: #ffedd5; }
+        
+        .hub-user-box { display: flex; align-items: center; gap: 12px; }
+        .hub-greeting { color: #475569; font-size: 13px; font-weight: 500; }
+        .hub-avatar { width: 36px; height: 36px; background-color: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; }
+
+        /* ==========================================
+           ÁREA CENTRAL (EM CONSTRUÇÃO)
+        ========================================== */
+        .zoom-wrapper { zoom: 0.8; display: flex; flex-direction: column; flex: 1; padding: 25px; overflow: hidden; }
+        
+        .app-wrapper {
+            flex: 1; 
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex; 
+            flex-direction: column;
+            overflow: hidden; 
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .construction-icon {
+            color: var(--accent);
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .app-wrapper h1 {
+            color: var(--primary);
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .app-wrapper p {
+            color: #64748b;
+            font-size: 16px;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="hub-top-nav">
+        <a href="index.html" class="hub-logo-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            <span class="hub-title">DEXCO</span> <span class="hub-subtitle">Hub Financeiro</span>
+        </a>
+        <nav class="hub-menu-links">
+            <a href="conciliacao.html" class="hub-nav-item">CONCILIAÇÃO BANCÁRIA</a>
+            <a href="bancos.html" class="hub-nav-item">GESTÃO DE BANCOS</a>
+            <a href="caixa.html" class="hub-nav-item">GESTÃO DE CAIXA</a>
+            <a href="protestos.html" class="hub-nav-item active">PROTESTOS</a> <div class="hub-nav-divider"></div>
+            <a href="caixa.html" class="hub-nav-ia">✨ Assistente IA</a>
+        </nav>
+        <div class="hub-user-box"><span class="hub-greeting">Olá, Operador</span><div class="hub-avatar">O</div></div>
+    </header>
+
+    <div class="zoom-wrapper">
+        <div class="app-wrapper">
+            
+            <div class="construction-icon">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </div>
+
+            <h1>Módulo em Desenvolvimento</h1>
+            <p>A tela de Gestão de Protestos está sendo projetada. Em breve, novas funcionalidades e integrações estarão disponíveis neste espaço.</p>
+            
+        </div>
+    </div>
+
+</body>
+</html>t/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* ==========================================
@@ -178,7 +320,7 @@
 
     <div id="login-screen">
         <div class="login-card">
-            <h2>DEXCO ASSIST</h2>
+            <h2>DEXCO</h2>
             <p>Gestão de Bancos</p>
             <input type="password" id="input-senha-login" placeholder="Senha do Gestor" onkeypress="handleEnter(event)">
             <button onclick="entrar()">ENTRAR NO PAINEL</button>
