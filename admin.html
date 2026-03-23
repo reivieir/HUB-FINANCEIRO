@@ -112,7 +112,7 @@
 
     <div id="loading-overlay">
         <h2>DEXCO ADMIN</h2>
-        <p>Sincronizando tabelas com o servidor...</p>
+        <p id="loading-text">Sincronizando tabelas com o servidor...</p>
     </div>
 
     <header class="hub-top-nav">
@@ -183,7 +183,7 @@
                     </div>
                     <div class="table-container">
                         <table>
-                            <thead><tr><th>Código (ID)</th><th>Nome / Descrição</th><th>Estilo da Linha (Tipo)</th><th>Bloqueado? (Somatório)</th><th>Ordem</th><th style="text-align: center; width: 150px;">Ações</th></tr></thead>
+                            <thead><tr><th>Código (ID)</th><th>Nome / Descrição</th><th>Estilo da Linha (Tipo)</th><th>Bloqueado? (Somatório)</th><th>Posição atual</th><th style="text-align: center; width: 150px;">Ações</th></tr></thead>
                             <tbody id="tb-categorias"></tbody>
                         </table>
                     </div>
@@ -249,7 +249,11 @@
                     <option value="true">Sim (Apenas soma ou cálculo)</option>
                 </select>
             </div>
-            <div class="modal-field"><label>Ordem de Exibição (Número da Linha)</label><input type="number" id="i-cat-ordem"></div>
+            
+            <div class="modal-field">
+                <label>Posição na Planilha (Abaixo de qual linha?)</label>
+                <select id="i-cat-posicao" style="font-weight: bold; color: var(--primary);"></select>
+            </div>
             
             <div class="modal-btns">
                 <button class="btn-save" onclick="salvarCategoria()">SALVAR</button>
@@ -293,6 +297,8 @@
 
         // CARREGAR DADOS
         async function carregarTudo() {
+            document.getElementById("loading-text").innerText = "Sincronizando tabelas com o servidor...";
+            
             const [rEmp, rCon, rCat] = await Promise.all([
                 sb.from('caixa_empresas').select('*').order('ordem'),
                 sb.from('caixa_contas').select('*').order('ordem'),
@@ -369,6 +375,7 @@
             };
             if(!obj.nome) return alert("Preencha o nome!");
 
+            document.getElementById("loading-overlay").style.display = "flex";
             if(id) await sb.from('caixa_empresas').update(obj).eq('id', id);
             else await sb.from('caixa_empresas').insert([obj]);
 
@@ -377,6 +384,7 @@
 
         async function excluirEmpresa(id) {
             if(confirm("ATENÇÃO: Excluir uma empresa apaga todas as colunas dela no caixa. Confirmar?")) {
+                document.getElementById("loading-overlay").style.display = "flex";
                 await sb.from('caixa_empresas').delete().eq('id', id);
                 carregarTudo();
             }
@@ -434,6 +442,7 @@
             };
             if(!obj.empresa_id || !obj.banco_nome) return alert("Empresa e Banco são obrigatórios!");
 
+            document.getElementById("loading-overlay").style.display = "flex";
             if(id) await sb.from('caixa_contas').update(obj).eq('id', id);
             else await sb.from('caixa_contas').insert([obj]);
 
@@ -442,22 +451,38 @@
 
         async function excluirConta(id) {
             if(confirm("Confirmar exclusão desta conta (coluna)?")) {
+                document.getElementById("loading-overlay").style.display = "flex";
                 await sb.from('caixa_contas').delete().eq('id', id);
                 carregarTudo();
             }
         }
 
         /* =========================================================
-           CATEGORIAS (LINHAS)
+           CATEGORIAS (LINHAS) E POSIÇÃO INTELIGENTE
         ========================================================= */
+        function preencherSelectPosicao(codigoAtual = null) {
+            let select = document.getElementById('i-cat-posicao');
+            let html = `<option value="FIM">⬇️ No final da planilha</option>`;
+            html += `<option value="INICIO">⬆️ No topo (Primeira linha)</option>`;
+            
+            let lista = [...lsCategorias].sort((a,b) => a.ordem - b.ordem);
+            
+            lista.forEach(c => {
+                if (c.codigo !== codigoAtual) {
+                    html += `<option value="${c.codigo}">Abaixo de: ${c.nome} (${c.codigo})</option>`;
+                }
+            });
+            select.innerHTML = html;
+        }
+
         function renderCategorias() {
-            document.getElementById('tb-categorias').innerHTML = lsCategorias.map(c => `
+            document.getElementById('tb-categorias').innerHTML = lsCategorias.map((c, index) => `
                 <tr>
                     <td style="color: var(--accent); font-weight: bold;">${c.codigo}</td>
                     <td style="font-weight: bold;">${c.nome}</td>
                     <td>${c.tipo}</td>
                     <td>${c.is_readonly ? '🔒 Sim (Soma)' : '✏️ Não (Digita)'}</td>
-                    <td>${c.ordem}</td>
+                    <td>Linha ${index + 1}</td>
                     <td style="text-align: center;">
                         <a class="action-link" onclick="editarCategoria('${c.codigo}')">Editar</a>
                         <a class="action-link delete-link" onclick="excluirCategoria('${c.codigo}')">Excluir</a>
@@ -469,11 +494,14 @@
         function abrirModalCategoria() {
             document.getElementById('t-categoria').innerText = "Nova Categoria";
             document.getElementById('i-cat-id').value = "";
-            document.getElementById('i-cat-id').readOnly = false; // Novo pode digitar o ID
+            document.getElementById('i-cat-id').readOnly = false; 
             document.getElementById('i-cat-nome').value = "";
             document.getElementById('i-cat-tipo').value = "item";
             document.getElementById('i-cat-readonly').value = "false";
-            document.getElementById('i-cat-ordem').value = "";
+            
+            preencherSelectPosicao(); 
+            document.getElementById('i-cat-posicao').value = "FIM"; 
+            
             document.getElementById('modal-categoria').style.display = "flex";
         }
 
@@ -482,40 +510,70 @@
             if(!c) return;
             document.getElementById('t-categoria').innerText = "Editar Categoria";
             document.getElementById('i-cat-id').value = c.codigo;
-            document.getElementById('i-cat-id').readOnly = true; // Evitar quebrar fórmulas do caixa alterando o ID de uma linha existente
+            document.getElementById('i-cat-id').readOnly = true; 
             document.getElementById('i-cat-nome').value = c.nome;
             document.getElementById('i-cat-tipo').value = c.tipo;
             document.getElementById('i-cat-readonly').value = c.is_readonly.toString();
-            document.getElementById('i-cat-ordem').value = c.ordem;
+            
+            preencherSelectPosicao(c.codigo); 
+            
+            let lista = [...lsCategorias].sort((a,b) => a.ordem - b.ordem);
+            let meuIndex = lista.findIndex(x => x.codigo === codigo);
+            if (meuIndex > 0) {
+                document.getElementById('i-cat-posicao').value = lista[meuIndex - 1].codigo;
+            } else {
+                document.getElementById('i-cat-posicao').value = "INICIO";
+            }
+
             document.getElementById('modal-categoria').style.display = "flex";
         }
 
         async function salvarCategoria() {
             let codigo = document.getElementById('i-cat-id').value.trim();
             let isUpdate = document.getElementById('i-cat-id').readOnly;
+            let posicaoId = document.getElementById('i-cat-posicao').value;
             
             let obj = {
                 codigo: codigo,
                 nome: document.getElementById('i-cat-nome').value,
                 tipo: document.getElementById('i-cat-tipo').value,
-                is_readonly: document.getElementById('i-cat-readonly').value === "true",
-                ordem: parseInt(document.getElementById('i-cat-ordem').value) || 0
+                is_readonly: document.getElementById('i-cat-readonly').value === "true"
             };
             if(!obj.codigo || !obj.nome) return alert("Código e Nome são obrigatórios!");
 
-            if(isUpdate) {
-                await sb.from('caixa_categorias').update(obj).eq('codigo', codigo);
+            if(!isUpdate && lsCategorias.find(x => x.codigo === codigo)) return alert("Este código já existe! Escolha outro (Ex: s25).");
+
+            let listaOrdenada = [...lsCategorias].sort((a,b) => a.ordem - b.ordem);
+            if (isUpdate) listaOrdenada = listaOrdenada.filter(c => c.codigo !== codigo);
+
+            if (posicaoId === "FIM") {
+                listaOrdenada.push(obj);
+            } else if (posicaoId === "INICIO") {
+                listaOrdenada.unshift(obj);
             } else {
-                // Checa se já existe para não dar erro feio no banco
-                if(lsCategorias.find(x => x.codigo === codigo)) return alert("Este código já existe! Escolha outro (Ex: s25).");
-                await sb.from('caixa_categorias').insert([obj]);
+                let idxTarget = listaOrdenada.findIndex(c => c.codigo === posicaoId);
+                if (idxTarget !== -1) listaOrdenada.splice(idxTarget + 1, 0, obj);
+                else listaOrdenada.push(obj);
             }
+
+            let upserts = listaOrdenada.map((item, index) => {
+                return { ...item, ordem: index + 1 };
+            });
+
+            document.getElementById("loading-overlay").style.display = "flex";
+            document.getElementById("loading-text").innerText = "Reorganizando a planilha no servidor...";
+
+            const { error } = await sb.from('caixa_categorias').upsert(upserts, { onConflict: 'codigo' });
+            
+            if (error) alert("Erro ao salvar: " + error.message);
 
             fecharModais(); carregarTudo();
         }
 
         async function excluirCategoria(codigo) {
             if(confirm(`ATENÇÃO CRÍTICA!\n\nExcluir a linha [${codigo}] vai quebrar as fórmulas de soma da tela de Caixa se ela estiver sendo usada no código JavaScript (como stenv, o3, etc).\n\nTem certeza absoluta?`)) {
+                document.getElementById("loading-overlay").style.display = "flex";
+                document.getElementById("loading-text").innerText = "Excluindo categoria...";
                 await sb.from('caixa_categorias').delete().eq('codigo', codigo);
                 carregarTudo();
             }
