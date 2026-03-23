@@ -566,28 +566,78 @@
         function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = formatarMoeda(val); }
 
         function recalcularColuna(idx) {
-            let sc = getV('c1',idx) + getV('c2',idx) + getV('c3',idx) + getV('c4',idx) + getV('c5',idx); setV('sc', idx, sc);
-            let sco = getV('co1',idx) + getV('co2',idx); setV('sco', idx, sco);
-            let so = getV('o1',idx) + getV('o2',idx) + getV('o3',idx) + getV('o4',idx) + getV('o5',idx) + getV('o6',idx) + getV('o7',idx) + getV('o8',idx); setV('so', idx, so);
-            let sf = getV('f1',idx) + getV('f2',idx); setV('sf', idx, sf);
-            let sint = getV('i1',idx) + getV('i2',idx) + getV('i3',idx) + getV('m1',idx) + getV('a1',idx); setV('sint', idx, sint);
-            let te = sc + sco + so + sf + sint + getV('tr',idx); setV('te', idx, te);
+            // Mapeamos os "Cabeçalhos/Gavetas" de Entradas e Saídas
+            const gavetasEntradas = ['sc', 'sco', 'so', 'sf', 'sint'];
+            const gavetasSaidas = ['sfor', 'ssal', 'ssout', 'ssfin', 'ssint'];
 
-            let sfor = getV('s1',idx) + getV('s2',idx) + getV('s3',idx) + getV('s4',idx) + getV('s5',idx) + getV('s6',idx) + getV('s7',idx); setV('sfor', idx, sfor);
-            let ssal = getV('sa1',idx) + getV('sa2',idx); setV('ssal', idx, ssal);
-            let ssout = getV('so1',idx) + getV('so2',idx) + getV('so3',idx) + getV('so4',idx) + getV('so5',idx) + getV('so6',idx) + getV('so7',idx) + getV('so8',idx); setV('ssout', idx, ssout);
-            let ssfin = getV('sfi1',idx) + getV('sfi2',idx) + getV('sfi3',idx) + getV('sfi4',idx) + getV('sfi5',idx); setV('ssfin', idx, ssfin);
-            let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx) + getV('smut',idx) + getV('sapo',idx) + getV('sviv',idx) + getV('scri',idx); setV('ssint', idx, ssint);
-            let tsai = sfor + ssal + ssout + ssfin + ssint + getV('stenv',idx); setV('tsai', idx, tsai);
+            // Onde vamos guardar as somas de cada gaveta enquanto lemos a planilha
+            let somasDasGavetas = {};
+            [...gavetasEntradas, ...gavetasSaidas].forEach(g => somasDasGavetas[g] = 0);
 
-            let si = getV('si', idx); let calc = si + te - tsai; setV('calc', idx, calc);
-            
+            let gavetaAberta = null; // Começa sem nenhuma gaveta aberta
+            let total_entradas = 0;
+            let total_saidas = 0;
+
+            // Lemos a planilha de cima para baixo
+            plano.forEach(l => {
+                let id = l.id;
+                let val = getV(id, idx);
+
+                // 1. Ignora linhas de fechamento final
+                if (['si', 'te', 'tsai', 'calc', 'seg', 'marg'].includes(id)) return;
+
+                // 2. Transferências (Entram direto no Totalzão, não entram nas gavetas)
+                if (id === 'tr') {
+                    total_entradas += val;
+                    return;
+                }
+                if (id === 'stenv') {
+                    total_saidas += val;
+                    return;
+                }
+
+                // 3. ACHOU UM CABEÇALHO? Ele "Abre" essa gaveta para os próximos itens
+                if (gavetasEntradas.includes(id) || gavetasSaidas.includes(id)) {
+                    gavetaAberta = id;
+                }
+                
+                // 4. ACHOU UM ITEM NORMAL? Joga o valor dentro da gaveta que estiver aberta!
+                else if (gavetaAberta !== null && !l.readOnly) {
+                    somasDasGavetas[gavetaAberta] += val;
+                    
+                    // Já aproveita e joga no Totalzão correto (Entrada ou Saída)
+                    if (gavetasEntradas.includes(gavetaAberta)) {
+                        total_entradas += val;
+                    } else if (gavetasSaidas.includes(gavetaAberta)) {
+                        total_saidas += val;
+                    }
+                }
+            });
+
+            // 5. ESCREVE OS RESULTADOS NA TELA
+            // Preenche as linhas de "SOMA..." com o que juntou em cada gaveta
+            Object.keys(somasDasGavetas).forEach(gaveta => {
+                setV(gaveta, idx, somasDasGavetas[gaveta]);
+            });
+
+            // Preenche os Totais e Saldos
+            setV('te', idx, total_entradas);
+            setV('tsai', idx, total_saidas);
+
+            let si = getV('si', idx);
+            let calc = si + total_entradas - total_saidas;
+            setV('calc', idx, calc);
+
+            // Pinta o fundo de vermelho se a conta ficar negativa
             let tdCalc = document.getElementById(`val-calc-${idx}`);
             if (tdCalc) {
                 let cellTr = tdCalc.closest('td');
-                if (calc < 0) { cellTr.classList.add('saldo-negativo'); } else { cellTr.classList.remove('saldo-negativo'); }
+                if (calc < 0) cellTr.classList.add('saldo-negativo'); 
+                else cellTr.classList.remove('saldo-negativo');
             }
-            let marg = getV('marg', idx); let seg = calc - marg; setV('seg', idx, seg); 
+
+            let marg = getV('marg', idx); 
+            setV('seg', idx, calc - marg);
         }
 
         async function lancar(e, lid, cidx) {
