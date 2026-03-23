@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Administração - Dexco</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================
+           CORES E DESIGN BASE PADRÃO
+        ========================================== */
+        :root { 
+            --primary: #002b45; --danger: #c40000; --link: #0056b3; 
+            --bg: #f8fafc; --border: #e2e8f0; --text: #334155; --accent: #d97706; 
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        html, body { margin: 0; padding: 0; height: 100vh; width: 100vw; background-color: #f0f2f5; color: var(--text); overflow: hidden; }
+        body { padding-top: 65px; display: flex; flex-direction: column; }
+
+        /* TELA DE LOGIN E LOADING */
+        #login-screen { position: fixed; inset: 0; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 200000; }
+        .login-card { background: white; padding: 40px; border-radius: 8px; width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .login-card h2 { color: var(--primary); margin-bottom: 5px; font-weight: 700; }
+        .login-card p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+        .login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 4px; outline: none; text-align: center; font-size: 14px; }
+        .login-card input:focus { border-color: var(--accent); }
+        .login-card button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; font-size: 14px; }
+        .login-card button:hover { background: #c2410c; }
+
+        #loading-overlay { position: fixed; inset: 0; background: var(--primary); z-index: 100000; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        #loading-overlay h2 { margin-bottom: 10px; font-weight: 700; letter-spacing: 1px;}
+        #loading-overlay p { color: #94a3b8; font-size: 14px;}
+
+        /* MENU SUPERIOR */
+        .hub-top-nav { position: fixed; top: 0; left: 0; width: 100%; background-color: #ffffff; border-bottom: 1px solid #e2e8f0; height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 9999; }
+        .hub-logo-box { display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 18px; }
+        .hub-title { font-weight: 800; color: #0f172a; }
+        .hub-subtitle { font-weight: 700; color: var(--accent); }
+        .hub-menu-links { display: flex; align-items: center; gap: 20px; }
+        .hub-nav-item { text-decoration: none; color: #475569; font-weight: 600; font-size: 13px; transition: 0.2s; padding: 5px 10px; border-radius: 6px; }
+        .hub-nav-item:hover { color: var(--accent); background-color: #f8fafc; }
+        .hub-nav-item.active { color: var(--accent); } 
+        .hub-nav-divider { width: 1px; height: 24px; background-color: #cbd5e1; margin: 0 5px; }
+        .hub-nav-ia { text-decoration: none; color: #c2410c; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #fff7ed; display: flex; align-items: center; gap: 6px; transition: 0.2s; border: none; cursor: pointer; outline: none; }
+        .hub-user-box { display: flex; align-items: center; gap: 12px; }
+        .hub-greeting { color: #475569; font-size: 13px; font-weight: 500; }
+        .hub-avatar { width: 36px; height: 36px; background-color: #1e293b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; }
+
+        /* CARTÃO BRANCO CENTRAL */
+        .zoom-wrapper { zoom: 0.85; display: flex; flex-direction: column; flex: 1; padding: 25px; overflow: hidden; }
+        .app-wrapper { flex: 1; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: none; flex-direction: column; overflow: hidden; min-height: 0; }
+        .app-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        .header-dexco { background-color: #002b45; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .header-dexco h1 { font-size: 14px; font-weight: 400; margin: 0; letter-spacing: 0.5px;}
+        .btn-top-dark { background: linear-gradient(145deg, #434343, #111111); color: #ffffff; border: 1px solid #222222; box-shadow: 0 2px 4px rgba(0,0,0,0.3); padding: 6px 15px; border-radius: 4px; font-weight: bold; font-size: 11px; cursor: pointer; transition: all 0.2s ease; }
+        .btn-top-dark:hover { background: linear-gradient(145deg, #555555, #222222); box-shadow: 0 4px 8px rgba(0,0,0,0.4); transform: translateY(-1px); }
+
+        /* NAVEGAÇÃO DE ABAS DO ADMIN */
+        .nav-abas { display: flex; background: #e2e8f0; padding: 0 15px; height: 45px; align-items: flex-end; gap: 5px; flex-shrink: 0;}
+        .aba-btn { padding: 10px 20px; background: #cbd5e1; color: #475569; border-radius: 6px 6px 0 0; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; border: 1px solid transparent; border-bottom: none;}
+        .aba-btn:hover { background: #e2e8f0; }
+        .aba-btn.active { background: white; color: var(--primary); border-color: var(--border); box-shadow: 0 -2px 5px rgba(0,0,0,0.02);}
+
+        .main-container { padding: 20px; display: flex; flex-direction: column; flex: 1; min-height: 0; background: white;}
+        
+        .controls { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; flex-shrink: 0; justify-content: space-between;}
+        .btn-add { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;}
+        .btn-add:hover { background: #059669; }
+
+        .table-container { border: 1px solid var(--border); border-radius: 6px; overflow-y: auto; flex: 1; position: relative; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
+        th { background: #f1f5f9; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 11px; position: sticky; top: 0; z-index: 10; }
+        tr:hover { background-color: #f8fafc; }
+        
+        .action-link { color: var(--link); text-decoration: none; cursor: pointer; font-weight: 600; font-size: 12px; margin-right: 10px;}
+        .action-link:hover { text-decoration: underline; }
+        .delete-link { color: var(--danger); }
+
+        .aba-content { display: none; flex-direction: column; height: 100%; }
+        .aba-content.active { display: flex; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 10000; }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 450px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .modal-content h3 { margin-top: 0; margin-bottom: 15px; color: var(--primary); font-size: 16px;}
+        .modal-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+        .modal-field label { font-size: 12px; font-weight: 600; color: #475569; }
+        .modal-field input, .modal-field select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px; outline: none; font-size: 13px;}
+        .modal-field input:focus, .modal-field select:focus { border-color: var(--accent); }
+        .modal-btns { display:flex; gap:10px; margin-top: 20px; }
+        .btn-save { flex:1; padding:10px; background: #10b981; color: white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size: 12px; transition: 0.2s;}
+        .btn-save:hover { background: #059669; }
+        .btn-cancel { flex:1; padding:10px; background: #e2e8f0; color: var(--text); border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size: 12px; transition: 0.2s;}
+        .btn-cancel:hover { background: #cbd5e1; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>DEXCO ADMIN</h2>
+            <p>Configurações do Sistema</p>
+            <input type="password" id="input-senha-login" placeholder="Senha Master (Admin)" onkeypress="if(event.key === 'Enter') entrar()">
+            <button onclick="entrar()">ACESSAR ADMINISTRAÇÃO</button>
+            <p id="login-msg" style="color: #c40000; font-size: 12px; margin-top: 15px; height: 15px;"></p>
+        </div>
+    </div>
+
+    <div id="loading-overlay">
+        <h2>DEXCO ADMIN</h2>
+        <p>Sincronizando tabelas com o servidor...</p>
+    </div>
+
+    <header class="hub-top-nav">
+        <a href="index.html" class="hub-logo-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            <span class="hub-title">DEXCO</span> <span class="hub-subtitle">Hub Financeiro</span>
+        </a>
+        <nav class="hub-menu-links">
+            <a href="conciliacao.html" class="hub-nav-item">CONCILIAÇÃO BANCÁRIA</a>
+            <a href="bancos.html" class="hub-nav-item">GESTÃO DE BANCOS</a>
+            <a href="caixa.html" class="hub-nav-item">GESTÃO DE CAIXA</a>
+            <a href="protestos.html" class="hub-nav-item">PROTESTOS</a>
+            <div class="hub-nav-divider"></div>
+            <a href="admin.html" class="hub-nav-item active" style="color: #002b45;">⚙️ ADMIN</a>
+        </nav>
+        <div class="hub-user-box"><span class="hub-greeting">Modo Administrador</span><div class="hub-avatar">M</div></div>
+    </header>
+
+    <div class="zoom-wrapper">
+        <div id="app" class="app-wrapper">
+            <header class="header-dexco">
+                <h1>Painel de Administração Global</h1>
+                <div class="header-actions">
+                    <button class="btn-top-dark" onclick="window.location.reload()">🔒 Sair do Painel</button>
+                </div>
+            </header>
+
+            <div class="nav-abas">
+                <div class="aba-btn active" onclick="trocarAba('empresas')">🏢 EMPRESAS</div>
+                <div class="aba-btn" onclick="trocarAba('contas')">🏦 CONTAS BANCÁRIAS</div>
+                <div class="aba-btn" onclick="trocarAba('categorias')">📋 PLANO DE CATEGORIAS</div>
+            </div>
+
+            <div class="main-container">
+                
+                <div id="aba-empresas" class="aba-content active">
+                    <div class="controls">
+                        <h2 style="color: var(--primary); font-size: 16px;">Empresas Cadastradas no Caixa</h2>
+                        <button class="btn-add" onclick="abrirModalEmpresa()">+ NOVA EMPRESA</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Nome da Empresa</th><th>Ordem de Exibição</th><th style="text-align: center; width: 150px;">Ações</th></tr></thead>
+                            <tbody id="tb-empresas"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="aba-contas" class="aba-content">
+                    <div class="controls">
+                        <h2 style="color: var(--primary); font-size: 16px;">Contas Bancárias (Colunas do Caixa)</h2>
+                        <button class="btn-add" onclick="abrirModalConta()">+ NOVA CONTA</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Empresa Pertencente</th><th>Banco</th><th>Agência / Conta</th><th>Ordem</th><th style="text-align: center; width: 150px;">Ações</th></tr></thead>
+                            <tbody id="tb-contas"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="aba-categorias" class="aba-content">
+                    <div class="controls">
+                        <h2 style="color: var(--primary); font-size: 16px;">Plano de Linhas (Linhas do Caixa)</h2>
+                        <button class="btn-add" onclick="abrirModalCategoria()">+ NOVA CATEGORIA</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Código (ID)</th><th>Nome / Descrição</th><th>Estilo da Linha (Tipo)</th><th>Bloqueado? (Somatório)</th><th>Ordem</th><th style="text-align: center; width: 150px;">Ações</th></tr></thead>
+                            <tbody id="tb-categorias"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-empresa" class="modal">
+        <div class="modal-content">
+            <h3 id="t-empresa">Nova Empresa</h3>
+            <input type="hidden" id="i-emp-id">
+            <div class="modal-field"><label>Nome da Empresa (Ex: BRDX)</label><input type="text" id="i-emp-nome"></div>
+            <div class="modal-field"><label>Ordem de Exibição (Número)</label><input type="number" id="i-emp-ordem"></div>
+            <div class="modal-btns">
+                <button class="btn-save" onclick="salvarEmpresa()">SALVAR</button>
+                <button class="btn-cancel" onclick="fecharModais()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-conta" class="modal">
+        <div class="modal-content">
+            <h3 id="t-conta">Nova Conta Bancária</h3>
+            <input type="hidden" id="i-con-id">
+            <div class="modal-field">
+                <label>Empresa</label>
+                <select id="i-con-empresa"></select>
+            </div>
+            <div class="modal-field"><label>Nome do Banco (Ex: ITAÚ)</label><input type="text" id="i-con-banco"></div>
+            <div class="modal-field"><label>Agência e Conta (Ex: 0001 / 12345-6)</label><input type="text" id="i-con-agencia"></div>
+            <div class="modal-field"><label>Ordem de Exibição (Número da Coluna)</label><input type="number" id="i-con-ordem"></div>
+            <div class="modal-btns">
+                <button class="btn-save" onclick="salvarConta()">SALVAR</button>
+                <button class="btn-cancel" onclick="fecharModais()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-categoria" class="modal">
+        <div class="modal-content" style="width: 500px;">
+            <h3 id="t-categoria">Nova Categoria de Caixa</h3>
+            <div class="modal-field"><label>Código Único (ID) - Ex: e1, s1, stenv (NÃO MUDE SE JÁ EXISTIR)</label><input type="text" id="i-cat-id"></div>
+            <div class="modal-field"><label>Nome da Linha (Ex: Salários)</label><input type="text" id="i-cat-nome"></div>
+            <div class="modal-field">
+                <label>Estilo Visual da Linha (Tipo de CSS)</label>
+                <select id="i-cat-tipo">
+                    <option value="item">Linha de Valor Normal</option>
+                    <option value="linha-banco">Linha com Seleção de Banco (Saídas)</option>
+                    <option value="linha-transferencia">Linha de Transferência (Entre Contas)</option>
+                    <option value="bg-total-entradas">Fundo Azul (Total Entradas)</option>
+                    <option value="bg-total-saidas">Fundo Vermelho (Total Saídas)</option>
+                    <option value="bg-saldo-calculado">Fundo Azul Escuro (Saldo Final)</option>
+                    <option value="bg-margem-segura">Fundo Cinza (Margem Segura)</option>
+                    <option value="bg-saldo-seguro">Fundo Preto (Saldo Seguro)</option>
+                </select>
+            </div>
+            <div class="modal-field">
+                <label>Bloqueado para Edição? (Marcado = Fórmula/Soma Automática)</label>
+                <select id="i-cat-readonly">
+                    <option value="false">Não (Permite digitar valor)</option>
+                    <option value="true">Sim (Apenas soma ou cálculo)</option>
+                </select>
+            </div>
+            <div class="modal-field"><label>Ordem de Exibição (Número da Linha)</label><input type="number" id="i-cat-ordem"></div>
+            
+            <div class="modal-btns">
+                <button class="btn-save" onclick="salvarCategoria()">SALVAR</button>
+                <button class="btn-cancel" onclick="fecharModais()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://spcpujmqnjtalupxzqpp.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwY3B1am1xbmp0YWx1cHh6cXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MjI3ODMsImV4cCI6MjA4ODI5ODc4M30.TYVtILJNISNR3aDejRM5fsWKt9TuIHgN1dS2deVbQwQ";
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let lsEmpresas = [];
+        let lsContas = [];
+        let lsCategorias = [];
+
+        // LOGIN
+        async function entrar() {
+            const senha = document.getElementById("input-senha-login").value.trim();
+            const msg = document.getElementById("login-msg");
+
+            if(!senha) { msg.innerText = "Digite a senha Master!"; return; }
+            msg.innerText = "Autenticando..."; msg.style.color = "#64748b";
+
+            const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_admin').single();
+
+            if (error || !data) {
+                msg.innerText = "Erro: Crie a chave 'senha_admin' na tabela configuracoes_sistema!";
+                msg.style.color = "#c40000"; return;
+            }
+
+            if (senha === data.valor) {
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("loading-overlay").style.display = "flex";
+                carregarTudo();
+            } else {
+                msg.innerText = "Senha incorreta!"; msg.style.color = "#c40000";
+            }
+        }
+
+        // CARREGAR DADOS
+        async function carregarTudo() {
+            const [rEmp, rCon, rCat] = await Promise.all([
+                sb.from('caixa_empresas').select('*').order('ordem'),
+                sb.from('caixa_contas').select('*').order('ordem'),
+                sb.from('caixa_categorias').select('*').order('ordem')
+            ]);
+
+            lsEmpresas = rEmp.data || [];
+            lsContas = rCon.data || [];
+            lsCategorias = rCat.data || [];
+
+            renderEmpresas();
+            renderContas();
+            renderCategorias();
+
+            document.getElementById("loading-overlay").style.display = "none";
+            document.getElementById("app").style.display = "flex";
+        }
+
+        // NAVEGAÇÃO DE ABAS
+        function trocarAba(abaNome) {
+            document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.aba-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById('aba-' + abaNome).classList.add('active');
+        }
+
+        function fecharModais() {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        }
+
+        /* =========================================================
+           EMPRESAS
+        ========================================================= */
+        function renderEmpresas() {
+            document.getElementById('tb-empresas').innerHTML = lsEmpresas.map(e => `
+                <tr>
+                    <td style="font-weight: bold;">${e.nome}</td>
+                    <td>${e.ordem}</td>
+                    <td style="text-align: center;">
+                        <a class="action-link" onclick="editarEmpresa('${e.id}')">Editar</a>
+                        <a class="action-link delete-link" onclick="excluirEmpresa('${e.id}')">Excluir</a>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Atualiza select do Modal de Contas
+            document.getElementById('i-con-empresa').innerHTML = lsEmpresas.map(e => `<option value="${e.id}">${e.nome}</option>`).join('');
+        }
+
+        function abrirModalEmpresa() {
+            document.getElementById('t-empresa').innerText = "Nova Empresa";
+            document.getElementById('i-emp-id').value = "";
+            document.getElementById('i-emp-nome').value = "";
+            document.getElementById('i-emp-ordem').value = "";
+            document.getElementById('modal-empresa').style.display = "flex";
+        }
+
+        function editarEmpresa(id) {
+            let e = lsEmpresas.find(x => x.id === id);
+            if(!e) return;
+            document.getElementById('t-empresa').innerText = "Editar Empresa";
+            document.getElementById('i-emp-id').value = e.id;
+            document.getElementById('i-emp-nome').value = e.nome;
+            document.getElementById('i-emp-ordem').value = e.ordem;
+            document.getElementById('modal-empresa').style.display = "flex";
+        }
+
+        async function salvarEmpresa() {
+            let id = document.getElementById('i-emp-id').value;
+            let obj = {
+                nome: document.getElementById('i-emp-nome').value.toUpperCase(),
+                ordem: parseInt(document.getElementById('i-emp-ordem').value) || 0
+            };
+            if(!obj.nome) return alert("Preencha o nome!");
+
+            if(id) await sb.from('caixa_empresas').update(obj).eq('id', id);
+            else await sb.from('caixa_empresas').insert([obj]);
+
+            fecharModais(); carregarTudo();
+        }
+
+        async function excluirEmpresa(id) {
+            if(confirm("ATENÇÃO: Excluir uma empresa apaga todas as colunas dela no caixa. Confirmar?")) {
+                await sb.from('caixa_empresas').delete().eq('id', id);
+                carregarTudo();
+            }
+        }
+
+        /* =========================================================
+           CONTAS (COLUNAS)
+        ========================================================= */
+        function renderContas() {
+            document.getElementById('tb-contas').innerHTML = lsContas.map(c => {
+                let emp = lsEmpresas.find(e => e.id === c.empresa_id);
+                let empNome = emp ? emp.nome : 'Desconhecida';
+                return `
+                <tr>
+                    <td style="font-weight: bold; color: var(--primary);">${empNome}</td>
+                    <td>${c.banco_nome}</td>
+                    <td>${c.agencia_conta}</td>
+                    <td>${c.ordem}</td>
+                    <td style="text-align: center;">
+                        <a class="action-link" onclick="editarConta('${c.id}')">Editar</a>
+                        <a class="action-link delete-link" onclick="excluirConta('${c.id}')">Excluir</a>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function abrirModalConta() {
+            document.getElementById('t-conta').innerText = "Nova Conta";
+            document.getElementById('i-con-id').value = "";
+            document.getElementById('i-con-banco').value = "";
+            document.getElementById('i-con-agencia').value = "";
+            document.getElementById('i-con-ordem').value = "";
+            document.getElementById('modal-conta').style.display = "flex";
+        }
+
+        function editarConta(id) {
+            let c = lsContas.find(x => x.id === id);
+            if(!c) return;
+            document.getElementById('t-conta').innerText = "Editar Conta";
+            document.getElementById('i-con-id').value = c.id;
+            document.getElementById('i-con-empresa').value = c.empresa_id;
+            document.getElementById('i-con-banco').value = c.banco_nome;
+            document.getElementById('i-con-agencia').value = c.agencia_conta;
+            document.getElementById('i-con-ordem').value = c.ordem;
+            document.getElementById('modal-conta').style.display = "flex";
+        }
+
+        async function salvarConta() {
+            let id = document.getElementById('i-con-id').value;
+            let obj = {
+                empresa_id: document.getElementById('i-con-empresa').value,
+                banco_nome: document.getElementById('i-con-banco').value.toUpperCase(),
+                agencia_conta: document.getElementById('i-con-agencia').value,
+                ordem: parseInt(document.getElementById('i-con-ordem').value) || 0
+            };
+            if(!obj.empresa_id || !obj.banco_nome) return alert("Empresa e Banco são obrigatórios!");
+
+            if(id) await sb.from('caixa_contas').update(obj).eq('id', id);
+            else await sb.from('caixa_contas').insert([obj]);
+
+            fecharModais(); carregarTudo();
+        }
+
+        async function excluirConta(id) {
+            if(confirm("Confirmar exclusão desta conta (coluna)?")) {
+                await sb.from('caixa_contas').delete().eq('id', id);
+                carregarTudo();
+            }
+        }
+
+        /* =========================================================
+           CATEGORIAS (LINHAS)
+        ========================================================= */
+        function renderCategorias() {
+            document.getElementById('tb-categorias').innerHTML = lsCategorias.map(c => `
+                <tr>
+                    <td style="color: var(--accent); font-weight: bold;">${c.codigo}</td>
+                    <td style="font-weight: bold;">${c.nome}</td>
+                    <td>${c.tipo}</td>
+                    <td>${c.is_readonly ? '🔒 Sim (Soma)' : '✏️ Não (Digita)'}</td>
+                    <td>${c.ordem}</td>
+                    <td style="text-align: center;">
+                        <a class="action-link" onclick="editarCategoria('${c.codigo}')">Editar</a>
+                        <a class="action-link delete-link" onclick="excluirCategoria('${c.codigo}')">Excluir</a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function abrirModalCategoria() {
+            document.getElementById('t-categoria').innerText = "Nova Categoria";
+            document.getElementById('i-cat-id').value = "";
+            document.getElementById('i-cat-id').readOnly = false; // Novo pode digitar o ID
+            document.getElementById('i-cat-nome').value = "";
+            document.getElementById('i-cat-tipo').value = "item";
+            document.getElementById('i-cat-readonly').value = "false";
+            document.getElementById('i-cat-ordem').value = "";
+            document.getElementById('modal-categoria').style.display = "flex";
+        }
+
+        function editarCategoria(codigo) {
+            let c = lsCategorias.find(x => x.codigo === codigo);
+            if(!c) return;
+            document.getElementById('t-categoria').innerText = "Editar Categoria";
+            document.getElementById('i-cat-id').value = c.codigo;
+            document.getElementById('i-cat-id').readOnly = true; // Evitar quebrar fórmulas do caixa alterando o ID de uma linha existente
+            document.getElementById('i-cat-nome').value = c.nome;
+            document.getElementById('i-cat-tipo').value = c.tipo;
+            document.getElementById('i-cat-readonly').value = c.is_readonly.toString();
+            document.getElementById('i-cat-ordem').value = c.ordem;
+            document.getElementById('modal-categoria').style.display = "flex";
+        }
+
+        async function salvarCategoria() {
+            let codigo = document.getElementById('i-cat-id').value.trim();
+            let isUpdate = document.getElementById('i-cat-id').readOnly;
+            
+            let obj = {
+                codigo: codigo,
+                nome: document.getElementById('i-cat-nome').value,
+                tipo: document.getElementById('i-cat-tipo').value,
+                is_readonly: document.getElementById('i-cat-readonly').value === "true",
+                ordem: parseInt(document.getElementById('i-cat-ordem').value) || 0
+            };
+            if(!obj.codigo || !obj.nome) return alert("Código e Nome são obrigatórios!");
+
+            if(isUpdate) {
+                await sb.from('caixa_categorias').update(obj).eq('codigo', codigo);
+            } else {
+                // Checa se já existe para não dar erro feio no banco
+                if(lsCategorias.find(x => x.codigo === codigo)) return alert("Este código já existe! Escolha outro (Ex: s25).");
+                await sb.from('caixa_categorias').insert([obj]);
+            }
+
+            fecharModais(); carregarTudo();
+        }
+
+        async function excluirCategoria(codigo) {
+            if(confirm(`ATENÇÃO CRÍTICA!\n\nExcluir a linha [${codigo}] vai quebrar as fórmulas de soma da tela de Caixa se ela estiver sendo usada no código JavaScript (como stenv, o3, etc).\n\nTem certeza absoluta?`)) {
+                await sb.from('caixa_categorias').delete().eq('codigo', codigo);
+                carregarTudo();
+            }
+        }
+    </script>
+</body>
+</html>
