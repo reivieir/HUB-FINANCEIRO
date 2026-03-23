@@ -146,8 +146,22 @@
         .btn-modal-acao { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
         .btn-modal-acao:hover { background: #059669; }
 
+        /* Ajuste do Input Transparente para evitar cortes */
         .input-transparent {
-            border: 1px dashed #cbd5e1; background: transparent; width: 100%; box-sizing: border-box; font-size: 11px; outline: none; font-family: inherit; color: var(--text); padding: 2px; border-radius: 3px; transition: 0.2s; text-overflow: ellipsis;
+            border: 1px dashed #cbd5e1; 
+            background: transparent; 
+            width: 100%; 
+            min-width: 170px; 
+            box-sizing: border-box; 
+            font-size: 11px; 
+            outline: none; 
+            font-family: inherit; 
+            color: var(--text); 
+            padding: 5px; 
+            border-radius: 3px; 
+            transition: 0.2s; 
+            text-overflow: ellipsis;
+            line-height: normal; 
         }
         .input-transparent:focus { border-style: solid; border-color: var(--primary); background: white; }
 
@@ -296,12 +310,9 @@
         let diasCadastrados = [];
         let diaAtivo = '';
         let dadosPorDia = {};
-        let itemsAprovacaoGlobal = []; // Variável global para manter os itens da tabela de aprovação e permitir edições manuais
+        let itemsAprovacaoGlobal = []; 
         const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
 
-        // ==============================================
-        // MAPA OFICIAL DE NOMES DE EMPRESAS
-        // ==============================================
         const nomesCompletosEmpresas = {
             'BRDX': 'DEXCO S.A',
             'BRDF': 'DURATEX FLORESTAL',
@@ -320,9 +331,6 @@
             'BRTR': 'DX STORE'
         };
 
-        // ==============================================
-        // LISTA DE APROVADORES OFICIAL
-        // ==============================================
         const selectAprovadoresHTML = `
             <option value="">Selecione...</option>
             <option value="CLAUDIA">CLAUDIA</option>
@@ -336,9 +344,6 @@
             <option value="VANESSA">VANESSA</option>
         `;
 
-        // ==============================================
-        // FUNÇÕES DE FORMATAÇÃO
-        // ==============================================
         function parseMoeda(str) {
             if (!str) return 0;
             str = str.toString().trim();
@@ -351,9 +356,6 @@
             return new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(valor);
         }
 
-        // ==============================================
-        // LOGIN E ACESSO
-        // ==============================================
         function seEnterLogin(e) { if(e.key === 'Enter') fazerLogin(); }
 
         async function fazerLogin() {
@@ -377,9 +379,6 @@
             }
         }
 
-        // ==============================================
-        // BANCO DE DADOS E CARGA (COM PAGINAÇÃO)
-        // ==============================================
         async function inicializarCaixa() {
             try {
                 const { data: dbEmpresas } = await sb.from('caixa_empresas').select('*').order('ordem');
@@ -418,7 +417,6 @@
                     Object.keys(empresasConfig).forEach(e => dadosPorDia[d][e] = {});
                 });
 
-                // LAÇO DE PAGINAÇÃO: GARANTE QUE TODOS OS DADOS SÃO BAIXADOS SEM CORTES DO SUPABASE
                 let dbLancamentos = [];
                 let pag = 0;
                 while(true) {
@@ -444,7 +442,7 @@
                             dadosPorDia[lan.nome_dia][e][i][lan.categoria_codigo] = formatarMoeda(lan.valor);
                             
                             try {
-                                if(lan.banco_destino && lan.banco_destino.startsWith('{')) {
+                                if(lan.banco_destino && (String(lan.banco_destino).startsWith('{') || String(lan.banco_destino).startsWith('['))) {
                                     let parsed = JSON.parse(lan.banco_destino);
                                     dadosPorDia[lan.nome_dia][e][i][`banco-${lan.categoria_codigo}`] = parsed.banco || "";
                                     if(parsed.pAprov > 0) dadosPorDia[lan.nome_dia][e][i][`pendente-aprov-${lan.categoria_codigo}`] = parsed.pAprov.toString();
@@ -520,9 +518,6 @@
             }
         }
 
-        // ==============================================
-        // CONTROLE DA TABELA E DIGITAÇÃO (SOMAS CORRIGIDAS)
-        // ==============================================
         function getV(id, cidx) { let el = document.getElementById(`val-${id}-${cidx}`); return el ? parseMoeda(el.innerText) : 0; }
         function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = formatarMoeda(val); }
 
@@ -531,8 +526,6 @@
             let sco = getV('co1',idx) + getV('co2',idx); setV('sco', idx, sco);
             let so = getV('o1',idx) + getV('o2',idx) + getV('o3',idx) + getV('o4',idx) + getV('o5',idx) + getV('o6',idx) + getV('o7',idx) + getV('o8',idx); setV('so', idx, so);
             let sf = getV('f1',idx) + getV('f2',idx); setV('sf', idx, sf);
-            
-            // INCLUSÃO DO sviv E scri NA SOMA INTERCOMPANY
             let sint = getV('i1',idx) + getV('i2',idx) + getV('i3',idx) + getV('m1',idx) + getV('a1',idx); setV('sint', idx, sint);
             
             let te = sc + sco + so + sf + sint + getV('tr',idx); setV('te', idx, te);
@@ -541,25 +534,17 @@
             let ssal = getV('sa1',idx) + getV('sa2',idx); setV('ssal', idx, ssal);
             let ssout = getV('so1',idx) + getV('so2',idx) + getV('so3',idx) + getV('so4',idx) + getV('so5',idx) + getV('so6',idx) + getV('so7',idx) + getV('so8',idx); setV('ssout', idx, ssout);
             let ssfin = getV('sfi1',idx) + getV('sfi2',idx) + getV('sfi3',idx) + getV('sfi4',idx) + getV('sfi5',idx); setV('ssfin', idx, ssfin);
-            
-            // INCLUSÃO DO sviv E scri NA SOMA INTERCOMPANY DE SAÍDA
             let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx) + getV('smut',idx) + getV('sapo',idx) + getV('sviv',idx) + getV('scri',idx); setV('ssint', idx, ssint);
 
             let tsai = sfor + ssal + ssout + ssfin + ssint + getV('stenv',idx); setV('tsai', idx, tsai);
 
             let si = getV('si', idx); let calc = si + te - tsai; setV('calc', idx, calc);
             
-            // ALERTA DE SALDO NEGATIVO (PINTA DE VERMELHO)
             let tdCalc = document.getElementById(`val-calc-${idx}`);
             if (tdCalc) {
                 let cellTr = tdCalc.closest('td');
-                if (calc < 0) {
-                    cellTr.classList.add('saldo-negativo');
-                } else {
-                    cellTr.classList.remove('saldo-negativo');
-                }
+                if (calc < 0) { cellTr.classList.add('saldo-negativo'); } else { cellTr.classList.remove('saldo-negativo'); }
             }
-
             let marg = getV('marg', idx); let seg = calc - marg; setV('seg', idx, seg); 
         }
 
@@ -569,7 +554,6 @@
                 if(isNaN(v) || e.target.value.trim() === '') return;
                 
                 setV(lid, cidx, getV(lid, cidx) + v); 
-                
                 let el = document.getElementById(`val-${lid}-${cidx}`);
                 
                 if (lid === 'o3' || lid === 'so7') {
@@ -585,7 +569,6 @@
                 e.target.parentElement.parentElement.classList.add('flash');
                 setTimeout(() => e.target.parentElement.parentElement.classList.remove('flash'), 500);
                 e.target.value = ""; recalcularColuna(cidx); 
-                
                 salvarEstadoLocal(); await syncSupabase();
             }
         }
@@ -601,12 +584,9 @@
                 setV(lid, fromIdx, getV(lid, fromIdx) + v);
                 setV('tr', toIdx, getV('tr', toIdx) + v);
                 
-                const fromBanco = contas[fromIdx].b.toUpperCase();
                 const toBanco = contas[toIdx].b.toUpperCase();
 
-                // ----------------------------------------------------
-                // AGORA QUALQUER TED É REGISTRADA PARA APROVAÇÃO
-                // ----------------------------------------------------
+                // TODA TED É REGISTRADA PARA APROVAÇÃO
                 let el = document.getElementById(`val-${lid}-${fromIdx}`);
                 let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0;
                 el.setAttribute('data-pendente-aprov', pAprov + v);
@@ -621,13 +601,12 @@
                 
                 e.target.value = ""; selectDestino.value = "";
                 recalcularColuna(fromIdx); recalcularColuna(toIdx);
-                
                 salvarEstadoLocal(); await syncSupabase();
             }
         }
 
         // ==============================================
-        // PLANILHA DE APROVAÇÕES E EDIÇÃO MANUAL
+        // PLANILHA DE APROVAÇÕES E EDIÇÃO MANUAL (REFEITO COM LAYOUT DO RESUMO)
         // ==============================================
         function carregarItemsParaAprovacao() {
             itemsAprovacaoGlobal = []; 
@@ -695,54 +674,56 @@
                         ? `R$ <input type="text" class="input-transparent" value="${formatarMoeda(item.valor)}" style="width: 80px; display: inline-block; text-align:right;" onchange="atualizarItemManual('${item.id}', 'valor', this.value)">` 
                         : `R$ ${formatarMoeda(item.valor)}`;
 
+                    // Uso do estilo padrão das tabelas do Resumo
                     return `
                     <tr>
-                        <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${inputBancoOrigem}</td>
-                        <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${inputEmpresa}</td>
-                        <td style="border: 1px solid #000; padding: 6px; font-size:11px;">${inputContaOrigem}</td>
-                        <td style="border: 1px solid #000; padding: 6px;">${favHtml}</td>
-                        <td style="border: 1px solid #000; padding: 6px; font-size:11px;">${destHtml}</td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: right; white-space: nowrap;">
+                        <td>${inputBancoOrigem}</td>
+                        <td style="font-weight: bold;">${inputEmpresa}</td>
+                        <td>${inputContaOrigem}</td>
+                        <td>${favHtml}</td>
+                        <td>${destHtml}</td>
+                        <td style="text-align: right; white-space: nowrap;">
                             <div style="display:flex; align-items:center; justify-content:space-between;">
-                                <span>${valorHtml}</span>
+                                <span style="font-weight: bold;">${valorHtml}</span>
                                 <button class="btn-excluir-linha print-hide" onclick="excluirItemAprovacao('${item.id}')" title="Excluir Linha">🗑️</button>
                             </div>
                         </td>
                     </tr>`;
                 }).join('');
 
+                // Modificado para usar a classe resumo-table-print que dá o layout bonito
                 htmlTotal += `
                 <div style="margin-bottom: 40px; page-break-inside: avoid;">
-                    <table style="width: 450px; border-collapse: collapse; text-align: center; margin-bottom: 10px; font-size: 13px; font-family: 'Segoe UI', Arial, sans-serif;">
+                    <table class="resumo-table-print" style="width: 100%; max-width: 600px; margin-bottom: 15px;">
                         <tr>
-                            <td rowspan="2" style="border: 1px solid #000; font-weight: bold; background: #fff; width: 120px;">APROVADORES</td>
-                            <td style="border: 1px solid #000; background: #f2f2f2; width: 150px; padding: 0;">${selectRic}</td>
-                            <td style="border: 1px solid #000; background: #fff; font-weight: bold; width: 180px;">INSTITUIÇÃO BANCÁRIA</td>
+                            <th rowspan="2" style="width: 120px; text-align: center; vertical-align: middle;">APROVADORES</th>
+                            <td style="background: #f8fafc; padding: 0;">${selectRic}</td>
+                            <th style="width: 180px; text-align: center;">INSTITUIÇÃO BANCÁRIA</th>
                         </tr>
                         <tr>
-                            <td style="border: 1px solid #000; background: #f2f2f2; padding: 0;">${selectAm}</td>
-                            <td style="border: 1px solid #000; background: #e2efda; font-weight: bold; color: var(--primary);">${banco}</td>
+                            <td style="background: #f8fafc; padding: 0;">${selectAm}</td>
+                            <td style="background: #ecfdf5; font-weight: bold; color: #059669; text-align: center; font-size: 14px;">${banco}</td>
                         </tr>
                     </table>
 
-                    <table style="width: 100%; border-collapse: collapse; font-size: 11px; font-family: 'Segoe UI', Arial, sans-serif; text-align: left;">
-                        <thead style="background: #d9d9d9;">
+                    <table class="resumo-table-print" style="text-align: left;">
+                        <thead>
                             <tr>
-                                <th style="border: 1px solid #000; padding: 6px; width: 10%;">BANCO <span style="font-size: 9px; color:#555;">▼</span></th>
-                                <th style="border: 1px solid #000; padding: 6px; width: 20%;">EMPRESA <span style="font-size: 9px; color:#555;">▼</span></th>
-                                <th style="border: 1px solid #000; padding: 6px; width: 20%;">CONTA ORIGEM <span style="font-size: 9px; color:#555;">▼</span></th>
-                                <th style="border: 1px solid #000; padding: 6px; width: 20%;">FAVORECIDO <span style="font-size: 9px; color:#555;">▼</span></th>
-                                <th style="border: 1px solid #000; padding: 6px; width: 20%;">CONTA DESTINO <span style="font-size: 9px; color:#555;">▼</span></th>
-                                <th style="border: 1px solid #000; padding: 6px; width: 10%; text-align: right;">MONTANTE.</th>
+                                <th style="width: 10%;">BANCO <span style="font-size: 9px; opacity:0.7;">▼</span></th>
+                                <th style="width: 15%;">EMPRESA <span style="font-size: 9px; opacity:0.7;">▼</span></th>
+                                <th style="width: 20%;">CONTA ORIGEM <span style="font-size: 9px; opacity:0.7;">▼</span></th>
+                                <th style="width: 20%;">FAVORECIDO <span style="font-size: 9px; opacity:0.7;">▼</span></th>
+                                <th style="width: 25%;">CONTA DESTINO <span style="font-size: 9px; opacity:0.7;">▼</span></th>
+                                <th style="width: 10%; text-align: right;">MONTANTE</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${linhasHtml}
                         </tbody>
                         <tfoot>
-                            <tr style="background: #d9d9d9; font-weight: bold;">
-                                <td colspan="5" style="border: 1px solid #000; padding: 6px;">Total Geral</td>
-                                <td style="border: 1px solid #000; padding: 6px; text-align: right; white-space: nowrap;">R$ ${formatarMoeda(totalBanco)}</td>
+                            <tr>
+                                <th colspan="5" style="text-align: left;">Total Geral</th>
+                                <th style="text-align: right; white-space: nowrap;">R$ ${formatarMoeda(totalBanco)}</th>
                             </tr>
                         </tfoot>
                     </table>
@@ -816,9 +797,6 @@
             carregarEstado(); await syncSupabase(); abrirAprovacoes();   
         }
 
-        // ==============================================
-        // RESUMO DO DIA
-        // ==============================================
         function abrirResumo() {
             salvarEstadoLocal(); 
             document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
@@ -904,9 +882,6 @@
             carregarEstado(); await syncSupabase(); abrirResumo();   
         }
 
-        // ==============================================
-        // CALENDÁRIO, DUPLICAÇÃO E MENU DE DIAS
-        // ==============================================
         function abrirModalCalendario() {
             salvarEstadoLocal(); 
             const hoje = new Date();
@@ -1031,9 +1006,6 @@
         function mudarDia(novoDia) { salvarEstadoLocal(); diaAtivo = novoDia; carregarEstado(); renderTabsDias(); }
         function fecharAba(diaParaFechar) { salvarEstadoLocal(); diasCadastrados = diasCadastrados.filter(d => d !== diaParaFechar); if (diaAtivo === diaParaFechar) { diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); } renderTabsDias(); }
 
-        // ==============================================
-        // ESTRUTURA BASE DA TABELA E UTILITÁRIOS
-        // ==============================================
         function renderTabsEmpresas() {
             const container = document.getElementById('nav-empresas-container');
             let html = '';
@@ -1061,7 +1033,7 @@
             h.innerHTML = `<tr><th class="col-categoria">Categorias / Contas</th>${contas.map(c => `<th>${c.b}<br><span style="font-weight:normal;">${c.c}</span></th>`).join('')}</tr>`;
             b.innerHTML = plano.map(l => {
                 const noInputClass = l.readOnly ? 'no-input' : '';
-                const classeSoma = l.id === 'stenv' ? 'grupo-soma' : ''; // Aplica o fundo escuro na linha TED ENVIADA
+                const classeSoma = l.id === 'stenv' ? 'grupo-soma' : ''; 
                 
                 return `<tr>
                     <td class="col-categoria ${l.tipo} ${classeSoma} ${l.tipo === 'item' || l.tipo === 'linha-banco' ? 'indent' : ''}">${l.nome}</td>
@@ -1135,9 +1107,17 @@
             const btn = document.getElementById(btnId); 
             const textoOriginal = btn.innerHTML;
             
-            // Ocultar os botões da lixeira antes de tirar a foto
+            // 1. Ocultar os botões de lixeira
             const elementsToHide = exportArea.querySelectorAll('.print-hide');
             elementsToHide.forEach(el => el.style.display = 'none');
+
+            // 2. Remover as bordas tracejadas para a imagem ficar limpa igual ao Resumo
+            const inputsEditaveis = exportArea.querySelectorAll('.input-transparent, .select-aprov');
+            inputsEditaveis.forEach(el => {
+                el.style.border = 'none';
+                el.style.background = 'transparent';
+                el.style.padding = '0'; // Tira o padding extra pro texto alinhar certinho
+            });
 
             btn.innerHTML = "⏳ Copiando..."; btn.style.background = "#64748b"; 
             try {
@@ -1152,14 +1132,22 @@
                         alert("Não foi possível copiar. Verifique permissões."); 
                         btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; 
                     } finally {
-                        // Devolver as lixeiras
+                        // Devolver as lixeiras e as bordas
                         elementsToHide.forEach(el => el.style.display = '');
+                        inputsEditaveis.forEach(el => {
+                            el.style.border = '';
+                            el.style.padding = '';
+                        });
                     }
                 });
             } catch (err) { 
                 alert("Erro ao gerar."); 
                 btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; 
                 elementsToHide.forEach(el => el.style.display = '');
+                inputsEditaveis.forEach(el => {
+                    el.style.border = '';
+                    el.style.padding = '';
+                });
             }
         }
 
