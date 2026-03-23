@@ -135,7 +135,8 @@
         .close:hover { color: var(--danger); }
         
         .resumo-table-print { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; background: white;}
-        .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 6px; }
+        /* Adicionado padding e alinhamento para ficar igual ao seu design bonito */
+        .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 8px; vertical-align: middle; }
         .resumo-table-print th { background-color: var(--primary); color: white; }
         .resumo-table-print tfoot th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; }
         
@@ -146,22 +147,9 @@
         .btn-modal-acao { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
         .btn-modal-acao:hover { background: #059669; }
 
-        /* Ajuste do Input Transparente para evitar cortes */
+        /* Ajuste de input para evitar cortes */
         .input-transparent {
-            border: 1px dashed #cbd5e1; 
-            background: transparent; 
-            width: 100%; 
-            min-width: 170px; 
-            box-sizing: border-box; 
-            font-size: 11px; 
-            outline: none; 
-            font-family: inherit; 
-            color: var(--text); 
-            padding: 5px; 
-            border-radius: 3px; 
-            transition: 0.2s; 
-            text-overflow: ellipsis;
-            line-height: normal; 
+            border: 1px dashed #cbd5e1; background: transparent; width: 100%; min-width: 170px; box-sizing: border-box; font-size: 11px; outline: none; font-family: inherit; color: var(--text); padding: 5px; border-radius: 3px; transition: 0.2s; text-overflow: ellipsis; line-height: normal;
         }
         .input-transparent:focus { border-style: solid; border-color: var(--primary); background: white; }
 
@@ -174,7 +162,7 @@
         /* BOTÃO E LIXEIRA - APROVAÇÃO MANUAL */
         .btn-add-manual { background: #f59e0b; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; transition: background 0.2s; }
         .btn-add-manual:hover { background: #d97706; }
-        .btn-excluir-linha { background: transparent; border: none; color: #ef4444; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-excluir-linha { background: transparent; border: none; color: #ef4444; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
         .btn-excluir-linha:hover { color: #b91c1c; }
         .print-hide { /* Ocultar colunas e botões na hora do print */ }
     </style>
@@ -606,7 +594,7 @@
         }
 
         // ==============================================
-        // PLANILHA DE APROVAÇÕES E EDIÇÃO MANUAL (REFEITO COM LAYOUT DO RESUMO)
+        // PLANILHA DE APROVAÇÕES (LAYOUT CORRIGIDO)
         // ==============================================
         function carregarItemsParaAprovacao() {
             itemsAprovacaoGlobal = []; 
@@ -674,7 +662,6 @@
                         ? `R$ <input type="text" class="input-transparent" value="${formatarMoeda(item.valor)}" style="width: 80px; display: inline-block; text-align:right;" onchange="atualizarItemManual('${item.id}', 'valor', this.value)">` 
                         : `R$ ${formatarMoeda(item.valor)}`;
 
-                    // Uso do estilo padrão das tabelas do Resumo
                     return `
                     <tr>
                         <td>${inputBancoOrigem}</td>
@@ -691,7 +678,6 @@
                     </tr>`;
                 }).join('');
 
-                // Modificado para usar a classe resumo-table-print que dá o layout bonito
                 htmlTotal += `
                 <div style="margin-bottom: 40px; page-break-inside: avoid;">
                     <table class="resumo-table-print" style="width: 100%; max-width: 600px; margin-bottom: 15px;">
@@ -706,7 +692,7 @@
                         </tr>
                     </table>
 
-                    <table class="resumo-table-print" style="text-align: left;">
+                    <table class="resumo-table-print" style="text-align: left; width: 100%;">
                         <thead>
                             <tr>
                                 <th style="width: 10%;">BANCO <span style="font-size: 9px; opacity:0.7;">▼</span></th>
@@ -1102,6 +1088,9 @@
             });
         }
 
+        // ==============================================
+        // O TRUQUE DE MESTRE: Transformar inputs em texto
+        // ==============================================
         async function copiarImagem(areaId, btnId) {
             const exportArea = document.getElementById(areaId); 
             const btn = document.getElementById(btnId); 
@@ -1111,16 +1100,41 @@
             const elementsToHide = exportArea.querySelectorAll('.print-hide');
             elementsToHide.forEach(el => el.style.display = 'none');
 
-            // 2. Remover as bordas tracejadas para a imagem ficar limpa igual ao Resumo
-            const inputsEditaveis = exportArea.querySelectorAll('.input-transparent, .select-aprov');
-            inputsEditaveis.forEach(el => {
-                el.style.border = 'none';
-                el.style.background = 'transparent';
-                el.style.padding = '0'; // Tira o padding extra pro texto alinhar certinho
+            // 2. TRUQUE: Transformar os inputs de digitação em tags <span> comuns
+            const inputsEditaveis = exportArea.querySelectorAll('.input-transparent');
+            const spansInputs = [];
+            inputsEditaveis.forEach(input => {
+                const span = document.createElement('span');
+                span.style.fontSize = '11px';
+                span.style.fontWeight = input.style.fontWeight || 'normal';
+                span.style.display = 'inline-block';
+                span.style.width = '100%';
+                span.style.wordBreak = 'break-word';
+                span.innerText = input.value;
+                input.parentNode.insertBefore(span, input);
+                input.style.display = 'none'; // Esconde o input safado que corta texto
+                spansInputs.push({ input, span });
+            });
+
+            // 2.1 TRUQUE: Fazer a mesma coisa com a caixinha de Selecionar Aprovador
+            const selectsEditaveis = exportArea.querySelectorAll('.select-aprov');
+            const spansSelects = [];
+            selectsEditaveis.forEach(select => {
+                const span = document.createElement('span');
+                span.style.fontSize = '13px';
+                span.style.fontWeight = 'bold';
+                span.style.display = 'inline-block';
+                span.style.width = '100%';
+                span.style.textAlign = 'center';
+                span.innerText = select.options[select.selectedIndex]?.text || '';
+                select.parentNode.insertBefore(span, select);
+                select.style.display = 'none'; // Esconde o select
+                spansSelects.push({ select, span });
             });
 
             btn.innerHTML = "⏳ Copiando..."; btn.style.background = "#64748b"; 
             try {
+                // Tira a foto limpinha
                 const canvas = await html2canvas(exportArea, { backgroundColor: "#ffffff", scale: 2 });
                 canvas.toBlob(async function(blob) {
                     try { 
@@ -1132,22 +1146,18 @@
                         alert("Não foi possível copiar. Verifique permissões."); 
                         btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; 
                     } finally {
-                        // Devolver as lixeiras e as bordas
+                        // 3. Devolver tudo ao normal assim que copiar
                         elementsToHide.forEach(el => el.style.display = '');
-                        inputsEditaveis.forEach(el => {
-                            el.style.border = '';
-                            el.style.padding = '';
-                        });
+                        spansInputs.forEach(({ input, span }) => { span.remove(); input.style.display = ''; });
+                        spansSelects.forEach(({ select, span }) => { span.remove(); select.style.display = ''; });
                     }
                 });
             } catch (err) { 
                 alert("Erro ao gerar."); 
                 btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; 
                 elementsToHide.forEach(el => el.style.display = '');
-                inputsEditaveis.forEach(el => {
-                    el.style.border = '';
-                    el.style.padding = '';
-                });
+                spansInputs.forEach(({ input, span }) => { span.remove(); input.style.display = ''; });
+                spansSelects.forEach(({ select, span }) => { span.remove(); select.style.display = ''; });
             }
         }
 
