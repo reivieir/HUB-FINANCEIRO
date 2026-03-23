@@ -562,6 +562,7 @@
                     let p = parseFloat(el.getAttribute('data-pendente')) || 0;
                     el.setAttribute('data-pendente', p + v);
 
+                    // SALVANDO NO HISTÓRICO PARA NÃO MISTURAR BANCOS
                     let bancoSelect = document.getElementById(`banco-${lid}-${cidx}`);
                     let bancoNome = bancoSelect && bancoSelect.value ? bancoSelect.value.toUpperCase() : "";
                     
@@ -612,6 +613,7 @@
                 let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0;
                 el.setAttribute('data-pendente-aprov', pAprov + v);
 
+                // HISTÓRICO DE TEDS
                 let hist = JSON.parse(el.getAttribute('data-historico') || "[]");
                 let existing = hist.find(h => h.banco === toBancoEConta);
                 if (existing) {
@@ -650,6 +652,7 @@
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = diaDados[emp][idx] || {};
 
+                    // LENDO O HISTÓRICO DA TRANSFERENCIA
                     let histStenv = JSON.parse(contaDados['historico-stenv'] || "[]");
                     if (histStenv.length === 0) { 
                         let pendStenv = parseFloat(contaDados['pendente-aprov-stenv']) || 0;
@@ -674,6 +677,7 @@
                         });
                     }
 
+                    // LENDO O HISTÓRICO DA APLICAÇÃO
                     let histSo7 = JSON.parse(contaDados['historico-so7'] || "[]");
                     if (histSo7.length === 0) { 
                         let pendSo7 = parseFloat(contaDados['pendente-aprov-so7']) || 0;
@@ -887,6 +891,9 @@
             carregarEstado(); await syncSupabase(); abrirAprovacoes();   
         }
 
+        // ==============================================
+        // RESUMO DO DIA (AGORA DIVIDIDO POR BANCO)
+        // ==============================================
         function abrirResumo() {
             salvarEstadoLocal(); 
             document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
@@ -1326,7 +1333,7 @@
         // ==============================================
         
         // ⚠️ COLOQUE SUA CHAVE DE API DO GEMINI AQUI (Começa com AIza)
-        const GEMINI_API_KEY = "AIzaSyBgHPaX4H98gh3s8bQkSeGpZdiC9L_6O5U"; // <-- Cole sua chave inteira aqui
+        const GEMINI_API_KEY = "AIzaSyBgHPaX4H98gh3s8bQkSeGpZdiC9L_6O5U"; // <-- Cole sua chave inteira AQUI DENTRO DAS ASPAS
 
         function toggleAIChat() {
             const panel = document.getElementById('aiChatPanel');
@@ -1399,7 +1406,8 @@
         }
 
         async function processarPerguntaAPI(mensagemUsuario) {
-            if (!GEMINI_API_KEY || GEMINI_API_KEY.includes("AIzaSyBgHPaX4H98gh3s8bQkSeGpZdiC9L_6O5U")) {
+            // A verificação agora está corrigida, não mexa nesta linha:
+            if (!GEMINI_API_KEY || GEMINI_API_KEY === "SUA_CHAVE_AQUI") {
                 return "⚠️ **API Key ausente!** Por favor, cole sua chave do Gemini na variável `GEMINI_API_KEY` no final do código.";
             }
 
