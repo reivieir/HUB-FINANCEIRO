@@ -298,7 +298,7 @@
         <div class="modal-content" style="max-width: 350px; text-align: center;">
             <span class="close" onclick="fecharModalSenha()">&times;</span>
             <h3 style="color: #c40000; margin-top:0; font-size: 16px;">Ação Restrita</h3>
-            <p style="font-size: 13px; color: #64748b; margin: 15px 0;">Digite a sua senha pessoal para excluir definitivamente o caixa do dia <b id="dia-excluir-label"></b>.</p>
+           <p style="font-size: 13px; color: #64748b; margin: 15px 0;">Digite a <b>Senha Master</b> para excluir definitivamente o caixa do dia <b id="dia-excluir-label"></b>.</p>
             <input type="password" id="input-senha-excluir" class="input-lancar" style="width: 100%; padding: 12px; font-size: 16px; text-align: center; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="*** Senha ***" onkeypress="seEnterSenhaExcluir(event)">
             <p id="msg-erro-exclusao" style="color: #c40000; font-size: 12px; height: 15px; margin-bottom: 10px;"></p>
             <button class="btn-modal-acao" style="background: #ef4444; width: 100%; padding: 12px; font-size: 13px;" onclick="confirmarExclusaoComSenha()">CONFIRMAR EXCLUSÃO</button>
@@ -1201,20 +1201,26 @@
             const senhaDigitada = document.getElementById('input-senha-excluir').value.trim();
             const msgErro = document.getElementById('msg-erro-exclusao');
             
-            if(!senhaDigitada) { msgErro.innerText = "Digite sua senha!"; return; }
-            msgErro.innerText = "Verificando...";
+            if(!senhaDigitada) { msgErro.innerText = "Digite a senha Master!"; return; }
+            msgErro.innerText = "Verificando autorização...";
             msgErro.style.color = "#64748b";
 
-            const { data, error } = await sb.from('usuarios').select('senha').eq('login', usuarioLogado.login).single();
+            // AGORA ELE BUSCA A SENHA MASTER NA TABELA DE CONFIGURAÇÕES
+            const { data, error } = await sb.from('configuracoes_sistema')
+                                            .select('valor')
+                                            .eq('chave', 'senha_acesso')
+                                            .single();
             
-            if (error || !data || data.senha !== senhaDigitada) { 
-                msgErro.innerText = "Senha incorreta! Exclusão negada."; 
+            // Confere se achou a senha e se ela bate com a que foi digitada
+            if (error || !data || data.valor !== senhaDigitada) { 
+                msgErro.innerText = "Senha Master incorreta! Exclusão negada."; 
                 msgErro.style.color = "#c40000";
                 document.getElementById('input-senha-excluir').value = '';
                 document.getElementById('input-senha-excluir').focus();
                 return; 
             }
 
+            // Se a senha Master estiver certa, executa a exclusão
             fecharModalSenha(); 
             await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
             delete dadosPorDia[diaAtivo]; 
