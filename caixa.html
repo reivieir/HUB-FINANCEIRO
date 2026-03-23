@@ -566,73 +566,28 @@
         function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = formatarMoeda(val); }
 
         function recalcularColuna(idx) {
-            let subtotal = 0;
-            let totalEntradas = 0;
-            let totalSaidas = 0;
-            let fase = 'entradas'; // A calculadora começa lendo as entradas
+            let sc = getV('c1',idx) + getV('c2',idx) + getV('c3',idx) + getV('c4',idx) + getV('c5',idx); setV('sc', idx, sc);
+            let sco = getV('co1',idx) + getV('co2',idx); setV('sco', idx, sco);
+            let so = getV('o1',idx) + getV('o2',idx) + getV('o3',idx) + getV('o4',idx) + getV('o5',idx) + getV('o6',idx) + getV('o7',idx) + getV('o8',idx); setV('so', idx, so);
+            let sf = getV('f1',idx) + getV('f2',idx); setV('sf', idx, sf);
+            let sint = getV('i1',idx) + getV('i2',idx) + getV('i3',idx) + getV('m1',idx) + getV('a1',idx); setV('sint', idx, sint);
+            let te = sc + sco + so + sf + sint + getV('tr',idx); setV('te', idx, te);
 
-            plano.forEach(l => {
-                // 1. Pula Saldo Inicial e Margem Segura (pois eles têm cálculos fixos no fim da tabela)
-                if (l.id === 'si' || l.id === 'marg') return;
+            let sfor = getV('s1',idx) + getV('s2',idx) + getV('s3',idx) + getV('s4',idx) + getV('s5',idx) + getV('s6',idx) + getV('s7',idx); setV('sfor', idx, sfor);
+            let ssal = getV('sa1',idx) + getV('sa2',idx); setV('ssal', idx, ssal);
+            let ssout = getV('so1',idx) + getV('so2',idx) + getV('so3',idx) + getV('so4',idx) + getV('so5',idx) + getV('so6',idx) + getV('so7',idx) + getV('so8',idx); setV('ssout', idx, ssout);
+            let ssfin = getV('sfi1',idx) + getV('sfi2',idx) + getV('sfi3',idx) + getV('sfi4',idx) + getV('sfi5',idx); setV('ssfin', idx, ssfin);
+            let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx) + getV('smut',idx) + getV('sapo',idx) + getV('sviv',idx) + getV('scri',idx); setV('ssint', idx, ssint);
+            let tsai = sfor + ssal + ssout + ssfin + ssint + getV('stenv',idx); setV('tsai', idx, tsai);
 
-                // 2. Linhas de Transferência (Não entram em subtotais de grupo, vão direto pro Total Geral)
-                if (l.id === 'tr') { 
-                    totalEntradas += getV(l.id, idx); 
-                    return; 
-                }
-                if (l.id === 'stenv') { 
-                    totalSaidas += getV(l.id, idx); 
-                    return; 
-                }
-
-                // 3. Linhas Normais (que a gente digita valor)
-                if (!l.readOnly) {
-                    let val = getV(l.id, idx);
-                    subtotal += val; // Guarda no bolinho do grupo
-                    if (fase === 'entradas') totalEntradas += val; // Guarda no Totalzão
-                    else totalSaidas += val;
-                }
-                
-                // 4. MÁGICA: Achou uma linha de SUBTOTAL (As linhas bloqueadas cinzas/escuras)
-                else if (l.readOnly && !['te', 'tsai', 'calc', 'seg'].includes(l.id)) {
-                    setV(l.id, idx, subtotal); // Joga a soma do grupo aqui
-                    subtotal = 0; // Zera a calculadora para o próximo grupo!
-                }
-                
-                // 5. TOTAL DE ENTRADAS (Totalzão Azul)
-                else if (l.id === 'te') {
-                    setV('te', idx, totalEntradas);
-                    fase = 'saidas'; // Avisa a calculadora que a partir de agora é tudo saída
-                    subtotal = 0;
-                }
-                
-                // 6. TOTAL DE SAÍDAS (Totalzão Vermelho)
-                else if (l.id === 'tsai') {
-                    setV('tsai', idx, totalSaidas);
-                }
-                
-                // 7. SALDO FINAL CALCULADO
-                else if (l.id === 'calc') {
-                    let si = getV('si', idx);
-                    let calc = si + totalEntradas - totalSaidas;
-                    setV('calc', idx, calc);
-                    
-                    // Colore de vermelho se a conta ficar negativa
-                    let tdCalc = document.getElementById(`val-calc-${idx}`);
-                    if (tdCalc) {
-                        let cellTr = tdCalc.closest('td');
-                        if (calc < 0) cellTr.classList.add('saldo-negativo'); 
-                        else cellTr.classList.remove('saldo-negativo');
-                    }
-                }
-                
-                // 8. SALDO SEGURO
-                else if (l.id === 'seg') {
-                    let calc = getV('calc', idx);
-                    let marg = getV('marg', idx);
-                    setV('seg', idx, calc - marg);
-                }
-            });
+            let si = getV('si', idx); let calc = si + te - tsai; setV('calc', idx, calc);
+            
+            let tdCalc = document.getElementById(`val-calc-${idx}`);
+            if (tdCalc) {
+                let cellTr = tdCalc.closest('td');
+                if (calc < 0) { cellTr.classList.add('saldo-negativo'); } else { cellTr.classList.remove('saldo-negativo'); }
+            }
+            let marg = getV('marg', idx); let seg = calc - marg; setV('seg', idx, seg); 
         }
 
         async function lancar(e, lid, cidx) {
