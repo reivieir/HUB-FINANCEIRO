@@ -13,10 +13,10 @@
             --primary: #002b45; 
             --danger: #c40000; 
             --link: #0056b3; 
-            --bg: #f4f7f6; 
+            --bg: #f8fafc; 
             --border: #e2e8f0;
             --text: #334155;
-            --accent: #10b981; 
+            --accent: #d97706; 
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -25,7 +25,7 @@
            MOLDE PADRÃO (FUNDO E MARGENS)
         ========================================== */
         html, body {
-            margin: 0; padding: 0; height: 100vh;
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
             background-color: #f0f2f5; 
             color: var(--text);
             overflow: hidden; 
@@ -38,22 +38,16 @@
         }
 
         /* ==========================================
-           TELA DE LOGIN E LOADING
+           TELA DE LOGIN E LOADING PADRÃO DO SISTEMA
         ========================================== */
-        #login-screen {
-            position: fixed; inset: 0; background: var(--primary);
-            display: flex; justify-content: center; align-items: center; z-index: 200000;
-        }
-        .login-card {
-            background: white; padding: 40px; border-radius: 8px;
-            width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
+        #login-screen { position: fixed; inset: 0; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 200000; }
+        .login-card { background: white; padding: 40px; border-radius: 8px; width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .login-card h2 { color: var(--primary); margin-bottom: 5px; font-weight: 700; }
         .login-card p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
         .login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 4px; outline: none; text-align: center; font-size: 14px; }
         .login-card input:focus { border-color: var(--accent); }
         .login-card button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; font-size: 14px; }
-        .login-card button:hover { background: #059669; }
+        .login-card button:hover { background: #c2410c; }
 
         #loading-overlay {
             position: fixed; inset: 0; background: var(--primary); z-index: 100000;
@@ -63,7 +57,7 @@
         #loading-overlay p { color: #94a3b8; font-size: 14px;}
 
         /* ==========================================
-           MENU SUPERIOR GLOBAL
+           MENU SUPERIOR GLOBAL (PADRÃO CAIXA)
         ========================================== */
         .hub-top-nav {
             position: fixed; top: 0; left: 0; width: 100%; background-color: #ffffff;
@@ -73,25 +67,27 @@
         
         .hub-logo-box { display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 18px; }
         .hub-title { font-weight: 800; color: #0f172a; }
-        .hub-subtitle { font-weight: 700; color: #10b981; }
+        .hub-subtitle { font-weight: 700; color: var(--accent); }
 
         .hub-menu-links { display: flex; align-items: center; gap: 20px; }
         .hub-nav-item { text-decoration: none; color: #475569; font-weight: 600; font-size: 13px; transition: 0.2s; padding: 5px 10px; border-radius: 6px; }
-        .hub-nav-item:hover { color: #10b981; background-color: #f8fafc; }
-        .hub-nav-item.active { color: #10b981; } 
+        .hub-nav-item:hover { color: var(--accent); background-color: #f8fafc; }
+        .hub-nav-item.active { color: var(--accent); } 
         
         .hub-nav-divider { width: 1px; height: 24px; background-color: #cbd5e1; margin: 0 5px; }
 
-        .hub-nav-ia { text-decoration: none; color: #059669; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #ecfdf5; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
-        .hub-nav-ia:hover { background-color: #d1fae5; }
+        .hub-nav-ia { text-decoration: none; color: #c2410c; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #fff7ed; display: flex; align-items: center; gap: 6px; transition: 0.2s; border: none; cursor: pointer; outline: none; }
+        .hub-nav-ia:hover { background-color: #ffedd5; }
         
         .hub-user-box { display: flex; align-items: center; gap: 12px; }
         .hub-greeting { color: #475569; font-size: 13px; font-weight: 500; }
-        .hub-avatar { width: 36px; height: 36px; background-color: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; }
+        .hub-avatar { width: 36px; height: 36px; background-color: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; }
 
         /* ==========================================
-           O CARTÃO BRANCO PRINCIPAL DO SISTEMA
+           O CARTÃO BRANCO PRINCIPAL DO SISTEMA E ZOOM
         ========================================== */
+        .zoom-wrapper { zoom: 0.8; display: flex; flex-direction: column; flex: 1; padding: 25px; overflow: hidden; }
+        
         .app-wrapper {
             flex: 1; 
             background: white;
@@ -101,24 +97,34 @@
             flex-direction: column;
             overflow: hidden; 
             min-height: 0; 
-            margin: 20px; 
         }
 
         .app-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
         /* ==========================================
-           CABEÇALHOS INTERNOS E NAVEGAÇÃO
+           CABEÇALHOS INTERNOS E BOTÕES ESCUROS
         ========================================== */
-        header.interno {
-            background-color: var(--primary); color: white; padding: 12px 20px;
-            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        .header-dexco { background-color: #002b45; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .header-dexco h1 { font-size: 14px; font-weight: 400; margin: 0; letter-spacing: 0.5px;}
+        
+        .header-actions { display: flex; gap: 10px; }
+        .btn-top-dark {
+            background: linear-gradient(145deg, #434343, #111111);
+            color: #ffffff;
+            border: 1px solid #222222;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            padding: 6px 15px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            font-size: 11px; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
         }
-        header.interno h1 { font-size: 14px; font-weight: 400; margin: 0; letter-spacing: 0.5px; }
-        .header-actions button { padding: 6px 15px; border: none; border-radius: 3px; font-weight: 600; cursor: pointer; font-size: 11px; transition: 0.2s; }
-        .btn-export { background: white; color: #333; }
-        .btn-export:hover { background: #f0f0f0; }
-        .btn-lock { background: var(--danger); color: white; margin-left: 10px; }
-        .btn-lock:hover { background: #a00000; }
+        .btn-top-dark:hover {
+            background: linear-gradient(145deg, #555555, #222222);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            transform: translateY(-1px);
+        }
 
         .nav-bancos { background: white; display: flex; align-items: center; gap: 10px; overflow-x: auto; padding: 10px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
         .banco-link { padding: 6px 12px; cursor: pointer; color: #64748b; font-weight: 600; border-radius: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
@@ -137,7 +143,7 @@
         .controls { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; flex-shrink: 0;}
         .controls input, .controls select { padding: 10px; border: 1px solid var(--border); border-radius: 4px; outline: none; font-size: 13px; }
         .controls input:focus, .controls select:focus { border-color: var(--link); }
-        .btn-incluir { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .btn-incluir { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;}
         .btn-incluir:hover { background: #218838; }
 
         .table-container { background: white; border: 1px solid var(--border); border-radius: 6px; overflow-y: auto; flex: 1; position: relative; }
@@ -170,34 +176,12 @@
 
 <body>
 
-    <header class="hub-top-nav">
-        <a href="index.html" class="hub-logo-box">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>
-            </svg>
-            <span class="hub-title">DEXCO</span> <span class="hub-subtitle">Hub Financeiro</span>
-        </a>
-        
-        <nav class="hub-menu-links">
-            <a href="conciliacao.html" class="hub-nav-item">Conciliação Bancária</a>
-            <a href="bancos.html" class="hub-nav-item active">Gestão de Bancos</a>
-            <a href="caixa.html" class="hub-nav-item">Gestão de Caixa</a>
-            <a href="protestos.html" class="hub-nav-item">Protestos</a>
-            <div class="hub-nav-divider"></div>
-            <a href="index.html" class="hub-nav-ia">✨ Assistente IA</a>
-        </nav>
-
-        <div class="hub-user-box">
-            <span class="hub-greeting">Olá, Operador</span>
-            <div class="hub-avatar">O</div>
-        </div>
-    </header>
-
     <div id="login-screen">
         <div class="login-card">
             <h2>DEXCO ASSIST</h2>
-            <p>Gestão de Acessos Bancários</p>
-            <input type="password" id="pass" placeholder="Senha do Sistema" onkeypress="handleEnter(event)">
+            <p>Gestão de Bancos</p>
+            <input type="text" id="input-login" placeholder="Usuário" onkeypress="handleEnter(event)">
+            <input type="password" id="input-senha-login" placeholder="Senha de Acesso" onkeypress="handleEnter(event)">
             <button onclick="entrar()">ENTRAR NO PAINEL</button>
             <p id="login-msg" style="color: #c40000; font-size: 12px; margin-top: 15px; height: 15px;"></p>
         </div>
@@ -208,44 +192,64 @@
         <p>Sincronizando banco de dados...</p>
     </div>
 
-    <div id="app" class="app-wrapper">
-        <header class="interno">
-            <h1>Dexco S.A - Gestão de Bancos</h1>
-            <div class="header-actions">
-                <button class="btn-export" onclick="exportarExcel()">Exportar CSV</button>
-                <button class="btn-lock" onclick="sair()">Sair / Bloquear</button>
-            </div>
-        </header>
+    <header class="hub-top-nav">
+        <a href="index.html" class="hub-logo-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            <span class="hub-title">DEXCO</span> <span class="hub-subtitle">Hub Financeiro</span>
+        </a>
+        <nav class="hub-menu-links">
+            <a href="conciliacao.html" class="hub-nav-item">CONCILIAÇÃO BANCÁRIA</a>
+            <a href="bancos.html" class="hub-nav-item active">GESTÃO DE BANCOS</a>
+            <a href="caixa.html" class="hub-nav-item">GESTÃO DE CAIXA</a>
+            <a href="protestos.html" class="hub-nav-item">PROTESTOS</a>
+            <div class="hub-nav-divider"></div>
+            <a href="caixa.html" class="hub-nav-ia">✨ Assistente IA</a>
+        </nav>
+        <div class="hub-user-box"><span class="hub-greeting">Olá, Operador</span><div class="hub-avatar">O</div></div>
+    </header>
 
-        <div class="app-content">
-            <div class="nav-bancos" id="nav-bancos"></div>
-
-            <div class="main-container">
-                <div class="kpis">
-                    <div class="kpi-card">TOTAL GERAL<br><span class="kpi" id="total">0</span></div>
-                    <div class="kpi-card"><span id="kpi-label-filtrado">TODOS</span><br><span class="kpi" id="total-banco" style="color: var(--link);">0</span></div>
+    <div class="zoom-wrapper">
+        <div id="app" class="app-wrapper">
+            <header class="header-dexco">
+                <h1>Dexco S.A - Gestão de Bancos</h1>
+                <div class="header-actions">
+                    <button class="btn-top-dark" onclick="exportarExcel()">📥 Exportar CSV</button>
+                    <button class="btn-top-dark" onclick="sair()">🔒 Sair / Bloquear</button>
                 </div>
+            </header>
 
-                <div class="controls">
-                    <input type="text" id="busca" placeholder="Buscar por operador ou empresa..." oninput="render()" style="flex: 1;">
-                    <select id="filtro-perfil" onchange="filtrarPerfil()"><option value="">Todos os perfis</option></select>
-                    <button class="btn-incluir" onclick="abrirModal()">+ INCLUIR NOVO</button>
-                </div>
+            <div class="app-content">
+                <div class="nav-bancos" id="nav-bancos"></div>
 
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Operador</th>
-                                <th>Perfil</th>
-                                <th>Usuário</th>
-                                <th>Banco</th>
-                                <th>Empresa</th>
-                                <th style="width: 150px; text-align: center;">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="corpo-tabela"></tbody>
-                    </table>
+                <div class="main-container">
+                    <div class="kpis">
+                        <div class="kpi-card">TOTAL DE ACESSOS<br><span class="kpi" id="total">0</span></div>
+                        <div class="kpi-card"><span id="kpi-label-filtrado">TODOS</span><br><span class="kpi" id="total-banco" style="color: var(--accent);">0</span></div>
+                    </div>
+
+                    <div class="controls">
+                        <input type="text" id="busca" placeholder="Buscar por operador ou empresa..." oninput="render()" style="flex: 1;">
+                        <select id="filtro-perfil" onchange="filtrarPerfil()"><option value="">Todos os perfis</option></select>
+                        <button class="btn-incluir" onclick="abrirModal()">+ INCLUIR NOVO ACESSO</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Operador</th>
+                                    <th>Perfil</th>
+                                    <th>Usuário</th>
+                                    <th>Banco</th>
+                                    <th>Empresa</th>
+                                    <th style="width: 150px; text-align: center;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpo-tabela"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -257,9 +261,9 @@
             <input type="hidden" id="e-id">
             <input type="text" id="i-nome" placeholder="Operador">
             <input type="text" id="i-perfil" placeholder="Perfil (Ex: Master, Consulta)">
-            <input type="text" id="i-user" placeholder="Usuário">
-            <input type="text" id="i-banco" placeholder="Banco">
-            <input type="text" id="i-empresa" placeholder="Empresa">
+            <input type="text" id="i-user" placeholder="Usuário do Banco">
+            <input type="text" id="i-banco" placeholder="Banco (Ex: ITAÚ, BRADESCO)">
+            <input type="text" id="i-empresa" placeholder="Empresa do Acesso">
             
             <div class="modal-btns">
                 <button class="btn-save" onclick="salvar()">SALVAR</button>
@@ -276,40 +280,47 @@
         let dados = [];
         let bancoSelecionado = "";
         let perfilSelecionado = "";
+        let usuarioLogado = { login: '', nome: '' };
 
-        // LÓGICA DE LOGIN NO BANCO DE DADOS
+        // LÓGICA DE LOGIN COM A NOVA TABELA 'usuarios'
         function handleEnter(e) { if(e.key === "Enter") entrar(); }
 
         async function entrar() {
-            const passInput = document.getElementById("pass");
-            const senhaDigitada = passInput.value.trim();
+            const loginDigitado = document.getElementById("input-login").value.trim();
+            const senhaDigitada = document.getElementById("input-senha-login").value.trim();
             const msg = document.getElementById("login-msg");
 
-            if(senhaDigitada === "") {
-                msg.innerText = "Por favor, digite a senha!";
+            if(!loginDigitado || !senhaDigitada) {
+                msg.innerText = "Por favor, preencha usuário e senha!";
                 return;
             }
 
-            msg.innerText = "Verificando...";
+            msg.innerText = "Autenticando...";
             msg.style.color = "#64748b";
 
-            const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_acesso').single();
+            const { data, error } = await sb.from('usuarios').select('nome, senha').eq('login', loginDigitado).single();
 
             if (error || !data) {
-                msg.innerText = "Erro ao validar senha no banco de dados.";
+                msg.innerText = "Usuário não encontrado.";
                 msg.style.color = "#c40000";
                 return;
             }
 
-            if (senhaDigitada === data.valor) {
+            if (senhaDigitada === data.senha) {
+                usuarioLogado = { login: loginDigitado, nome: data.nome };
+                
+                const primeiroNome = data.nome.split(' ')[0];
+                document.querySelector('.hub-greeting').innerText = `Olá, ${primeiroNome}`;
+                document.querySelector('.hub-avatar').innerText = primeiroNome.charAt(0).toUpperCase();
+
                 document.getElementById("login-screen").style.display = "none";
                 document.getElementById("loading-overlay").style.display = "flex";
                 carregar();
             } else {
                 msg.innerText = "Senha incorreta!";
                 msg.style.color = "#c40000";
-                passInput.value = "";
-                passInput.focus();
+                document.getElementById("input-senha-login").value = "";
+                document.getElementById("input-senha-login").focus();
             }
         }
 
@@ -381,7 +392,7 @@
 
         function abrirModal() {
             document.getElementById("modal").style.display = "flex";
-            document.getElementById("modal-titulo").innerText = "Cadastro";
+            document.getElementById("modal-titulo").innerText = "Cadastro de Acesso";
             document.getElementById("e-id").value = "";
             document.getElementById("i-nome").value = "";
             document.getElementById("i-perfil").value = "";
@@ -411,7 +422,7 @@
 
         function editar(id, n, p, u, b, e) {
             abrirModal();
-            document.getElementById("modal-titulo").innerText = "Editar Cadastro";
+            document.getElementById("modal-titulo").innerText = "Editar Acesso";
             document.getElementById("e-id").value = id;
             document.getElementById("i-nome").value = n;
             document.getElementById("i-perfil").value = p;
@@ -421,7 +432,7 @@
         }
 
         async function remover(id) {
-            if (!confirm("Confirmar exclusão?")) return;
+            if (!confirm("Confirmar exclusão deste acesso?")) return;
             const { error } = await sb.from("gestao_acessos").delete().eq("id", id);
             if (error) alert(error.message); else carregar();
         }
@@ -431,9 +442,14 @@
             dados.forEach(i => { csv += `${i.operador_nome||""};${i.perfil||""};${i.usuario_login||""};${i.banco_nome||""};${i.empresa||""}\n`; });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-            link.download = "gestao_dexco.csv";
+            link.download = "gestao_bancos_dexco.csv";
             link.click();
         }
+
+        window.onload = function() {
+            const passInput = document.getElementById('input-login');
+            if (passInput) passInput.focus();
+        };
     </script>
 </body>
 </html>
