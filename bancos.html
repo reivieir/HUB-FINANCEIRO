@@ -180,8 +180,7 @@
         <div class="login-card">
             <h2>DEXCO ASSIST</h2>
             <p>Gestão de Bancos</p>
-            <input type="text" id="input-login" placeholder="Usuário" onkeypress="handleEnter(event)">
-            <input type="password" id="input-senha-login" placeholder="Senha de Acesso" onkeypress="handleEnter(event)">
+            <input type="password" id="input-senha-login" placeholder="Senha do Gestor" onkeypress="handleEnter(event)">
             <button onclick="entrar()">ENTRAR NO PAINEL</button>
             <p id="login-msg" style="color: #c40000; font-size: 12px; margin-top: 15px; height: 15px;"></p>
         </div>
@@ -207,7 +206,7 @@
             <div class="hub-nav-divider"></div>
             <a href="caixa.html" class="hub-nav-ia">✨ Assistente IA</a>
         </nav>
-        <div class="hub-user-box"><span class="hub-greeting">Olá, Operador</span><div class="hub-avatar">O</div></div>
+        <div class="hub-user-box"><span class="hub-greeting">Olá, Gestor</span><div class="hub-avatar">G</div></div>
     </header>
 
     <div class="zoom-wrapper">
@@ -280,39 +279,32 @@
         let dados = [];
         let bancoSelecionado = "";
         let perfilSelecionado = "";
-        let usuarioLogado = { login: '', nome: '' };
 
-        // LÓGICA DE LOGIN COM A NOVA TABELA 'usuarios'
+        // LÓGICA DE LOGIN COM A TABELA CONFIGURACOES_SISTEMA (CHAVE: senha_bancos)
         function handleEnter(e) { if(e.key === "Enter") entrar(); }
 
         async function entrar() {
-            const loginDigitado = document.getElementById("input-login").value.trim();
             const senhaDigitada = document.getElementById("input-senha-login").value.trim();
             const msg = document.getElementById("login-msg");
 
-            if(!loginDigitado || !senhaDigitada) {
-                msg.innerText = "Por favor, preencha usuário e senha!";
+            if(!senhaDigitada) {
+                msg.innerText = "Por favor, digite a senha!";
                 return;
             }
 
             msg.innerText = "Autenticando...";
             msg.style.color = "#64748b";
 
-            const { data, error } = await sb.from('usuarios').select('nome, senha').eq('login', loginDigitado).single();
+            // Busca a senha do Gestor de Bancos na tabela configuracoes_sistema
+            const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_bancos').single();
 
             if (error || !data) {
-                msg.innerText = "Usuário não encontrado.";
+                msg.innerText = "Erro: Crie a chave 'senha_bancos' no Supabase!";
                 msg.style.color = "#c40000";
                 return;
             }
 
-            if (senhaDigitada === data.senha) {
-                usuarioLogado = { login: loginDigitado, nome: data.nome };
-                
-                const primeiroNome = data.nome.split(' ')[0];
-                document.querySelector('.hub-greeting').innerText = `Olá, ${primeiroNome}`;
-                document.querySelector('.hub-avatar').innerText = primeiroNome.charAt(0).toUpperCase();
-
+            if (senhaDigitada === data.valor) {
                 document.getElementById("login-screen").style.display = "none";
                 document.getElementById("loading-overlay").style.display = "flex";
                 carregar();
@@ -447,7 +439,7 @@
         }
 
         window.onload = function() {
-            const passInput = document.getElementById('input-login');
+            const passInput = document.getElementById('input-senha-login');
             if (passInput) passInput.focus();
         };
     </script>
