@@ -44,7 +44,7 @@
         .hub-nav-item:hover { color: #10b981; background-color: #f8fafc; }
         .hub-nav-item.active { color: #10b981; } 
         .hub-nav-divider { width: 1px; height: 24px; background-color: #cbd5e1; margin: 0 5px; }
-        .hub-nav-ia { text-decoration: none; color: #059669; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #ecfdf5; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .hub-nav-ia { text-decoration: none; color: #059669; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #ecfdf5; display: flex; align-items: center; gap: 6px; transition: 0.2s; cursor: pointer; border: none; outline: none; }
         .hub-nav-ia:hover { background-color: #d1fae5; }
         .hub-user-box { display: flex; align-items: center; gap: 12px; }
         .hub-greeting { color: #475569; font-size: 13px; font-weight: 500; }
@@ -103,7 +103,6 @@
         .bg-saldo-seguro { background-color: #1e293b !important; color: white !important; font-weight: bold; }
         
         .linha-destaque { font-weight: bold; background: white; }
-        
         .grupo-soma { background-color: #334155 !important; color: #ffffff !important; font-weight: 800 !important; text-transform: uppercase; }
         .saldo-negativo { background-color: #ef4444 !important; color: #ffffff !important; }
 
@@ -135,6 +134,9 @@
         .btn-modal-acao { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
         .btn-modal-acao:hover { background: #059669; }
 
+        .input-transparent { border: 1px dashed #cbd5e1; background: transparent; width: 100%; min-width: 170px; box-sizing: border-box; font-size: 11px; outline: none; font-family: inherit; color: var(--text); padding: 5px; border-radius: 3px; transition: 0.2s; text-overflow: ellipsis; line-height: normal; }
+        .input-transparent:focus { border-style: solid; border-color: var(--primary); background: white; }
+
         select.select-aprov { width: 100%; border: none; background: transparent; font-size: 13px; font-weight: bold; text-align: center; text-align-last: center; outline: none; cursor: pointer; font-family: inherit; color: var(--text); appearance: none; padding: 4px; border-radius: 3px; }
         select.select-aprov:focus { background: white; border: 1px dashed var(--primary); }
 
@@ -145,6 +147,43 @@
         .btn-excluir-linha { background: transparent; border: none; color: #ef4444; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
         .btn-excluir-linha:hover { color: #b91c1c; }
         .print-hide { /* Ocultar colunas e botões na hora do print */ }
+
+        /* ==========================================
+           ASSISTENTE IA (WIDGET FLUTUANTE AJUSTADO PARA A ESQUERDA)
+        ========================================== */
+        .ai-widget-btn {
+            position: fixed; bottom: 30px; left: 30px; width: 60px; height: 60px; 
+            background: linear-gradient(135deg, #10b981, #059669); color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            cursor: pointer; z-index: 100000; transition: transform 0.2s, box-shadow 0.2s; border: none;
+        }
+        .ai-widget-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6); }
+        
+        .ai-chat-panel {
+            position: fixed; bottom: 100px; left: 30px; width: 350px; height: 450px;
+            background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; z-index: 100000; overflow: hidden;
+            transform: translateY(20px); opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .ai-chat-panel.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        
+        .ai-chat-header {
+            background: var(--primary); color: white; padding: 15px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .ai-chat-header h3 { margin: 0; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+        .ai-chat-close { background: transparent; border: none; color: white; font-size: 20px; cursor: pointer; }
+        
+        .ai-chat-messages { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; font-size: 13px; }
+        
+        .msg-ia { background: white; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 10px 10px 10px 0; align-self: flex-start; max-width: 85%; color: #334155; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word;}
+        .msg-user { background: #d1fae5; color: #065f46; padding: 10px 15px; border-radius: 10px 10px 0 10px; align-self: flex-end; max-width: 85%; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word;}
+        
+        .ai-chat-input-area { padding: 12px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; }
+        .ai-chat-input-area input { flex: 1; padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 20px; outline: none; font-size: 13px; }
+        .ai-chat-input-area input:focus { border-color: #10b981; }
+        .ai-chat-input-area button { background: #10b981; color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .ai-chat-input-area button:hover { background: #059669; }
     </style>
 </head>
 <body>
@@ -177,7 +216,7 @@
             <a href="caixa.html" class="hub-nav-item active">GESTÃO DE CAIXA</a>
             <a href="protestos.html" class="hub-nav-item">PROTESTOS</a>
             <div class="hub-nav-divider"></div>
-            <a href="index.html" class="hub-nav-ia">✨ Assistente IA</a>
+            <button class="hub-nav-ia" onclick="toggleAIChat()">✨ Assistente IA</button>
         </nav>
         <div class="hub-user-box"><span class="hub-greeting">Olá, Operador</span><div class="hub-avatar">O</div></div>
     </header>
@@ -204,6 +243,23 @@
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <button class="ai-widget-btn" onclick="toggleAIChat()">✨</button>
+    <div class="ai-chat-panel" id="aiChatPanel">
+        <div class="ai-chat-header">
+            <h3>✨ Dexco Assistente IA</h3>
+            <button class="ai-chat-close" onclick="toggleAIChat()">&times;</button>
+        </div>
+        <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="msg-ia">Olá! Eu analiso os dados do seu caixa em tempo real.<br><br>Você pode me pedir cálculos ou perguntar: <br><b>"Quais contas estão negativas hoje?"</b> ou <b>"Qual o saldo total do caixa?"</b></div>
+        </div>
+        <div class="ai-chat-input-area">
+            <input type="text" id="aiChatInput" placeholder="Pergunte ou peça um cálculo..." onkeypress="seEnterIA(event)">
+            <button onclick="enviarMensagemIA()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
         </div>
     </div>
 
@@ -506,7 +562,6 @@
                     let p = parseFloat(el.getAttribute('data-pendente')) || 0;
                     el.setAttribute('data-pendente', p + v);
 
-                    // SALVANDO NO HISTÓRICO PARA NÃO MISTURAR BANCOS
                     let bancoSelect = document.getElementById(`banco-${lid}-${cidx}`);
                     let bancoNome = bancoSelect && bancoSelect.value ? bancoSelect.value.toUpperCase() : "";
                     
@@ -557,7 +612,6 @@
                 let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0;
                 el.setAttribute('data-pendente-aprov', pAprov + v);
 
-                // HISTÓRICO DE TEDS
                 let hist = JSON.parse(el.getAttribute('data-historico') || "[]");
                 let existing = hist.find(h => h.banco === toBancoEConta);
                 if (existing) {
@@ -596,7 +650,6 @@
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = diaDados[emp][idx] || {};
 
-                    // LENDO O HISTÓRICO DA TRANSFERENCIA
                     let histStenv = JSON.parse(contaDados['historico-stenv'] || "[]");
                     if (histStenv.length === 0) { 
                         let pendStenv = parseFloat(contaDados['pendente-aprov-stenv']) || 0;
@@ -621,7 +674,6 @@
                         });
                     }
 
-                    // LENDO O HISTÓRICO DA APLICAÇÃO
                     let histSo7 = JSON.parse(contaDados['historico-so7'] || "[]");
                     if (histSo7.length === 0) { 
                         let pendSo7 = parseFloat(contaDados['pendente-aprov-so7']) || 0;
@@ -1276,6 +1328,131 @@
             const passInput = document.getElementById('input-senha-login');
             if (passInput) passInput.focus();
         };
+
+        // ==============================================
+        // LÓGICA DO ASSISTENTE IA (GOOGLE GEMINI API)
+        // ==============================================
+        
+        // ⚠️ COLOQUE SUA CHAVE DE API DO GEMINI AQUI (Começa com AIza)
+        const GEMINI_API_KEY = "AIzaSyDV_7NEEkOoodp_zAInrW6uOoRzKCoLmlc"; // <-- Cole sua chave inteira AQUI DENTRO DAS ASPAS
+
+        function toggleAIChat() {
+            const panel = document.getElementById('aiChatPanel');
+            if (panel.classList.contains('active')) {
+                panel.classList.remove('active');
+            } else {
+                panel.classList.add('active');
+                document.getElementById('aiChatInput').focus();
+            }
+        }
+
+        function seEnterIA(e) {
+            if (e.key === 'Enter') enviarMensagemIA();
+        }
+
+        function gerarContextoCaixa() {
+            let contexto = `Você é o Assistente de Inteligência Artificial do Hub Financeiro da Dexco.\n`;
+            contexto += `Sua missão é ajudar o operador de caixa a analisar os dados, tomar decisões estratégicas e realizar cálculos matemáticos e financeiros (como juros, somas, projeções, sugestões de transferências para cobrir saldos, etc).\n\n`;
+            contexto += `Hoje é dia ${diaAtivo}. A empresa que o usuário está visualizando no painel agora é: ${empresaAtiva}.\n\n`;
+            contexto += `Aqui está o resumo financeiro em tempo real desta empresa:\n`;
+            
+            contas.forEach((c, idx) => {
+                let saldoFinal = getV('calc', idx);
+                let totalEntradas = getV('te', idx);
+                let totalSaidas = getV('tsai', idx);
+                
+                contexto += `- Banco ${c.b} (Conta: ${c.c}):\n`;
+                contexto += `  * Entradas Hoje: R$ ${formatarMoeda(totalEntradas)}\n`;
+                contexto += `  * Saídas Hoje: R$ ${formatarMoeda(totalSaidas)}\n`;
+                contexto += `  * Saldo Final: R$ ${formatarMoeda(saldoFinal)} ${saldoFinal < 0 ? '(ATENÇÃO: CONTA NEGATIVA)' : '(Positivo)'}\n\n`;
+            });
+
+            contexto += `Diretrizes de Ação:\n`;
+            contexto += `1. Você PODE e DEVE atuar como uma calculadora. Se o usuário pedir para somar, subtrair, calcular porcentagens ou juros, faça o cálculo com precisão e mostre o passo a passo.\n`;
+            contexto += `2. Se o usuário perguntar como cobrir uma conta negativa, analise os bancos com saldo positivo e sugira o valor exato da transferência (TED) necessária.\n`;
+            contexto += `3. Responda de forma natural, prestativa e bem estruturada.\n`;
+            
+            return contexto;
+        }
+
+        async function enviarMensagemIA() {
+            const input = document.getElementById('aiChatInput');
+            const mensagem = input.value.trim();
+            if (!mensagem) return;
+
+            const chatMessages = document.getElementById('aiChatMessages');
+            
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'msg-user';
+            userMsgDiv.innerText = mensagem;
+            chatMessages.appendChild(userMsgDiv);
+            
+            input.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'msg-ia';
+            typingDiv.innerHTML = '<i>Analisando dados do caixa com Gemini...</i>';
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const resposta = await processarPerguntaAPI(mensagem);
+
+            chatMessages.removeChild(typingDiv);
+            const iaMsgDiv = document.createElement('div');
+            iaMsgDiv.className = 'msg-ia';
+            
+            let textoFormatado = resposta.replace(/\n/g, '<br>');
+            textoFormatado = textoFormatado.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); 
+            
+            iaMsgDiv.innerHTML = textoFormatado;
+            
+            chatMessages.appendChild(iaMsgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function processarPerguntaAPI(mensagemUsuario) {
+            if (!GEMINI_API_KEY || GEMINI_API_KEY === "SUA_CHAVE_AQUI") {
+                return "⚠️ **API Key ausente!** Por favor, cole sua chave do Gemini na variável `GEMINI_API_KEY` no final do código.";
+            }
+
+            const contextoDoCaixa = gerarContextoCaixa();
+            const promptCompleto = `CONTEXTO DO SISTEMA (DADOS REAIS):\n${contextoDoCaixa}\n\nPERGUNTA DO USUÁRIO:\n${mensagemUsuario}`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: promptCompleto }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.2 
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error("Erro da API Gemini:", data.error);
+                    return `Erro da API Gemini: ${data.error.message}`;
+                }
+
+                if (data.candidates && data.candidates.length > 0) {
+                    return data.candidates[0].content.parts[0].text;
+                } else {
+                    return "Desculpe, a IA não conseguiu processar esta informação.";
+                }
+
+            } catch (error) {
+                console.error("Erro na requisição:", error);
+                return "Erro grave ao conectar com o Google Gemini. Verifique sua conexão ou se a chave informada é válida.";
+            }
+        }
 
     </script>
 </body>
