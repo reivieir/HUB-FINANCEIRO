@@ -149,31 +149,13 @@
         .print-hide { /* Ocultar colunas e botões na hora do print */ }
 
         /* ==========================================
-           ASSISTENTE IA (WIDGET FLUTUANTE REPOSICIONADO)
+           ASSISTENTE IA (PAINEL NO TOPO DIREITO)
         ========================================== */
-        
-        /* Uma leve sombra branca/translucida atrás dos botões para não confundir com os números */
-        .ai-widget-container {
-            position: fixed;
-            bottom: 40px;
-            left: 20%; 
-            z-index: 100000;
-        }
-
-        .ai-widget-btn {
-            width: 60px; height: 60px; 
-            background: linear-gradient(135deg, #10b981, #059669); color: white;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 24px; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5), 0 0 0 10px rgba(255,255,255,0.7);
-            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: none;
-        }
-        .ai-widget-btn:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.7), 0 0 0 10px rgba(255,255,255,0.8); }
-        
         .ai-chat-panel {
-            position: absolute; bottom: 80px; left: 0; width: 380px; height: 480px;
-            background: white; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.25), 0 0 0 5px rgba(255,255,255,0.7);
-            display: flex; flex-direction: column; overflow: hidden;
-            transform: translateY(20px); opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: fixed; top: 75px; right: 30px; width: 350px; height: 480px;
+            background: white; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; overflow: hidden; z-index: 100000;
+            transform: translateY(-15px); opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid var(--border);
         }
         .ai-chat-panel.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
@@ -256,22 +238,19 @@
         </div>
     </div>
 
-    <div class="ai-widget-container">
-        <button class="ai-widget-btn" onclick="toggleAIChat()">✨</button>
-        <div class="ai-chat-panel" id="aiChatPanel">
-            <div class="ai-chat-header">
-                <h3>✨ Dexco Assistente IA</h3>
-                <button class="ai-chat-close" onclick="toggleAIChat()">&times;</button>
-            </div>
-            <div class="ai-chat-messages" id="aiChatMessages">
-                <div class="msg-ia">Olá! Eu analiso os dados do seu caixa em tempo real.<br><br>Você pode me pedir cálculos ou perguntar: <br><b>"Quais contas estão negativas hoje?"</b> ou <b>"Qual o saldo total do caixa?"</b></div>
-            </div>
-            <div class="ai-chat-input-area">
-                <input type="text" id="aiChatInput" placeholder="Pergunte ou peça um cálculo..." onkeypress="seEnterIA(event)">
-                <button onclick="enviarMensagemIA()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                </button>
-            </div>
+    <div class="ai-chat-panel" id="aiChatPanel">
+        <div class="ai-chat-header">
+            <h3>✨ Dexco Assistente IA</h3>
+            <button class="ai-chat-close" onclick="toggleAIChat()">&times;</button>
+        </div>
+        <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="msg-ia">Olá! Eu analiso os dados do seu caixa em tempo real.<br><br>Você pode me pedir cálculos ou perguntar: <br><b>"Quais contas estão negativas hoje?"</b> ou <b>"Qual o saldo total do caixa?"</b></div>
+        </div>
+        <div class="ai-chat-input-area">
+            <input type="text" id="aiChatInput" placeholder="Pergunte ou peça um cálculo..." onkeypress="seEnterIA(event)">
+            <button onclick="enviarMensagemIA()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
         </div>
     </div>
 
@@ -574,7 +553,6 @@
                     let p = parseFloat(el.getAttribute('data-pendente')) || 0;
                     el.setAttribute('data-pendente', p + v);
 
-                    // SALVANDO NO HISTÓRICO PARA NÃO MISTURAR BANCOS
                     let bancoSelect = document.getElementById(`banco-${lid}-${cidx}`);
                     let bancoNome = bancoSelect && bancoSelect.value ? bancoSelect.value.toUpperCase() : "";
                     
@@ -1337,12 +1315,17 @@
             const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); link.download = `Caixa_Dexco_${diaAtivo.replace(/\//g, '-')}.csv`; link.click();
         }
 
+        window.onload = function() {
+            const passInput = document.getElementById('input-senha-login');
+            if (passInput) passInput.focus();
+        };
+
         // ==============================================
         // LÓGICA DO ASSISTENTE IA (GOOGLE GEMINI API)
         // ==============================================
         
         // ⚠️ COLOQUE SUA CHAVE DE API DO GEMINI AQUI (Começa com AIza)
-        const GEMINI_API_KEY = "AIzaSyAfgDQf5KdxpBoOkW18qkP5JZOWk4Wz-JQ"; // <-- Cole sua chave inteira AQUI DENTRO DAS ASPAS
+        const GEMINI_API_KEY = "AIzaSyBob03m1oOLmXL_mdQiQgtMzXlm3vMqEl8"; // <-- Cole sua chave inteira AQUI DENTRO DAS ASPAS
 
         function toggleAIChat() {
             const panel = document.getElementById('aiChatPanel');
@@ -1461,11 +1444,6 @@
                 return "Erro grave ao conectar com o Google Gemini. Verifique sua conexão ou se a chave informada é válida.";
             }
         }
-
-        window.onload = function() {
-            const passInput = document.getElementById('input-senha-login');
-            if (passInput) passInput.focus();
-        };
 
     </script>
 </body>
