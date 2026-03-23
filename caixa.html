@@ -104,18 +104,8 @@
         
         .linha-destaque { font-weight: bold; background: white; }
         
-        /* CORREÇÃO DO CINZA MAIS ESCURO PARA LINHAS DE SOMA */
-        .grupo-soma { 
-            background-color: #334155 !important; 
-            color: #ffffff !important; 
-            font-weight: 800 !important; 
-            text-transform: uppercase; 
-        }
-
-        .saldo-negativo {
-            background-color: #ef4444 !important;
-            color: #ffffff !important;
-        }
+        .grupo-soma { background-color: #334155 !important; color: #ffffff !important; font-weight: 800 !important; text-transform: uppercase; }
+        .saldo-negativo { background-color: #ef4444 !important; color: #ffffff !important; }
 
         .indent { padding-left: 15px !important; }
         .no-input .input-lancar { display: none; }
@@ -145,22 +135,15 @@
         .btn-modal-acao { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
         .btn-modal-acao:hover { background: #059669; }
 
-        /* Estilo invisível para a lista de Aprovadores na hora de copiar */
-        select.select-aprov {
-            width: 100%; border: none; background: transparent; font-size: 13px; font-weight: bold; text-align: center; text-align-last: center; outline: none; cursor: pointer; font-family: inherit; color: var(--text); appearance: none; padding: 4px; border-radius: 3px;
-        }
+        select.select-aprov { width: 100%; border: none; background: transparent; font-size: 13px; font-weight: bold; text-align: center; text-align-last: center; outline: none; cursor: pointer; font-family: inherit; color: var(--text); appearance: none; padding: 4px; border-radius: 3px; }
         select.select-aprov:focus { background: white; border: 1px dashed var(--primary); }
 
-        /* BOTÕES DE APROVAÇÃO MANUAL E EDIÇÃO */
         .btn-add-manual { background: #f59e0b; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; transition: background 0.2s; }
         .btn-add-manual:hover { background: #d97706; }
-        
         .btn-editar-linha { background: transparent; border: none; color: #3b82f6; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
         .btn-editar-linha:hover { color: #2563eb; }
-        
         .btn-excluir-linha { background: transparent; border: none; color: #ef4444; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
         .btn-excluir-linha:hover { color: #b91c1c; }
-        
         .print-hide { /* Ocultar colunas e botões na hora do print */ }
     </style>
 </head>
@@ -299,21 +282,10 @@
         const listaBancosPadrao = ['ITAÚ', 'BB', 'SANTANDER', 'BRADESCO', 'SAFRA', 'BANRISUL', 'CAIXA', 'BNB', 'ABC BRASIL', 'DAYCOVAL', 'OUTRO'];
 
         const nomesCompletosEmpresas = {
-            'BRDX': 'DEXCO S.A',
-            'BRDF': 'DURATEX FLORESTAL',
-            'BRHY': 'HYDRA CORONA',
-            'BRCF': 'CAETEX FLORESTAL',
-            'BRS1': 'AROEIRA FLORESTAL',
-            'BRS3': 'JATOBA FLORESTAL',
-            'BRS2': 'CAMBUI FLORESTAL',
-            'BREM': 'DEXCO EMPREENDIMENTOS',
-            'BRBC': 'DEXCO COM',
-            'BRSF': 'ESTRELA DO SUL',
-            'BRIT': 'INSTITUTO DEXCO',
-            'DFL II': 'DURATEX FLORESTAL II',
-            'DFLII': 'DURATEX FLORESTAL II',
-            'BRSD': 'PDX',
-            'BRTR': 'DX STORE'
+            'BRDX': 'DEXCO S.A', 'BRDF': 'DURATEX FLORESTAL', 'BRHY': 'HYDRA CORONA', 'BRCF': 'CAETEX FLORESTAL',
+            'BRS1': 'AROEIRA FLORESTAL', 'BRS3': 'JATOBA FLORESTAL', 'BRS2': 'CAMBUI FLORESTAL', 'BREM': 'DEXCO EMPREENDIMENTOS',
+            'BRBC': 'DEXCO COM', 'BRSF': 'ESTRELA DO SUL', 'BRIT': 'INSTITUTO DEXCO', 'DFL II': 'DURATEX FLORESTAL II',
+            'DFLII': 'DURATEX FLORESTAL II', 'BRSD': 'PDX', 'BRTR': 'DX STORE'
         };
 
         const selectAprovadoresHTML = `
@@ -331,8 +303,7 @@
 
         function parseMoeda(str) {
             if (!str) return 0;
-            str = str.toString().trim();
-            str = str.replace(/\./g, '').replace(',', '.');
+            str = str.toString().trim().replace(/\./g, '').replace(',', '.');
             const num = parseFloat(str);
             return isNaN(num) ? 0 : num;
         }
@@ -347,11 +318,10 @@
             const senhaDigitada = document.getElementById('input-senha-login').value.trim();
             const msg = document.getElementById('login-msg');
             if(!senhaDigitada) { msg.innerText = "Por favor, digite a senha!"; return; }
-
             msg.innerText = "Verificando..."; msg.style.color = "#64748b";
 
             const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_acesso').single();
-            if (error || !data) { msg.innerText = "Erro ao validar senha no banco de dados."; msg.style.color = "#c40000"; return; }
+            if (error || !data) { msg.innerText = "Erro ao validar senha."; msg.style.color = "#c40000"; return; }
 
             if (senhaDigitada === data.valor) {
                 document.getElementById('login-screen').style.display = 'none';
@@ -370,19 +340,12 @@
                 const { data: dbContas } = await sb.from('caixa_contas').select('*').order('ordem');
                 
                 dbEmpresas.forEach(emp => {
-                    empresasConfig[emp.nome] = dbContas
-                        .filter(c => c.empresa_id === emp.id)
-                        .map(c => ({ id: c.id, b: c.banco_nome, c: c.agencia_conta }));
-                    
-                    empresasConfig[emp.nome].forEach((ct, idx) => {
-                        mapConta[ct.id] = { emp: emp.nome, idx: idx };
-                    });
+                    empresasConfig[emp.nome] = dbContas.filter(c => c.empresa_id === emp.id).map(c => ({ id: c.id, b: c.banco_nome, c: c.agencia_conta }));
+                    empresasConfig[emp.nome].forEach((ct, idx) => { mapConta[ct.id] = { emp: emp.nome, idx: idx }; });
                 });
 
                 const { data: dbCategorias } = await sb.from('caixa_categorias').select('*').order('ordem');
-                plano = dbCategorias.map(cat => ({
-                    id: cat.codigo, nome: cat.nome, tipo: cat.tipo, readOnly: cat.is_readonly
-                }));
+                plano = dbCategorias.map(cat => ({ id: cat.codigo, nome: cat.nome, tipo: cat.tipo, readOnly: cat.is_readonly }));
 
                 const h = new Date();
                 const dataHojeStr = `${String(h.getDate()).padStart(2, '0')}/${String(h.getMonth() + 1).padStart(2, '0')}/${h.getFullYear()}`;
@@ -410,9 +373,7 @@
                     if (chunk && chunk.length > 0) {
                         dbLancamentos.push(...chunk);
                         if (chunk.length < 1000) break;
-                    } else {
-                        break;
-                    }
+                    } else { break; }
                     pag++;
                 }
 
@@ -429,8 +390,13 @@
                             try {
                                 if(lan.banco_destino && (String(lan.banco_destino).startsWith('{') || String(lan.banco_destino).startsWith('['))) {
                                     let parsed = JSON.parse(lan.banco_destino);
-                                    dadosPorDia[lan.nome_dia][e][i][`banco-${lan.categoria_codigo}`] = parsed.banco || "";
-                                    if(parsed.pAprov > 0) dadosPorDia[lan.nome_dia][e][i][`pendente-aprov-${lan.categoria_codigo}`] = parsed.pAprov.toString();
+                                    if (Array.isArray(parsed)) {
+                                        dadosPorDia[lan.nome_dia][e][i][`historico-${lan.categoria_codigo}`] = JSON.stringify(parsed);
+                                    } else {
+                                        dadosPorDia[lan.nome_dia][e][i][`banco-${lan.categoria_codigo}`] = parsed.banco || "";
+                                        if(parsed.pAprov > 0) dadosPorDia[lan.nome_dia][e][i][`pendente-aprov-${lan.categoria_codigo}`] = parsed.pAprov.toString();
+                                        if(parsed.hist) dadosPorDia[lan.nome_dia][e][i][`historico-${lan.categoria_codigo}`] = JSON.stringify(parsed.hist);
+                                    }
                                 } else {
                                     dadosPorDia[lan.nome_dia][e][i][`banco-${lan.categoria_codigo}`] = lan.banco_destino || "";
                                 }
@@ -452,7 +418,7 @@
                 document.getElementById('loading-overlay').style.display = 'none';
 
             } catch (err) { 
-                alert("Erro ao conectar com banco de dados: " + err.message); 
+                alert("Erro ao conectar: " + err.message); 
                 document.getElementById('loading-overlay').style.display = 'none';
             }
         }
@@ -475,19 +441,16 @@
                                 let p = parseFloat(estado[idx][`pendente-${catCodigo}`] || 0); 
                                 let pAprov = parseFloat(estado[idx][`pendente-aprov-${catCodigo}`] || 0); 
                                 let b = estado[idx][`banco-${catCodigo}`] || "";
+                                let hist = JSON.parse(estado[idx][`historico-${catCodigo}`] || "[]");
                                 
                                 let bancoStr = b;
-                                if (pAprov > 0 || String(b).startsWith('{')) {
-                                    bancoStr = JSON.stringify({ banco: b, pAprov: pAprov });
+                                if (hist.length > 0 || pAprov > 0 || String(b).startsWith('{')) {
+                                    bancoStr = JSON.stringify({ banco: b, pAprov: pAprov, hist: hist });
                                 }
 
                                 upserts.push({
-                                    nome_dia: diaAtivo,
-                                    conta_id: contaId,
-                                    categoria_codigo: catCodigo,
-                                    valor: v,
-                                    valor_pendente: p,
-                                    banco_destino: bancoStr
+                                    nome_dia: diaAtivo, conta_id: contaId, categoria_codigo: catCodigo,
+                                    valor: v, valor_pendente: p, banco_destino: bancoStr
                                 });
                             }
                         });
@@ -512,7 +475,6 @@
             let so = getV('o1',idx) + getV('o2',idx) + getV('o3',idx) + getV('o4',idx) + getV('o5',idx) + getV('o6',idx) + getV('o7',idx) + getV('o8',idx); setV('so', idx, so);
             let sf = getV('f1',idx) + getV('f2',idx); setV('sf', idx, sf);
             let sint = getV('i1',idx) + getV('i2',idx) + getV('i3',idx) + getV('m1',idx) + getV('a1',idx); setV('sint', idx, sint);
-            
             let te = sc + sco + so + sf + sint + getV('tr',idx); setV('te', idx, te);
 
             let sfor = getV('s1',idx) + getV('s2',idx) + getV('s3',idx) + getV('s4',idx) + getV('s5',idx) + getV('s6',idx) + getV('s7',idx); setV('sfor', idx, sfor);
@@ -520,7 +482,6 @@
             let ssout = getV('so1',idx) + getV('so2',idx) + getV('so3',idx) + getV('so4',idx) + getV('so5',idx) + getV('so6',idx) + getV('so7',idx) + getV('so8',idx); setV('ssout', idx, ssout);
             let ssfin = getV('sfi1',idx) + getV('sfi2',idx) + getV('sfi3',idx) + getV('sfi4',idx) + getV('sfi5',idx); setV('ssfin', idx, ssfin);
             let ssint = getV('sin1',idx) + getV('sin2',idx) + getV('sin3',idx) + getV('smut',idx) + getV('sapo',idx) + getV('sviv',idx) + getV('scri',idx); setV('ssint', idx, ssint);
-
             let tsai = sfor + ssal + ssout + ssfin + ssint + getV('stenv',idx); setV('tsai', idx, tsai);
 
             let si = getV('si', idx); let calc = si + te - tsai; setV('calc', idx, calc);
@@ -544,6 +505,26 @@
                 if (lid === 'o3' || lid === 'so7') {
                     let p = parseFloat(el.getAttribute('data-pendente')) || 0;
                     el.setAttribute('data-pendente', p + v);
+
+                    // SALVANDO NO HISTÓRICO PARA NÃO MISTURAR BANCOS
+                    let bancoSelect = document.getElementById(`banco-${lid}-${cidx}`);
+                    let bancoNome = bancoSelect && bancoSelect.value ? bancoSelect.value.toUpperCase() : "";
+                    
+                    let hist = JSON.parse(el.getAttribute('data-historico') || "[]");
+                    let existing = hist.find(h => h.banco === bancoNome);
+                    if (existing) {
+                        existing.valor += v;
+                        existing.pendente += v;
+                        if (lid === 'so7') existing.pendenteAprov = (existing.pendenteAprov || 0) + v;
+                    } else {
+                        hist.push({ 
+                            banco: bancoNome, 
+                            valor: v, 
+                            pendente: v,
+                            pendenteAprov: (lid === 'so7') ? v : 0
+                        });
+                    }
+                    el.setAttribute('data-historico', JSON.stringify(hist));
                 }
                 
                 if (lid === 'so7') {
@@ -570,15 +551,27 @@
                 setV('tr', toIdx, getV('tr', toIdx) + v);
                 
                 const toBanco = contas[toIdx].b.toUpperCase();
+                const toBancoEConta = `${toBanco} - ${contas[toIdx].c}`;
 
-                // TODA TED É REGISTRADA PARA APROVAÇÃO
                 let el = document.getElementById(`val-${lid}-${fromIdx}`);
                 let pAprov = parseFloat(el.getAttribute('data-pendente-aprov')) || 0;
                 el.setAttribute('data-pendente-aprov', pAprov + v);
 
+                // HISTÓRICO DE TEDS
+                let hist = JSON.parse(el.getAttribute('data-historico') || "[]");
+                let existing = hist.find(h => h.banco === toBancoEConta);
+                if (existing) {
+                    existing.valor += v;
+                    existing.pendente += v;
+                    existing.pendenteAprov = (existing.pendenteAprov || 0) + v;
+                } else {
+                    hist.push({ banco: toBancoEConta, valor: v, pendente: v, pendenteAprov: v });
+                }
+                el.setAttribute('data-historico', JSON.stringify(hist));
+
                 if(!dadosPorDia[diaAtivo][empresaAtiva]) dadosPorDia[diaAtivo][empresaAtiva] = {};
                 if(!dadosPorDia[diaAtivo][empresaAtiva][fromIdx]) dadosPorDia[diaAtivo][empresaAtiva][fromIdx] = {};
-                dadosPorDia[diaAtivo][empresaAtiva][fromIdx][`banco-${lid}`] = `${toBanco} - ${contas[toIdx].c}`;
+                dadosPorDia[diaAtivo][empresaAtiva][fromIdx][`banco-${lid}`] = toBancoEConta;
                 
                 e.target.parentElement.parentElement.classList.add('flash');
                 document.getElementById(`val-tr-${toIdx}`).parentElement.parentElement.classList.add('flash-in');
@@ -591,7 +584,7 @@
         }
 
         // ==============================================
-        // PLANILHA DE APROVAÇÕES (CAMPOS TRAVADOS + EDIÇÃO VIA BOTÃO)
+        // PLANILHA DE APROVAÇÕES E EDIÇÃO MANUAL 
         // ==============================================
         function carregarItemsParaAprovacao() {
             itemsAprovacaoGlobal = []; 
@@ -603,24 +596,53 @@
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = diaDados[emp][idx] || {};
 
-                    let pendStenv = parseFloat(contaDados['pendente-aprov-stenv']) || 0;
-                    if(pendStenv > 0) {
-                        let bancoDest = contaDados['banco-stenv'] || '';
-                        itemsAprovacaoGlobal.push({ 
-                            id: `auto_${emp}_${c.b}_stenv_${Math.random().toString(36).substring(7)}`,
-                            bancoOrigem: c.b, empresa: emp, 
-                            contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, 
-                            contaDestino: bancoDest, valor: pendStenv, isAplicacao: false 
+                    // LENDO O HISTÓRICO DA TRANSFERENCIA
+                    let histStenv = JSON.parse(contaDados['historico-stenv'] || "[]");
+                    if (histStenv.length === 0) { 
+                        let pendStenv = parseFloat(contaDados['pendente-aprov-stenv']) || 0;
+                        if(pendStenv > 0) {
+                            itemsAprovacaoGlobal.push({ 
+                                id: `auto_${emp}_${c.b}_stenv_${Math.random().toString(36).substring(7)}`,
+                                bancoOrigem: c.b, empresa: emp, 
+                                contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, 
+                                contaDestino: contaDados['banco-stenv'] || '', valor: pendStenv, isAplicacao: false 
+                            });
+                        }
+                    } else {
+                        histStenv.forEach(h => {
+                            if (h.pendenteAprov > 0) {
+                                itemsAprovacaoGlobal.push({ 
+                                    id: `auto_${emp}_${c.b}_stenv_${Math.random().toString(36).substring(7)}`,
+                                    bancoOrigem: c.b, empresa: emp, 
+                                    contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, 
+                                    contaDestino: h.banco || '', valor: h.pendenteAprov, isAplicacao: false 
+                                });
+                            }
                         });
                     }
 
-                    let pendSo7 = parseFloat(contaDados['pendente-aprov-so7']) || 0;
-                    if(pendSo7 > 0) {
-                        itemsAprovacaoGlobal.push({ 
-                            id: `auto_${emp}_${c.b}_so7_${Math.random().toString(36).substring(7)}`,
-                            bancoOrigem: c.b, empresa: emp, 
-                            contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, 
-                            contaDestino: '', valor: pendSo7, isAplicacao: true 
+                    // LENDO O HISTÓRICO DA APLICAÇÃO
+                    let histSo7 = JSON.parse(contaDados['historico-so7'] || "[]");
+                    if (histSo7.length === 0) { 
+                        let pendSo7 = parseFloat(contaDados['pendente-aprov-so7']) || 0;
+                        if(pendSo7 > 0) {
+                            itemsAprovacaoGlobal.push({ 
+                                id: `auto_${emp}_${c.b}_so7_${Math.random().toString(36).substring(7)}`,
+                                bancoOrigem: c.b, empresa: emp, 
+                                contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, 
+                                contaDestino: '', valor: pendSo7, isAplicacao: true 
+                            });
+                        }
+                    } else {
+                        histSo7.forEach(h => {
+                            if (h.pendenteAprov > 0) {
+                                itemsAprovacaoGlobal.push({ 
+                                    id: `auto_${emp}_${c.b}_so7_${Math.random().toString(36).substring(7)}`,
+                                    bancoOrigem: c.b, empresa: emp, 
+                                    contaOrigem: `BANCO ${c.b} AG ${c.c.replace('/', 'C.C')}`, 
+                                    contaDestino: h.banco || '', valor: h.pendenteAprov, isAplicacao: true 
+                                });
+                            }
                         });
                     }
                 });
@@ -646,17 +668,16 @@
                 let linhasHtml = itensBanco.map(item => {
                     let nomeEmpresaFull = nomesCompletosEmpresas[item.empresa] || item.empresa;
                     
-                    // Trata as variáveis para exibição travada (sem input)
-                    let showBancoOrigem = item.bancoOrigem;
+                    let showBancoOrigem = item.bancoOrigem || '';
                     let showEmpresa = item.id.startsWith('manual_') ? item.empresa : nomeEmpresaFull;
-                    let showContaOrigem = item.contaOrigem;
+                    let showContaOrigem = item.contaOrigem || '';
                     
-                    let showFavorecido = item.favorecido !== undefined && item.favorecido !== "" ? item.favorecido : (item.isAplicacao ? '' : nomeEmpresaFull);
-                    let showDestino = item.contaDestino ? (item.contaDestino.toUpperCase().includes('BANCO') ? item.contaDestino : `BANCO ${item.contaDestino.replace(' - ', ' AG ').replace('/', 'C.C')}`) : '';
+                    let showFavorecido = item.favorecido ? item.favorecido : (item.isAplicacao ? '' : nomeEmpresaFull);
+                    let showDestino = item.contaDestino && item.contaDestino.trim() !== '' ? (item.contaDestino.toUpperCase().includes('BANCO') ? item.contaDestino : `BANCO ${item.contaDestino.replace(' - ', ' AG ').replace('/', 'C.C')}`) : '';
                     
                     if (item.id.startsWith('manual_')) {
-                        if (!showFavorecido) showFavorecido = '-';
-                        if (!showDestino) showDestino = '-';
+                        if (!item.favorecido) showFavorecido = ''; 
+                        if (!item.contaDestino) showDestino = ''; 
                     }
 
                     return `
@@ -724,14 +745,12 @@
             document.getElementById('modal-aprovacoes').style.display = 'flex';
         }
 
-        // BOTÃO DE EDITAR (NOVA FUNÇÃO)
         function editarLinhaAprovacao(id) {
             let item = itemsAprovacaoGlobal.find(i => i.id === id);
             if (!item) return;
 
             let isManual = item.id.startsWith('manual_');
 
-            // Se for manual, permite alterar a origem também
             if (isManual) {
                 let nBanco = prompt("Editar Banco Origem:", item.bancoOrigem);
                 if (nBanco !== null) item.bancoOrigem = nBanco.toUpperCase();
@@ -743,16 +762,13 @@
                 if (nContaOrig !== null) item.contaOrigem = nContaOrig.toUpperCase();
             }
 
-            // Edição de Favorecido
-            let defaultFav = item.favorecido !== undefined && item.favorecido !== "" ? item.favorecido : (item.isAplicacao ? '' : (nomesCompletosEmpresas[item.empresa] || item.empresa));
-            let nFav = prompt("Editar Favorecido:", defaultFav);
-            if (nFav !== null) item.favorecido = nFav.toUpperCase();
+            let defaultFav = item.favorecido ? item.favorecido : (item.isAplicacao ? '' : (nomesCompletosEmpresas[item.empresa] || item.empresa));
+            let nFav = prompt("Editar Favorecido (deixe vazio se não quiser informar):", defaultFav);
+            if (nFav !== null) item.favorecido = nFav.trim().toUpperCase();
 
-            // Edição de Conta Destino
-            let nDest = prompt("Editar Conta Destino (ex: ITAÚ AG 1234 C.C 5678-9):", item.contaDestino);
-            if (nDest !== null) item.contaDestino = nDest.toUpperCase();
+            let nDest = prompt("Editar Conta Destino (deixe vazio se não quiser informar):", item.contaDestino);
+            if (nDest !== null) item.contaDestino = nDest.trim().toUpperCase();
 
-            // Se for manual, permite alterar o valor
             if (isManual) {
                 let nVal = prompt("Editar Valor (R$):", formatarMoeda(item.valor));
                 if (nVal !== null) item.valor = parseMoeda(nVal);
@@ -761,23 +777,22 @@
             renderizarAprovacoes();
         }
 
-        // ADIÇÃO MANUAL DIRETA NOS PROMPTS
         function adicionarLinhaManual() {
             let banco = prompt("Qual o Banco Origem? (ex: ITAÚ, BRADESCO)");
             if (!banco) return;
             let emp = prompt("Qual a Empresa Origem?");
             let cOrig = prompt("Qual a Conta Origem? (ex: AG 1234 C.C 5678)");
-            let fav = prompt("Qual o Favorecido?");
-            let cDest = prompt("Qual a Conta Destino? (ex: BANCO ITAÚ AG 1234 C.C 5678)");
+            let fav = prompt("Qual o Favorecido? (Deixe em branco se não houver)");
+            let cDest = prompt("Qual a Conta Destino? (Deixe em branco se não houver)");
             let valor = prompt("Qual o Valor? (R$)");
 
             itemsAprovacaoGlobal.push({
                 id: `manual_${Math.random().toString(36).substring(7)}`,
                 bancoOrigem: banco.toUpperCase(),
-                empresa: emp ? emp.toUpperCase() : "-",
-                contaOrigem: cOrig ? cOrig.toUpperCase() : "-",
-                favorecido: fav ? fav.toUpperCase() : "-",
-                contaDestino: cDest ? cDest.toUpperCase() : "-",
+                empresa: emp ? emp.toUpperCase() : "",
+                contaOrigem: cOrig ? cOrig.toUpperCase() : "",
+                favorecido: fav ? fav.toUpperCase() : "",
+                contaDestino: cDest ? cDest.toUpperCase() : "",
                 valor: parseMoeda(valor),
                 isAplicacao: false
             });
@@ -804,6 +819,14 @@
                         if(diaDados[emp][idx]) {
                             diaDados[emp][idx]['pendente-aprov-stenv'] = "0";
                             diaDados[emp][idx]['pendente-aprov-so7'] = "0";
+
+                            let hStenv = JSON.parse(diaDados[emp][idx]['historico-stenv'] || "[]");
+                            hStenv.forEach(h => h.pendenteAprov = 0);
+                            diaDados[emp][idx]['historico-stenv'] = JSON.stringify(hStenv);
+
+                            let hSo7 = JSON.parse(diaDados[emp][idx]['historico-so7'] || "[]");
+                            hSo7.forEach(h => h.pendenteAprov = 0);
+                            diaDados[emp][idx]['historico-so7'] = JSON.stringify(hSo7);
                         }
                     });
                 }
@@ -812,6 +835,9 @@
             carregarEstado(); await syncSupabase(); abrirAprovacoes();   
         }
 
+        // ==============================================
+        // RESUMO DO DIA (AGORA DIVIDIDO POR BANCO)
+        // ==============================================
         function abrirResumo() {
             salvarEstadoLocal(); 
             document.getElementById('resumo-dia-titulo').innerText = diaAtivo;
@@ -825,38 +851,76 @@
 
             Object.keys(empresasConfig).forEach(emp => {
                 if(!diaDados[emp]) return;
-                let pResg = 0, pAplic = 0, cResg = 0, cAplic = 0;
-                let pBancos = new Set(), cBancos = new Set();
+                
+                let empPendente = {};
+                let empConsolidado = {};
 
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = diaDados[emp][idx] || {};
-                    let resg = parseMoeda(contaDados['o3']); let aplic = parseMoeda(contaDados['so7']);
-                    let pendR = parseFloat(contaDados['pendente-o3']) || 0; let pendA = parseFloat(contaDados['pendente-so7']) || 0;
 
-                    cResg += resg; cAplic += aplic; pResg += pendR; pAplic += pendA;
+                    let histO3 = JSON.parse(contaDados['historico-o3'] || "[]");
+                    if (histO3.length === 0) {
+                        let resg = parseMoeda(contaDados['o3']);
+                        let pendR = parseFloat(contaDados['pendente-o3']) || 0;
+                        let bResg = (contaDados['banco-o3'] || "").trim();
+                        if (resg > 0 || pendR > 0) histO3.push({banco: bResg, valor: resg, pendente: pendR});
+                    }
 
-                    if(resg !== 0 && contaDados['banco-o3']) cBancos.add(contaDados['banco-o3']);
-                    if(aplic !== 0 && contaDados['banco-so7']) cBancos.add(contaDados['banco-so7']);
-                    if(pendR !== 0 && contaDados['banco-o3']) pBancos.add(contaDados['banco-o3']);
-                    if(pendA !== 0 && contaDados['banco-so7']) pBancos.add(contaDados['banco-so7']);
+                    histO3.forEach(h => {
+                        let k = h.banco || "";
+                        if (h.pendente > 0) {
+                            if (!empPendente[k]) empPendente[k] = { r: 0, a: 0 };
+                            empPendente[k].r += h.pendente;
+                        }
+                        if (h.valor > 0) {
+                            if (!empConsolidado[k]) empConsolidado[k] = { r: 0, a: 0 };
+                            empConsolidado[k].r += h.valor;
+                        }
+                    });
+
+                    let histSo7 = JSON.parse(contaDados['historico-so7'] || "[]");
+                    if (histSo7.length === 0) {
+                        let aplic = parseMoeda(contaDados['so7']);
+                        let pendA = parseFloat(contaDados['pendente-so7']) || 0;
+                        let bAplic = (contaDados['banco-so7'] || "").trim();
+                        if (aplic > 0 || pendA > 0) histSo7.push({banco: bAplic, valor: aplic, pendente: pendA});
+                    }
+
+                    histSo7.forEach(h => {
+                        let k = h.banco || "";
+                        if (h.pendente > 0) {
+                            if (!empPendente[k]) empPendente[k] = { r: 0, a: 0 };
+                            empPendente[k].a += h.pendente;
+                        }
+                        if (h.valor > 0) {
+                            if (!empConsolidado[k]) empConsolidado[k] = { r: 0, a: 0 };
+                            empConsolidado[k].a += h.valor;
+                        }
+                    });
                 });
 
-                if(pResg !== 0 || pAplic !== 0) {
+                let sumPendR = 0, sumPendA = 0;
+
+                Object.keys(empPendente).forEach(banco => {
+                    let p = empPendente[banco];
+                    sumPendR += p.r; sumPendA += p.a;
+                    totPendResgGeral += p.r; totPendAplicGeral += p.a;
+                    linhasPendente += `<tr><td style="font-weight:bold;">${emp}</td><td style="text-align:right; color:#10b981; font-weight:bold;">${p.r !== 0 ? formatarMoeda(p.r) : ''}</td><td style="text-align:right; color:var(--vermelho-saida); font-weight:bold;">${p.a !== 0 ? formatarMoeda(p.a) : ''}</td><td style="text-align:center;">${banco}</td></tr>`;
+                });
+
+                Object.keys(empConsolidado).forEach(banco => {
+                    let c = empConsolidado[banco];
+                    totConsResgGeral += c.r; totConsAplicGeral += c.a;
+                    linhasConsolidado += `<tr><td>${emp}</td><td style="text-align:right;">${c.r !== 0 ? formatarMoeda(c.r) : ''}</td><td style="text-align:right;">${c.a !== 0 ? formatarMoeda(c.a) : ''}</td><td style="text-align:center;">${banco}</td></tr>`;
+                });
+
+                if(sumPendR !== 0 || sumPendA !== 0) {
                     htmlCardsPendente += `
                     <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 5px; background: #f8fafc; min-width: 150px; flex: 1;">
                         <h4 style="margin: 0 0 5px 0; color: var(--primary); text-align: center;">${emp}</h4>
-                        <div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${formatarMoeda(pResg)}</div>
-                        <div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${formatarMoeda(pAplic)}</div>
+                        <div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${formatarMoeda(sumPendR)}</div>
+                        <div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${formatarMoeda(sumPendA)}</div>
                     </div>`;
-                    totPendResgGeral += pResg; totPendAplicGeral += pAplic;
-                    let strBancoP = pBancos.size > 0 ? Array.from(pBancos).join(', ') : '-';
-                    linhasPendente += `<tr><td style="font-weight:bold;">${emp}</td><td style="text-align:right; color:#10b981; font-weight:bold;">${pResg !== 0 ? formatarMoeda(pResg) : '-'}</td><td style="text-align:right; color:var(--vermelho-saida); font-weight:bold;">${pAplic !== 0 ? formatarMoeda(pAplic) : '-'}</td><td style="text-align:center;">${strBancoP}</td></tr>`;
-                }
-
-                if(cResg !== 0 || cAplic !== 0) {
-                    totConsResgGeral += cResg; totConsAplicGeral += cAplic;
-                    let strBancoC = cBancos.size > 0 ? Array.from(cBancos).join(', ') : '-';
-                    linhasConsolidado += `<tr><td>${emp}</td><td style="text-align:right;">${cResg !== 0 ? formatarMoeda(cResg) : '-'}</td><td style="text-align:right;">${cAplic !== 0 ? formatarMoeda(cAplic) : '-'}</td><td style="text-align:center;">${strBancoC}</td></tr>`;
                 }
             });
             htmlCardsPendente += '</div>';
@@ -868,7 +932,7 @@
                 <table class="resumo-table-print">
                     <thead><tr><th style="text-align:left;">Empresa</th><th style="text-align:right;">Resgate</th><th style="text-align:right;">Aplicação</th><th style="text-align:center;">Banco</th></tr></thead>
                     <tbody>${linhasPendente}</tbody>
-                    <tfoot><tr><th style="text-align:left;">Total a Enviar</th><th style="text-align:right;">${totPendResgGeral !== 0 ? formatarMoeda(totPendResgGeral) : '-'}</th><th style="text-align:right;">${totPendAplicGeral !== 0 ? formatarMoeda(totPendAplicGeral) : '-'}</th><th></th></tr></tfoot>
+                    <tfoot><tr><th style="text-align:left;">Total a Enviar</th><th style="text-align:right;">${totPendResgGeral !== 0 ? formatarMoeda(totPendResgGeral) : ''}</th><th style="text-align:right;">${totPendAplicGeral !== 0 ? formatarMoeda(totPendAplicGeral) : ''}</th><th></th></tr></tfoot>
                 </table>`;
             }
 
@@ -876,7 +940,7 @@
                 <table style="width:100%; border-collapse:collapse; font-size:11px; background:white;">
                     <thead><tr style="background:#cbd5e1; color:#1e293b;"><th style="padding:4px; text-align:left;">Empresa</th><th style="padding:4px; text-align:right;">Resgate</th><th style="padding:4px; text-align:right;">Aplicação</th><th style="padding:4px; text-align:center;">Banco</th></tr></thead>
                     <tbody>${linhasConsolidado}</tbody>
-                    <tfoot><tr style="font-weight:bold;"><td style="padding:4px;">Total</td><td style="padding:4px; text-align:right;">${totConsResgGeral !== 0 ? formatarMoeda(totConsResgGeral) : '-'}</td><td style="padding:4px; text-align:right;">${totConsAplicGeral !== 0 ? formatarMoeda(totConsAplicGeral) : '-'}</td><td></td></tr></tfoot>
+                    <tfoot><tr style="font-weight:bold;"><td style="padding:4px;">Total</td><td style="padding:4px; text-align:right;">${totConsResgGeral !== 0 ? formatarMoeda(totConsResgGeral) : ''}</td><td style="padding:4px; text-align:right;">${totConsAplicGeral !== 0 ? formatarMoeda(totConsAplicGeral) : ''}</td><td></td></tr></tfoot>
                 </table>`;
 
             document.getElementById('modal-resumo').style.display = 'flex';
@@ -890,7 +954,18 @@
             Object.keys(empresasConfig).forEach(emp => {
                 if(diaDados[emp]) {
                     Object.keys(diaDados[emp]).forEach(idx => {
-                        if(diaDados[emp][idx]) { diaDados[emp][idx]['pendente-o3'] = "0"; diaDados[emp][idx]['pendente-so7'] = "0"; }
+                        if(diaDados[emp][idx]) { 
+                            diaDados[emp][idx]['pendente-o3'] = "0"; 
+                            diaDados[emp][idx]['pendente-so7'] = "0"; 
+                            
+                            let hO3 = JSON.parse(diaDados[emp][idx]['historico-o3'] || "[]");
+                            hO3.forEach(h => h.pendente = 0);
+                            diaDados[emp][idx]['historico-o3'] = JSON.stringify(hO3);
+
+                            let hSo7 = JSON.parse(diaDados[emp][idx]['historico-so7'] || "[]");
+                            hSo7.forEach(h => h.pendente = 0);
+                            diaDados[emp][idx]['historico-so7'] = JSON.stringify(hSo7);
+                        }
                     });
                 }
             });
@@ -989,9 +1064,12 @@
                             let p = parseFloat(dadosPorDia[novoNome][emp][idx][`pendente-${catCodigo}`] || 0);
                             let pAprov = parseFloat(dadosPorDia[novoNome][emp][idx][`pendente-aprov-${catCodigo}`] || 0);
                             let b = dadosPorDia[novoNome][emp][idx][`banco-${catCodigo}`] || null;
+                            let hist = JSON.parse(dadosPorDia[novoNome][emp][idx][`historico-${catCodigo}`] || "[]");
                             
                             let bancoStr = b;
-                            if (pAprov > 0 || String(b).startsWith('{')) { bancoStr = JSON.stringify({ banco: b, pAprov: pAprov }); }
+                            if (hist.length > 0 || pAprov > 0 || String(b).startsWith('{')) { 
+                                bancoStr = JSON.stringify({ banco: b, pAprov: pAprov, hist: hist }); 
+                            }
 
                             if (v !== 0 || p !== 0 || b !== null) {
                                 upsertsNovaCopia.push({ nome_dia: novoNome, conta_id: c.id, categoria_codigo: catCodigo, valor: v, valor_pendente: p, banco_destino: bancoStr });
@@ -1055,19 +1133,19 @@
                     ${contas.map((c, i) => {
                         if (l.tipo === 'linha-banco') {
                             return `<td class="${classeSoma}"><div class="cell-wrapper">
-                                    <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente="0" data-pendente-aprov="0">0,00</span>
+                                    <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente="0" data-pendente-aprov="0" data-historico="[]">0,00</span>
                                     <select id="banco-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;" onchange="salvarEstadoLocal(); syncSupabase();"><option value="">Banco Destino/Origem...</option>${listaBancosPadrao.map(bco => `<option value="${bco}">${bco}</option>`).join('')}</select>
                                     <input type="text" class="input-lancar" placeholder="Valor" onkeypress="lancar(event, '${l.id}', ${i})">
                                 </div></td>`;
                         }
                         if (l.tipo === 'linha-transferencia') {
                             return `<td class="${classeSoma}"><div class="cell-wrapper">
-                                    <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente-aprov="0">0,00</span>
+                                    <span class="cell-acumulado" id="val-${l.id}-${i}" data-pendente-aprov="0" data-historico="[]">0,00</span>
                                     <select id="sel-${l.id}-${i}" class="input-lancar" style="margin-bottom:2px; cursor:pointer;"><option value="">Conta Destino...</option>${contas.map((ct, idx) => idx !== i ? `<option value="${idx}">${ct.b} ${ct.c.split('/')[1] || ct.c}</option>` : '').join('')}</select>
                                     <input type="text" class="input-lancar" placeholder="Valor + Enter" onkeypress="lancarTransferencia(event, ${i}, '${l.id}')">
                                 </div></td>`;
                         }
-                        return `<td class="${l.tipo} ${classeSoma} ${noInputClass}"><div class="cell-wrapper"><span class="cell-acumulado" id="val-${l.id}-${i}">0,00</span><input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})"></div></td>`;
+                        return `<td class="${l.tipo} ${classeSoma} ${noInputClass}"><div class="cell-wrapper"><span class="cell-acumulado" id="val-${l.id}-${i}" data-historico="[]">0,00</span><input type="text" class="input-lancar" onkeypress="lancar(event, '${l.id}', ${i})"></div></td>`;
                     }).join('')}
                 </tr>`;
             }).join('');
@@ -1084,6 +1162,8 @@
                         estado[idx][l.id] = el.innerText;
                         if(l.id === 'o3' || l.id === 'so7') estado[idx][`pendente-${l.id}`] = el.getAttribute('data-pendente') || "0";
                         if(l.id === 'stenv' || l.id === 'so7') estado[idx][`pendente-aprov-${l.id}`] = el.getAttribute('data-pendente-aprov') || "0";
+                        
+                        if(l.id === 'o3' || l.id === 'so7' || l.id === 'stenv') estado[idx][`historico-${l.id}`] = el.getAttribute('data-historico') || "[]";
                     }
                     if(l.tipo === 'linha-banco') { let sel = document.getElementById(`banco-${l.id}-${idx}`); if(sel) estado[idx][`banco-${l.id}`] = sel.value; }
                 });
@@ -1100,6 +1180,8 @@
                         el.innerText = (estadoEmpresa[idx] && estadoEmpresa[idx][l.id]) ? estadoEmpresa[idx][l.id] : "0,00";
                         if(l.id === 'o3' || l.id === 'so7') el.setAttribute('data-pendente', estadoEmpresa[idx] ? (estadoEmpresa[idx][`pendente-${l.id}`] || "0") : "0");
                         if(l.id === 'stenv' || l.id === 'so7') el.setAttribute('data-pendente-aprov', estadoEmpresa[idx] ? (estadoEmpresa[idx][`pendente-aprov-${l.id}`] || "0") : "0");
+                        
+                        if(l.id === 'o3' || l.id === 'so7' || l.id === 'stenv') el.setAttribute('data-historico', estadoEmpresa[idx] ? (estadoEmpresa[idx][`historico-${l.id}`] || "[]") : "[]");
                     }
                     if(l.tipo === 'linha-banco') { let sel = document.getElementById(`banco-${l.id}-${idx}`); if(sel) sel.value = (estadoEmpresa[idx] && estadoEmpresa[idx][`banco-${l.id}`]) ? estadoEmpresa[idx][`banco-${l.id}`] : ""; }
                 });
@@ -1111,7 +1193,12 @@
             contas.forEach((c, idx) => {
                 plano.forEach(l => {
                     let el = document.getElementById(`val-${l.id}-${idx}`);
-                    if(el) { el.innerText = "0,00"; el.setAttribute('data-pendente', "0"); el.setAttribute('data-pendente-aprov', "0");}
+                    if(el) { 
+                        el.innerText = "0,00"; 
+                        el.setAttribute('data-pendente', "0"); 
+                        el.setAttribute('data-pendente-aprov', "0");
+                        el.setAttribute('data-historico', "[]");
+                    }
                     if(l.tipo === 'linha-banco') { let sel = document.getElementById(`banco-${l.id}-${idx}`); if(sel) sel.value = ""; }
                 });
             });
@@ -1122,11 +1209,9 @@
             const btn = document.getElementById(btnId); 
             const textoOriginal = btn.innerHTML;
             
-            // 1. Ocultar os botões de lixeira/editar
             const elementsToHide = exportArea.querySelectorAll('.print-hide');
             elementsToHide.forEach(el => el.style.display = 'none');
 
-            // 2. Converter os selects de aprovadores para span (para a foto ficar bonita)
             const selectsEditaveis = exportArea.querySelectorAll('.select-aprov');
             const spansSelects = [];
             selectsEditaveis.forEach(select => {
