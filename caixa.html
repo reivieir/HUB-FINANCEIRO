@@ -58,11 +58,25 @@
         .header-dexco { background-color: #002b45; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .header-dexco h1 { font-size: 14px; font-weight: 400; margin: 0; letter-spacing: 0.5px;}
         .header-actions { display: flex; gap: 10px; }
-        .header-actions button { padding: 6px 15px; border: none; border-radius: 3px; font-weight: bold; font-size: 11px; cursor: pointer; transition: 0.2s; }
-        .btn-export { background: #f59e0b; color: white; }
-        .btn-export:hover { background: #d97706; }
-        .btn-exit { background: #c40000; color: white; }
-        .btn-exit:hover { background: #a30000; }
+        /* Botões padronizados em Preto Esfumaçado */
+        .header-actions { display: flex; gap: 10px; }
+        .btn-top-dark {
+            background: linear-gradient(145deg, #434343, #111111);
+            color: #ffffff;
+            border: 1px solid #222222;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            padding: 6px 15px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            font-size: 11px; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+        }
+        .btn-top-dark:hover {
+            background: linear-gradient(145deg, #555555, #222222);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            transform: translateY(-1px);
+        }
         .app-content { flex: 1; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
 
         /* NAVEGAÇÃO INTERNA */
@@ -220,8 +234,7 @@
               <div class="header-actions">
                     <input type="file" id="input-import-csv" accept=".csv" style="display:none" onchange="importarCSV(event)">
                     <button class="btn-export" style="background:#8b5cf6;" onclick="document.getElementById('input-import-csv').click()">📤 Importar Caixa(Excel)</button>
-
-                    <button class="btn-export" style="background:#10b981;" onclick="exportarCSV()">📥 Exportar Caixa(Excel</button>
+                    <button class="btn-export" style="background:#10b981;" onclick="exportarCSV()">📥 Exportar Caixa(Excel)</button>
                     <button class="btn-export" style="background:#0284c7;" onclick="abrirAprovacoes()">✅ Aprovações</button>
                     <button class="btn-export" onclick="abrirResumo()">📊 Resumo do Dia</button>
                     <button class="btn-exit" onclick="window.parent.location.reload()">Sair / Bloquear</button>
