@@ -565,12 +565,16 @@
         function getV(id, cidx) { let el = document.getElementById(`val-${id}-${cidx}`); return el ? parseMoeda(el.innerText) : 0; }
         function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = formatarMoeda(val); }
 
-        function recalcularColuna(idx) {
-            // Mapeamos EXATAMENTE quais são as linhas de Subtotal do seu sistema
-            const subsEntradas = ['sc', 'sco', 'so', 'sf', 'sint'];
-            const subsSaidas = ['sfor', 'ssal', 'ssout', 'ssfin', 'ssint'];
+      function recalcularColuna(idx) {
+            // Mapeamos os "Cabeçalhos/Gavetas" de Entradas e Saídas
+            const gavetasEntradas = ['sc', 'sco', 'so', 'sf', 'sint'];
+            const gavetasSaidas = ['sfor', 'ssal', 'ssout', 'ssfin', 'ssint'];
 
-            let balde = 0; // O balde que vai acumulando os valores do grupo
+            // Onde vamos guardar as somas de cada gaveta enquanto lemos a planilha
+            let somasDasGavetas = {};
+            [...gavetasEntradas, ...gavetasSaidas].forEach(g => somasDasGavetas[g] = 0);
+
+            let gavetaAberta = null; // Começa sem nenhuma gaveta aberta
             let total_entradas = 0;
             let total_saidas = 0;
 
@@ -579,10 +583,10 @@
                 let id = l.id;
                 let val = getV(id, idx);
 
-                // 1. Ignora as linhas de fechamento final para não misturar no balde
+                // 1. Ignora linhas de fechamento final
                 if (['si', 'te', 'tsai', 'calc', 'seg', 'marg'].includes(id)) return;
 
-                // 2. Transferências (Entram direto no Totalzão, não passam pelo balde de subtotais)
+                // 2. Transferências (Entram direto no Totalzão, não entram nas gavetas)
                 if (id === 'tr') {
                     total_entradas += val;
                     return;
@@ -592,25 +596,49 @@
                     return;
                 }
 
-                // 3. BATEU NUM SUBTOTAL DE ENTRADA (Ex: 'sc' - Soma Cliente)
-                if (subsEntradas.includes(id)) {
-                    setV(id, idx, balde); // Despeja o balde na linha do Subtotal
-                    total_entradas += balde; // Soma no Totalzão Azul de Entradas
-                    balde = 0; // Esvazia o balde para o próximo grupo
+                // 3. ACHOU UM CABEÇALHO? Ele "Abre" essa gaveta para os próximos itens
+                if (gavetasEntradas.includes(id) || gavetasSaidas.includes(id)) {
+                    gavetaAberta = id;
                 }
                 
-                // 4. BATEU NUM SUBTOTAL DE SAÍDA (Ex: 'sfor' - Soma Fornecedor)
-                else if (subsSaidas.includes(id)) {
-                    setV(id, idx, balde); // Despeja o balde na linha do Subtotal
-                    total_saidas += balde; // Soma no Totalzão Vermelho de Saídas
-                    balde = 0; // Esvazia o balde para o próximo grupo
-                }
-                
-                // 5. BATEU NUMA LINHA COMUM (c1, c2, Nova Cobrança, etc.)
-                else {
-                    balde += val; // Vai enchendo o balde!
+                // 4. ACHOU UM ITEM NORMAL? Joga o valor dentro da gaveta que estiver aberta!
+                else if (gavetaAberta !== null && !l.readOnly) {
+                    somasDasGavetas[gavetaAberta] += val;
+                    
+                    // Já aproveita e joga no Totalzão correto (Entrada ou Saída)
+                    if (gavetasEntradas.includes(gavetaAberta)) {
+                        total_entradas += val;
+                    } else if (gavetasSaidas.includes(gavetaAberta)) {
+                        total_saidas += val;
+                    }
                 }
             });
+
+            // 5. ESCREVE OS RESULTADOS NA TELA
+            // Preenche as linhas de "SOMA..." com o que juntou em cada gaveta
+            Object.keys(somasDasGavetas).forEach(gaveta => {
+                setV(gaveta, idx, somasDasGavetas[gaveta]);
+            });
+
+            // Preenche os Totais e Saldos
+            setV('te', idx, total_entradas);
+            setV('tsai', idx, total_saidas);
+
+            let si = getV('si', idx);
+            let calc = si + total_entradas - total_saidas;
+            setV('calc', idx, calc);
+
+            // Pinta o fundo de vermelho se a conta ficar negativa
+            let tdCalc = document.getElementById(`val-calc-${idx}`);
+            if (tdCalc) {
+                let cellTr = tdCalc.closest('td');
+                if (calc < 0) cellTr.classList.add('saldo-negativo'); 
+                else cellTr.classList.remove('saldo-negativo');
+            }
+
+            let marg = getV('marg', idx); 
+            setV('seg', idx, calc - marg);
+        }
 
             // FECHAMENTO FINAL (Calcula os saldos da base da tabela)
             setV('te', idx, total_entradas);
