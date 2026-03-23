@@ -149,7 +149,7 @@
         .print-hide { /* Ocultar colunas e botões na hora do print */ }
 
         /* ==========================================
-           ASSISTENTE IA (NOVO WIDGET)
+           ASSISTENTE IA (WIDGET FLUTUANTE)
         ========================================== */
         .ai-widget-btn {
             position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; 
@@ -176,8 +176,8 @@
         
         .ai-chat-messages { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; font-size: 13px; }
         
-        .msg-ia { background: white; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 10px 10px 10px 0; align-self: flex-start; max-width: 85%; color: #334155; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
-        .msg-user { background: #d1fae5; color: #065f46; padding: 10px 15px; border-radius: 10px 10px 0 10px; align-self: flex-end; max-width: 85%; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
+        .msg-ia { background: white; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 10px 10px 10px 0; align-self: flex-start; max-width: 85%; color: #334155; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word;}
+        .msg-user { background: #d1fae5; color: #065f46; padding: 10px 15px; border-radius: 10px 10px 0 10px; align-self: flex-end; max-width: 85%; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word;}
         
         .ai-chat-input-area { padding: 12px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; }
         .ai-chat-input-area input { flex: 1; padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 20px; outline: none; font-size: 13px; }
@@ -253,7 +253,7 @@
             <button class="ai-chat-close" onclick="toggleAIChat()">&times;</button>
         </div>
         <div class="ai-chat-messages" id="aiChatMessages">
-            <div class="msg-ia">Olá! Eu analiso os dados do seu caixa em tempo real. Você pode me perguntar coisas como: <br><br><b>"Quais contas estão negativas hoje?"</b> ou <b>"Qual o saldo total do caixa?"</b></div>
+            <div class="msg-ia">Olá! Eu analiso os dados do seu caixa em tempo real.<br><br>Você pode me perguntar: <br><b>"Quais contas estão negativas hoje?"</b> ou <b>"Qual o saldo total do caixa?"</b></div>
         </div>
         <div class="ai-chat-input-area">
             <input type="text" id="aiChatInput" placeholder="Pergunte sobre o caixa..." onkeypress="seEnterIA(event)">
@@ -1328,9 +1328,18 @@
             const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); link.download = `Caixa_Dexco_${diaAtivo.replace(/\//g, '-')}.csv`; link.click();
         }
 
+        window.onload = function() {
+            const passInput = document.getElementById('input-senha-login');
+            if (passInput) passInput.focus();
+        };
+
         // ==============================================
-        // LÓGICA DO ASSISTENTE IA (NOVO)
+        // LÓGICA DO ASSISTENTE IA (REAL COM API)
         // ==============================================
+        
+        // ⚠️ COLOQUE SUA CHAVE DE API DA OPENAI AQUI
+        const OPENAI_API_KEY = "AIzaSyBgHPaX4H98gh3s8bQkSeGpZdiC9L_6O5U"; 
+
         function toggleAIChat() {
             const panel = document.getElementById('aiChatPanel');
             if (panel.classList.contains('active')) {
@@ -1345,6 +1354,27 @@
             if (e.key === 'Enter') enviarMensagemIA();
         }
 
+        // Função que "Lê" a tela atual e empacota os dados para a IA entender
+        function gerarContextoCaixa() {
+            let contexto = `Você é o assistente financeiro corporativo da Dexco. Responda de forma clara, educada e direta.\n`;
+            contexto += `Hoje é dia ${diaAtivo}. A empresa que o usuário está visualizando no painel agora é: ${empresaAtiva}.\n\n`;
+            contexto += `Aqui está o resumo financeiro em tempo real desta empresa:\n`;
+            
+            contas.forEach((c, idx) => {
+                let saldoFinal = getV('calc', idx);
+                let totalEntradas = getV('te', idx);
+                let totalSaidas = getV('tsai', idx);
+                
+                contexto += `- Banco ${c.b} (Conta: ${c.c}):\n`;
+                contexto += `  * Entradas Hoje: R$ ${formatarMoeda(totalEntradas)}\n`;
+                contexto += `  * Saídas Hoje: R$ ${formatarMoeda(totalSaidas)}\n`;
+                contexto += `  * Saldo Final: R$ ${formatarMoeda(saldoFinal)} ${saldoFinal < 0 ? '(ATENÇÃO: NEGATIVO)' : '(Positivo)'}\n\n`;
+            });
+
+            contexto += `Regra: Baseie suas respostas EXCLUSIVAMENTE nos dados acima. Se o usuário perguntar de outra empresa ou dia, diga que você só tem acesso à visualização atual da tela (${empresaAtiva}).`;
+            return contexto;
+        }
+
         async function enviarMensagemIA() {
             const input = document.getElementById('aiChatInput');
             const mensagem = input.value.trim();
@@ -1352,7 +1382,7 @@
 
             const chatMessages = document.getElementById('aiChatMessages');
             
-            // Adiciona a mensagem do usuário
+            // Adiciona a mensagem do usuário na tela
             const userMsgDiv = document.createElement('div');
             userMsgDiv.className = 'msg-user';
             userMsgDiv.innerText = mensagem;
@@ -1364,57 +1394,67 @@
             // Simula o "Digitando..."
             const typingDiv = document.createElement('div');
             typingDiv.className = 'msg-ia';
-            typingDiv.innerHTML = '<i>Analisando o caixa...</i>';
+            typingDiv.innerHTML = '<i>Analisando dados do caixa...</i>';
             chatMessages.appendChild(typingDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            // Chama a inteligência simulada passando o estado atual da tabela
-            const resposta = await processarPerguntaIA(mensagem);
+            // Chama a API de verdade
+            const resposta = await processarPerguntaAPI(mensagem);
 
-            // Troca a resposta
-            setTimeout(() => {
-                chatMessages.removeChild(typingDiv);
-                const iaMsgDiv = document.createElement('div');
-                iaMsgDiv.className = 'msg-ia';
-                iaMsgDiv.innerHTML = resposta;
-                chatMessages.appendChild(iaMsgDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 800);
+            // Troca o "Digitando..." pela resposta final
+            chatMessages.removeChild(typingDiv);
+            const iaMsgDiv = document.createElement('div');
+            iaMsgDiv.className = 'msg-ia';
+            
+            // Permite quebra de linha na resposta da IA
+            iaMsgDiv.innerHTML = resposta.replace(/\n/g, '<br>');
+            
+            chatMessages.appendChild(iaMsgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        async function processarPerguntaIA(mensagem) {
-            let msg = mensagem.toLowerCase();
-            
-            if (msg.includes("negativa") || msg.includes("vermelho") || msg.includes("descoberto") || msg.includes("qual conta")) {
-                let contasNegativas = [];
-                contas.forEach((c, idx) => {
-                    let saldoCalculado = getV('calc', idx);
-                    if (saldoCalculado < 0) {
-                        contasNegativas.push(`<b>${c.b} (${c.emp})</b> com saldo de R$ ${formatarMoeda(saldoCalculado)}`);
-                    }
+        async function processarPerguntaAPI(mensagemUsuario) {
+            if (OPENAI_API_KEY === "sk-proj-SUA_CHAVE_AQUI" || !OPENAI_API_KEY) {
+                return "⚠️ **API Key ausente!** Por favor, edite o arquivo HTML e cole sua chave na variável `OPENAI_API_KEY` para que eu possa me conectar ao motor de Inteligência Artificial.";
+            }
+
+            const contextoDoCaixa = gerarContextoCaixa();
+
+            try {
+                const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${OPENAI_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4o-mini", // Use gpt-3.5-turbo ou gpt-4o conforme o seu plano
+                        messages: [
+                            { role: "system", content: contextoDoCaixa },
+                            { role: "user", content: mensagemUsuario }
+                        ],
+                        temperature: 0.3 // Temperatura baixa para respostas mais precisas e matemáticas
+                    })
                 });
 
-                if (contasNegativas.length > 0) {
-                    return `As seguintes contas estão negativas agora na ${empresaAtiva}:<br><br> ${contasNegativas.join('<br>')}`;
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error("Erro da API:", data.error);
+                    return `Erro da API OpenAI: ${data.error.message}`;
                 }
-                return `Verifiquei aqui na ${empresaAtiva} e nenhuma conta está negativa hoje! O saldo está todo azul. 🚀`;
-            }
-            
-            if (msg.includes("saldo") || msg.includes("total") || msg.includes("resumo")) {
-                let saldoTotal = 0;
-                contas.forEach((c, idx) => {
-                    saldoTotal += getV('calc', idx);
-                });
-                return `O saldo final consolidado de todas as contas da <b>${empresaAtiva}</b> hoje é de <b>R$ ${formatarMoeda(saldoTotal)}</b>.`;
-            }
 
-            return "Ainda estou aprendendo! Por enquanto, eu sei te responder rapidamente:<br>- Quais contas estão negativas?<br>- Qual o saldo total?<br><br>Para ver meu poder total de análise, você precisará plugar uma chave da API do Gemini ou OpenAI no código.";
+                if (data.choices && data.choices.length > 0) {
+                    return data.choices[0].message.content;
+                } else {
+                    return "Desculpe, não consegui formular uma resposta válida.";
+                }
+
+            } catch (error) {
+                console.error("Erro na requisição:", error);
+                return "Erro grave ao conectar com a API da IA. Verifique sua conexão com a internet e o console do navegador.";
+            }
         }
-
-        window.onload = function() {
-            const passInput = document.getElementById('input-senha-login');
-            if (passInput) passInput.focus();
-        };
 
     </script>
 </body>
