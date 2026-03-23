@@ -104,7 +104,6 @@
         
         .linha-destaque { font-weight: bold; background: white; }
         
-        /* CORREÇÃO DO CINZA MAIS ESCURO PARA LINHAS DE SOMA */
         .grupo-soma { 
             background-color: #334155 !important; 
             color: #ffffff !important; 
@@ -112,11 +111,7 @@
             text-transform: uppercase; 
         }
 
-        .saldo-negativo {
-            background-color: #ef4444 !important;
-            color: #ffffff !important;
-        }
-
+        .saldo-negativo { background-color: #ef4444 !important; color: #ffffff !important; }
         .indent { padding-left: 15px !important; }
         .no-input .input-lancar { display: none; }
         .no-input .cell-acumulado { font-weight: bold; font-size: 11px; }
@@ -145,22 +140,22 @@
         .btn-modal-acao { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
         .btn-modal-acao:hover { background: #059669; }
 
-        /* Estilo invisível para a lista de Aprovadores na hora de copiar */
+        .input-transparent {
+            border: 1px dashed #cbd5e1; background: transparent; width: 100%; min-width: 170px; box-sizing: border-box; font-size: 11px; outline: none; font-family: inherit; color: var(--text); padding: 5px; border-radius: 3px; transition: 0.2s; text-overflow: ellipsis; line-height: normal;
+        }
+        .input-transparent:focus { border-style: solid; border-color: var(--primary); background: white; }
+
         select.select-aprov {
             width: 100%; border: none; background: transparent; font-size: 13px; font-weight: bold; text-align: center; text-align-last: center; outline: none; cursor: pointer; font-family: inherit; color: var(--text); appearance: none; padding: 4px; border-radius: 3px;
         }
         select.select-aprov:focus { background: white; border: 1px dashed var(--primary); }
 
-        /* BOTÕES DE APROVAÇÃO MANUAL E EDIÇÃO */
         .btn-add-manual { background: #f59e0b; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; transition: background 0.2s; }
         .btn-add-manual:hover { background: #d97706; }
-        
         .btn-editar-linha { background: transparent; border: none; color: #3b82f6; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
         .btn-editar-linha:hover { color: #2563eb; }
-        
         .btn-excluir-linha { background: transparent; border: none; color: #ef4444; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
         .btn-excluir-linha:hover { color: #b91c1c; }
-        
         .print-hide { /* Ocultar colunas e botões na hora do print */ }
     </style>
 </head>
@@ -591,7 +586,7 @@
         }
 
         // ==============================================
-        // PLANILHA DE APROVAÇÕES (CAMPOS TRAVADOS + EDIÇÃO VIA BOTÃO)
+        // PLANILHA DE APROVAÇÕES E EDIÇÃO MANUAL (REFEITO COM LAYOUT DO RESUMO)
         // ==============================================
         function carregarItemsParaAprovacao() {
             itemsAprovacaoGlobal = []; 
@@ -646,19 +641,13 @@
                 let linhasHtml = itensBanco.map(item => {
                     let nomeEmpresaFull = nomesCompletosEmpresas[item.empresa] || item.empresa;
                     
-                    // Trata as variáveis para exibição travada (sem input)
                     let showBancoOrigem = item.bancoOrigem;
                     let showEmpresa = item.id.startsWith('manual_') ? item.empresa : nomeEmpresaFull;
                     let showContaOrigem = item.contaOrigem;
                     
                     let showFavorecido = item.favorecido !== undefined && item.favorecido !== "" ? item.favorecido : (item.isAplicacao ? '' : nomeEmpresaFull);
-                    let showDestino = item.contaDestino ? (item.contaDestino.toUpperCase().includes('BANCO') ? item.contaDestino : `BANCO ${item.contaDestino.replace(' - ', ' AG ').replace('/', 'C.C')}`) : '';
+                    let showDestino = item.contaDestino && item.contaDestino.trim() !== '' ? (item.contaDestino.toUpperCase().includes('BANCO') ? item.contaDestino : `BANCO ${item.contaDestino.replace(' - ', ' AG ').replace('/', 'C.C')}`) : '';
                     
-                    if (item.id.startsWith('manual_')) {
-                        if (!showFavorecido) showFavorecido = '-';
-                        if (!showDestino) showDestino = '-';
-                    }
-
                     return `
                     <tr>
                         <td style="font-size: 11px;">${showBancoOrigem}</td>
@@ -724,14 +713,12 @@
             document.getElementById('modal-aprovacoes').style.display = 'flex';
         }
 
-        // BOTÃO DE EDITAR (NOVA FUNÇÃO)
         function editarLinhaAprovacao(id) {
             let item = itemsAprovacaoGlobal.find(i => i.id === id);
             if (!item) return;
 
             let isManual = item.id.startsWith('manual_');
 
-            // Se for manual, permite alterar a origem também
             if (isManual) {
                 let nBanco = prompt("Editar Banco Origem:", item.bancoOrigem);
                 if (nBanco !== null) item.bancoOrigem = nBanco.toUpperCase();
@@ -743,16 +730,13 @@
                 if (nContaOrig !== null) item.contaOrigem = nContaOrig.toUpperCase();
             }
 
-            // Edição de Favorecido
             let defaultFav = item.favorecido !== undefined && item.favorecido !== "" ? item.favorecido : (item.isAplicacao ? '' : (nomesCompletosEmpresas[item.empresa] || item.empresa));
             let nFav = prompt("Editar Favorecido:", defaultFav);
             if (nFav !== null) item.favorecido = nFav.toUpperCase();
 
-            // Edição de Conta Destino
             let nDest = prompt("Editar Conta Destino (ex: ITAÚ AG 1234 C.C 5678-9):", item.contaDestino);
             if (nDest !== null) item.contaDestino = nDest.toUpperCase();
 
-            // Se for manual, permite alterar o valor
             if (isManual) {
                 let nVal = prompt("Editar Valor (R$):", formatarMoeda(item.valor));
                 if (nVal !== null) item.valor = parseMoeda(nVal);
@@ -761,7 +745,6 @@
             renderizarAprovacoes();
         }
 
-        // ADIÇÃO MANUAL DIRETA NOS PROMPTS
         function adicionarLinhaManual() {
             let banco = prompt("Qual o Banco Origem? (ex: ITAÚ, BRADESCO)");
             if (!banco) return;
@@ -774,10 +757,10 @@
             itemsAprovacaoGlobal.push({
                 id: `manual_${Math.random().toString(36).substring(7)}`,
                 bancoOrigem: banco.toUpperCase(),
-                empresa: emp ? emp.toUpperCase() : "-",
-                contaOrigem: cOrig ? cOrig.toUpperCase() : "-",
-                favorecido: fav ? fav.toUpperCase() : "-",
-                contaDestino: cDest ? cDest.toUpperCase() : "-",
+                empresa: emp ? emp.toUpperCase() : "",
+                contaOrigem: cOrig ? cOrig.toUpperCase() : "",
+                favorecido: fav ? fav.toUpperCase() : "",
+                contaDestino: cDest ? cDest.toUpperCase() : "",
                 valor: parseMoeda(valor),
                 isAplicacao: false
             });
@@ -825,38 +808,65 @@
 
             Object.keys(empresasConfig).forEach(emp => {
                 if(!diaDados[emp]) return;
-                let pResg = 0, pAplic = 0, cResg = 0, cAplic = 0;
-                let pBancos = new Set(), cBancos = new Set();
+                
+                let empPendente = {};
+                let empConsolidado = {};
 
                 empresasConfig[emp].forEach((c, idx) => {
                     let contaDados = diaDados[emp][idx] || {};
-                    let resg = parseMoeda(contaDados['o3']); let aplic = parseMoeda(contaDados['so7']);
-                    let pendR = parseFloat(contaDados['pendente-o3']) || 0; let pendA = parseFloat(contaDados['pendente-so7']) || 0;
+                    let resg = parseMoeda(contaDados['o3']); 
+                    let aplic = parseMoeda(contaDados['so7']);
+                    let pendR = parseFloat(contaDados['pendente-o3']) || 0; 
+                    let pendA = parseFloat(contaDados['pendente-so7']) || 0;
 
-                    cResg += resg; cAplic += aplic; pResg += pendR; pAplic += pendA;
+                    let bResg = (contaDados['banco-o3'] || "").trim();
+                    let bAplic = (contaDados['banco-so7'] || "").trim();
 
-                    if(resg !== 0 && contaDados['banco-o3']) cBancos.add(contaDados['banco-o3']);
-                    if(aplic !== 0 && contaDados['banco-so7']) cBancos.add(contaDados['banco-so7']);
-                    if(pendR !== 0 && contaDados['banco-o3']) pBancos.add(contaDados['banco-o3']);
-                    if(pendA !== 0 && contaDados['banco-so7']) pBancos.add(contaDados['banco-so7']);
+                    if (pendR !== 0) {
+                        let k = bResg || "";
+                        if (!empPendente[k]) empPendente[k] = { r: 0, a: 0 };
+                        empPendente[k].r += pendR;
+                    }
+                    if (pendA !== 0) {
+                        let k = bAplic || "";
+                        if (!empPendente[k]) empPendente[k] = { r: 0, a: 0 };
+                        empPendente[k].a += pendA;
+                    }
+
+                    if (resg !== 0) {
+                        let k = bResg || "";
+                        if (!empConsolidado[k]) empConsolidado[k] = { r: 0, a: 0 };
+                        empConsolidado[k].r += resg;
+                    }
+                    if (aplic !== 0) {
+                        let k = bAplic || "";
+                        if (!empConsolidado[k]) empConsolidado[k] = { r: 0, a: 0 };
+                        empConsolidado[k].a += aplic;
+                    }
                 });
 
-                if(pResg !== 0 || pAplic !== 0) {
+                let sumPendR = 0, sumPendA = 0;
+
+                Object.keys(empPendente).forEach(banco => {
+                    let p = empPendente[banco];
+                    sumPendR += p.r; sumPendA += p.a;
+                    totPendResgGeral += p.r; totPendAplicGeral += p.a;
+                    linhasPendente += `<tr><td style="font-weight:bold;">${emp}</td><td style="text-align:right; color:#10b981; font-weight:bold;">${p.r !== 0 ? formatarMoeda(p.r) : '-'}</td><td style="text-align:right; color:var(--vermelho-saida); font-weight:bold;">${p.a !== 0 ? formatarMoeda(p.a) : '-'}</td><td style="text-align:center;">${banco}</td></tr>`;
+                });
+
+                Object.keys(empConsolidado).forEach(banco => {
+                    let c = empConsolidado[banco];
+                    totConsResgGeral += c.r; totConsAplicGeral += c.a;
+                    linhasConsolidado += `<tr><td>${emp}</td><td style="text-align:right;">${c.r !== 0 ? formatarMoeda(c.r) : '-'}</td><td style="text-align:right;">${c.a !== 0 ? formatarMoeda(c.a) : '-'}</td><td style="text-align:center;">${banco}</td></tr>`;
+                });
+
+                if(sumPendR !== 0 || sumPendA !== 0) {
                     htmlCardsPendente += `
                     <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 5px; background: #f8fafc; min-width: 150px; flex: 1;">
                         <h4 style="margin: 0 0 5px 0; color: var(--primary); text-align: center;">${emp}</h4>
-                        <div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${formatarMoeda(pResg)}</div>
-                        <div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${formatarMoeda(pAplic)}</div>
+                        <div style="font-size: 12px; color: #10b981; font-weight: bold; text-align: center;">Resgates: R$ ${formatarMoeda(sumPendR)}</div>
+                        <div style="font-size: 12px; color: var(--vermelho-saida); font-weight: bold; text-align: center;">Aplicações: R$ ${formatarMoeda(sumPendA)}</div>
                     </div>`;
-                    totPendResgGeral += pResg; totPendAplicGeral += pAplic;
-                    let strBancoP = pBancos.size > 0 ? Array.from(pBancos).join(', ') : '-';
-                    linhasPendente += `<tr><td style="font-weight:bold;">${emp}</td><td style="text-align:right; color:#10b981; font-weight:bold;">${pResg !== 0 ? formatarMoeda(pResg) : '-'}</td><td style="text-align:right; color:var(--vermelho-saida); font-weight:bold;">${pAplic !== 0 ? formatarMoeda(pAplic) : '-'}</td><td style="text-align:center;">${strBancoP}</td></tr>`;
-                }
-
-                if(cResg !== 0 || cAplic !== 0) {
-                    totConsResgGeral += cResg; totConsAplicGeral += cAplic;
-                    let strBancoC = cBancos.size > 0 ? Array.from(cBancos).join(', ') : '-';
-                    linhasConsolidado += `<tr><td>${emp}</td><td style="text-align:right;">${cResg !== 0 ? formatarMoeda(cResg) : '-'}</td><td style="text-align:right;">${cAplic !== 0 ? formatarMoeda(cAplic) : '-'}</td><td style="text-align:center;">${strBancoC}</td></tr>`;
                 }
             });
             htmlCardsPendente += '</div>';
@@ -1122,11 +1132,9 @@
             const btn = document.getElementById(btnId); 
             const textoOriginal = btn.innerHTML;
             
-            // 1. Ocultar os botões de lixeira/editar
             const elementsToHide = exportArea.querySelectorAll('.print-hide');
             elementsToHide.forEach(el => el.style.display = 'none');
 
-            // 2. Converter os selects de aprovadores para span (para a foto ficar bonita)
             const selectsEditaveis = exportArea.querySelectorAll('.select-aprov');
             const spansSelects = [];
             selectsEditaveis.forEach(select => {
