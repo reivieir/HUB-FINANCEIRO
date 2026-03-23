@@ -104,7 +104,7 @@
         
         .linha-destaque { font-weight: bold; background: white; }
         
-        /* CORREÇÃO DO CINZA MAIS ESCURO PARA LINHAS DE SOMA (CINZA CHUMBO) */
+        /* CORREÇÃO DO CINZA MAIS ESCURO PARA LINHAS DE SOMA */
         .grupo-soma { 
             background-color: #334155 !important; 
             color: #ffffff !important; 
@@ -112,7 +112,6 @@
             text-transform: uppercase; 
         }
 
-        /* CLASSE DE ALERTA PARA SALDO NEGATIVO */
         .saldo-negativo {
             background-color: #ef4444 !important;
             color: #ffffff !important;
@@ -127,7 +126,7 @@
         .flash-in { animation: flash-in 0.8s ease-out; }
         @keyframes flash-in { 0% { background: #bfdbfe; } 100% { background: transparent; } }
 
-        /* MODAIS E INPUTS EDITÁVEIS */
+        /* MODAIS */
         .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
         .modal-content { background-color: #ffffff; padding: 25px; width: 100%; max-width: 400px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;}
         .modal-content-resumo { background-color: #f8fafc; margin: 2% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 1100px; border-radius: 8px; max-height: 90vh; overflow-y: auto;}
@@ -135,7 +134,7 @@
         .close:hover { color: var(--danger); }
         
         .resumo-table-print { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; background: white;}
-        .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 6px; }
+        .resumo-table-print th, .resumo-table-print td { border: 1px solid #cbd5e1; padding: 8px; vertical-align: middle; }
         .resumo-table-print th { background-color: var(--primary); color: white; }
         .resumo-table-print tfoot th { background-color: #e2e8f0; color: #1e293b; font-weight: bold; }
         
@@ -146,36 +145,22 @@
         .btn-modal-acao { background: #10b981; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; width: 100px;}
         .btn-modal-acao:hover { background: #059669; }
 
-        /* Ajuste do Input Transparente para evitar cortes */
-        .input-transparent {
-            border: 1px dashed #cbd5e1; 
-            background: transparent; 
-            width: 100%; 
-            min-width: 170px; 
-            box-sizing: border-box; 
-            font-size: 11px; 
-            outline: none; 
-            font-family: inherit; 
-            color: var(--text); 
-            padding: 5px; 
-            border-radius: 3px; 
-            transition: 0.2s; 
-            text-overflow: ellipsis;
-            line-height: normal; 
-        }
-        .input-transparent:focus { border-style: solid; border-color: var(--primary); background: white; }
-
         /* Estilo invisível para a lista de Aprovadores na hora de copiar */
         select.select-aprov {
             width: 100%; border: none; background: transparent; font-size: 13px; font-weight: bold; text-align: center; text-align-last: center; outline: none; cursor: pointer; font-family: inherit; color: var(--text); appearance: none; padding: 4px; border-radius: 3px;
         }
         select.select-aprov:focus { background: white; border: 1px dashed var(--primary); }
 
-        /* BOTÃO E LIXEIRA - APROVAÇÃO MANUAL */
+        /* BOTÕES DE APROVAÇÃO MANUAL E EDIÇÃO */
         .btn-add-manual { background: #f59e0b; color: white; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-left: 10px; transition: background 0.2s; }
         .btn-add-manual:hover { background: #d97706; }
-        .btn-excluir-linha { background: transparent; border: none; color: #ef4444; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        .btn-editar-linha { background: transparent; border: none; color: #3b82f6; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+        .btn-editar-linha:hover { color: #2563eb; }
+        
+        .btn-excluir-linha { background: transparent; border: none; color: #ef4444; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
         .btn-excluir-linha:hover { color: #b91c1c; }
+        
         .print-hide { /* Ocultar colunas e botões na hora do print */ }
     </style>
 </head>
@@ -606,7 +591,7 @@
         }
 
         // ==============================================
-        // PLANILHA DE APROVAÇÕES E EDIÇÃO MANUAL (REFEITO COM LAYOUT DO RESUMO)
+        // PLANILHA DE APROVAÇÕES (CAMPOS TRAVADOS + EDIÇÃO VIA BOTÃO)
         // ==============================================
         function carregarItemsParaAprovacao() {
             itemsAprovacaoGlobal = []; 
@@ -661,37 +646,36 @@
                 let linhasHtml = itensBanco.map(item => {
                     let nomeEmpresaFull = nomesCompletosEmpresas[item.empresa] || item.empresa;
                     
-                    let inputBancoOrigem = item.id.startsWith('manual_') ? `<input type="text" class="input-transparent" value="${item.bancoOrigem}" style="font-weight:bold;" onchange="atualizarItemManual('${item.id}', 'bancoOrigem', this.value)">` : item.bancoOrigem;
-                    let inputEmpresa = item.id.startsWith('manual_') ? `<input type="text" class="input-transparent" value="${item.empresa}" style="font-weight:bold;" onchange="atualizarItemManual('${item.id}', 'empresa', this.value)">` : nomeEmpresaFull;
-                    let inputContaOrigem = item.id.startsWith('manual_') ? `<input type="text" class="input-transparent" value="${item.contaOrigem}" style="font-size:11px;" onchange="atualizarItemManual('${item.id}', 'contaOrigem', this.value)">` : item.contaOrigem;
+                    // Trata as variáveis para exibição travada (sem input)
+                    let showBancoOrigem = item.bancoOrigem;
+                    let showEmpresa = item.id.startsWith('manual_') ? item.empresa : nomeEmpresaFull;
+                    let showContaOrigem = item.contaOrigem;
                     
-                    let favHtml = `<input type="text" class="input-transparent" style="font-weight:bold;" value="${item.id.startsWith('manual_') ? item.favorecido : (item.isAplicacao ? '' : nomeEmpresaFull)}" placeholder="${item.isAplicacao ? 'Digite Favorecido...' : 'Favorecido...'}" onchange="atualizarItemManual('${item.id}', 'favorecido', this.value)">`;
+                    let showFavorecido = item.favorecido !== undefined && item.favorecido !== "" ? item.favorecido : (item.isAplicacao ? '' : nomeEmpresaFull);
+                    let showDestino = item.contaDestino ? (item.contaDestino.toUpperCase().includes('BANCO') ? item.contaDestino : `BANCO ${item.contaDestino.replace(' - ', ' AG ').replace('/', 'C.C')}`) : '';
                     
-                    let destText = item.contaDestino && !item.id.startsWith('manual_') ? `BANCO ${item.contaDestino.replace(' - ', ' AG ').replace('/', 'C.C')}` : item.contaDestino;
-                    let destHtml = `<input type="text" class="input-transparent" value="${destText}" placeholder="Conta Destino..." onchange="atualizarItemManual('${item.id}', 'contaDestino', this.value)">`;
-                    
-                    let valorHtml = item.id.startsWith('manual_') 
-                        ? `R$ <input type="text" class="input-transparent" value="${formatarMoeda(item.valor)}" style="width: 80px; display: inline-block; text-align:right;" onchange="atualizarItemManual('${item.id}', 'valor', this.value)">` 
-                        : `R$ ${formatarMoeda(item.valor)}`;
+                    if (item.id.startsWith('manual_')) {
+                        if (!showFavorecido) showFavorecido = '-';
+                        if (!showDestino) showDestino = '-';
+                    }
 
-                    // Uso do estilo padrão das tabelas do Resumo
                     return `
                     <tr>
-                        <td>${inputBancoOrigem}</td>
-                        <td style="font-weight: bold;">${inputEmpresa}</td>
-                        <td>${inputContaOrigem}</td>
-                        <td>${favHtml}</td>
-                        <td>${destHtml}</td>
+                        <td style="font-size: 11px;">${showBancoOrigem}</td>
+                        <td style="font-weight: bold; font-size: 11px;">${showEmpresa}</td>
+                        <td style="font-size: 11px;">${showContaOrigem}</td>
+                        <td style="font-weight: bold; font-size: 11px;">${showFavorecido}</td>
+                        <td style="font-size: 11px;">${showDestino}</td>
                         <td style="text-align: right; white-space: nowrap;">
-                            <div style="display:flex; align-items:center; justify-content:space-between;">
-                                <span style="font-weight: bold;">${valorHtml}</span>
+                            <div style="display:flex; align-items:center; justify-content:flex-end; gap: 6px;">
+                                <span style="font-weight: bold; margin-right: 5px;">R$ ${formatarMoeda(item.valor)}</span>
+                                <button class="btn-editar-linha print-hide" onclick="editarLinhaAprovacao('${item.id}')" title="Editar Linha">✏️</button>
                                 <button class="btn-excluir-linha print-hide" onclick="excluirItemAprovacao('${item.id}')" title="Excluir Linha">🗑️</button>
                             </div>
                         </td>
                     </tr>`;
                 }).join('');
 
-                // Modificado para usar a classe resumo-table-print que dá o layout bonito
                 htmlTotal += `
                 <div style="margin-bottom: 40px; page-break-inside: avoid;">
                     <table class="resumo-table-print" style="width: 100%; max-width: 600px; margin-bottom: 15px;">
@@ -706,7 +690,7 @@
                         </tr>
                     </table>
 
-                    <table class="resumo-table-print" style="text-align: left;">
+                    <table class="resumo-table-print" style="text-align: left; width: 100%;">
                         <thead>
                             <tr>
                                 <th style="width: 10%;">BANCO <span style="font-size: 9px; opacity:0.7;">▼</span></th>
@@ -740,33 +724,64 @@
             document.getElementById('modal-aprovacoes').style.display = 'flex';
         }
 
-        function adicionarLinhaManual() {
-            let banco = prompt("Digite o nome do Banco (ex: ITAÚ, BRADESCO):");
-            if (!banco) return;
-            
-            itemsAprovacaoGlobal.push({
-                id: `manual_${Math.random().toString(36).substring(7)}`,
-                bancoOrigem: banco.toUpperCase(),
-                empresa: "Clique para Editar",
-                contaOrigem: "Banco Ag e C.C...",
-                favorecido: "",
-                contaDestino: "",
-                valor: 0,
-                isAplicacao: false
-            });
+        // BOTÃO DE EDITAR (NOVA FUNÇÃO)
+        function editarLinhaAprovacao(id) {
+            let item = itemsAprovacaoGlobal.find(i => i.id === id);
+            if (!item) return;
+
+            let isManual = item.id.startsWith('manual_');
+
+            // Se for manual, permite alterar a origem também
+            if (isManual) {
+                let nBanco = prompt("Editar Banco Origem:", item.bancoOrigem);
+                if (nBanco !== null) item.bancoOrigem = nBanco.toUpperCase();
+                
+                let nEmp = prompt("Editar Empresa Origem:", item.empresa);
+                if (nEmp !== null) item.empresa = nEmp.toUpperCase();
+                
+                let nContaOrig = prompt("Editar Conta Origem:", item.contaOrigem);
+                if (nContaOrig !== null) item.contaOrigem = nContaOrig.toUpperCase();
+            }
+
+            // Edição de Favorecido
+            let defaultFav = item.favorecido !== undefined && item.favorecido !== "" ? item.favorecido : (item.isAplicacao ? '' : (nomesCompletosEmpresas[item.empresa] || item.empresa));
+            let nFav = prompt("Editar Favorecido:", defaultFav);
+            if (nFav !== null) item.favorecido = nFav.toUpperCase();
+
+            // Edição de Conta Destino
+            let nDest = prompt("Editar Conta Destino (ex: ITAÚ AG 1234 C.C 5678-9):", item.contaDestino);
+            if (nDest !== null) item.contaDestino = nDest.toUpperCase();
+
+            // Se for manual, permite alterar o valor
+            if (isManual) {
+                let nVal = prompt("Editar Valor (R$):", formatarMoeda(item.valor));
+                if (nVal !== null) item.valor = parseMoeda(nVal);
+            }
+
             renderizarAprovacoes();
         }
 
-        function atualizarItemManual(id, campo, valor) {
-            let item = itemsAprovacaoGlobal.find(i => i.id === id);
-            if (item) {
-                if (campo === 'valor') {
-                    item[campo] = parseMoeda(valor);
-                } else {
-                    item[campo] = valor;
-                }
-                renderizarAprovacoes(); 
-            }
+        // ADIÇÃO MANUAL DIRETA NOS PROMPTS
+        function adicionarLinhaManual() {
+            let banco = prompt("Qual o Banco Origem? (ex: ITAÚ, BRADESCO)");
+            if (!banco) return;
+            let emp = prompt("Qual a Empresa Origem?");
+            let cOrig = prompt("Qual a Conta Origem? (ex: AG 1234 C.C 5678)");
+            let fav = prompt("Qual o Favorecido?");
+            let cDest = prompt("Qual a Conta Destino? (ex: BANCO ITAÚ AG 1234 C.C 5678)");
+            let valor = prompt("Qual o Valor? (R$)");
+
+            itemsAprovacaoGlobal.push({
+                id: `manual_${Math.random().toString(36).substring(7)}`,
+                bancoOrigem: banco.toUpperCase(),
+                empresa: emp ? emp.toUpperCase() : "-",
+                contaOrigem: cOrig ? cOrig.toUpperCase() : "-",
+                favorecido: fav ? fav.toUpperCase() : "-",
+                contaDestino: cDest ? cDest.toUpperCase() : "-",
+                valor: parseMoeda(valor),
+                isAplicacao: false
+            });
+            renderizarAprovacoes();
         }
 
         function excluirItemAprovacao(id) {
@@ -1107,16 +1122,24 @@
             const btn = document.getElementById(btnId); 
             const textoOriginal = btn.innerHTML;
             
-            // 1. Ocultar os botões de lixeira
+            // 1. Ocultar os botões de lixeira/editar
             const elementsToHide = exportArea.querySelectorAll('.print-hide');
             elementsToHide.forEach(el => el.style.display = 'none');
 
-            // 2. Remover as bordas tracejadas para a imagem ficar limpa igual ao Resumo
-            const inputsEditaveis = exportArea.querySelectorAll('.input-transparent, .select-aprov');
-            inputsEditaveis.forEach(el => {
-                el.style.border = 'none';
-                el.style.background = 'transparent';
-                el.style.padding = '0'; // Tira o padding extra pro texto alinhar certinho
+            // 2. Converter os selects de aprovadores para span (para a foto ficar bonita)
+            const selectsEditaveis = exportArea.querySelectorAll('.select-aprov');
+            const spansSelects = [];
+            selectsEditaveis.forEach(select => {
+                const span = document.createElement('span');
+                span.style.fontSize = '13px';
+                span.style.fontWeight = 'bold';
+                span.style.display = 'inline-block';
+                span.style.width = '100%';
+                span.style.textAlign = 'center';
+                span.innerText = select.options[select.selectedIndex]?.text || '';
+                select.parentNode.insertBefore(span, select);
+                select.style.display = 'none'; 
+                spansSelects.push({ select, span });
             });
 
             btn.innerHTML = "⏳ Copiando..."; btn.style.background = "#64748b"; 
@@ -1132,22 +1155,15 @@
                         alert("Não foi possível copiar. Verifique permissões."); 
                         btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; 
                     } finally {
-                        // Devolver as lixeiras e as bordas
                         elementsToHide.forEach(el => el.style.display = '');
-                        inputsEditaveis.forEach(el => {
-                            el.style.border = '';
-                            el.style.padding = '';
-                        });
+                        spansSelects.forEach(({ select, span }) => { span.remove(); select.style.display = ''; });
                     }
                 });
             } catch (err) { 
                 alert("Erro ao gerar."); 
                 btn.innerHTML = textoOriginal; btn.style.background = "#10b981"; 
                 elementsToHide.forEach(el => el.style.display = '');
-                inputsEditaveis.forEach(el => {
-                    el.style.border = '';
-                    el.style.padding = '';
-                });
+                spansSelects.forEach(({ select, span }) => { span.remove(); select.style.display = ''; });
             }
         }
 
