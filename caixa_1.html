@@ -217,7 +217,10 @@
         <div class="app-wrapper">
             <header class="header-dexco">
                 <h1>Dexco S.A - Gestão Diária de Caixa</h1> 
-                <div class="header-actions">
+              <div class="header-actions">
+                    <input type="file" id="input-import-csv" accept=".csv" style="display:none" onchange="importarCSV(event)">
+                    <button class="btn-export" style="background:#8b5cf6;" onclick="document.getElementById('input-import-csv').click()">📤 Importar CSV</button>
+
                     <button class="btn-export" style="background:#10b981;" onclick="exportarCSV()">📥 Exportar CSV</button>
                     <button class="btn-export" style="background:#0284c7;" onclick="abrirAprovacoes()">✅ Aprovações</button>
                     <button class="btn-export" onclick="abrirResumo()">📊 Resumo do Dia</button>
@@ -1382,6 +1385,94 @@
             const passInput = document.getElementById('input-senha-login');
             if (passInput) passInput.focus();
         };
+        async function importarCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Mostra a tela de carregamento para o usuário não mexer enquanto lê
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.querySelector('#loading-overlay p').innerText = "Lendo arquivo e atualizando banco de dados...";
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                // Remove o caractere especial (BOM) se existir e divide as linhas
+                let text = e.target.result.replace(/^\uFEFF/, '');
+                const lines = text.split('\n');
+                
+                let diasParaSalvar = new Set();
+                let mudouAlgo = false;
+
+                // Começa na linha 1 para ignorar o cabeçalho da tabela
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+
+                    // Pega as colunas separadas por ponto e vírgula
+                    const cols = line.split(';');
+                    if (cols.length < 7) continue;
+
+                    const dataStr = cols[0];
+                    const empresa = cols[1];
+                    const banco = cols[2];
+                    const conta = cols[3];
+                    const catNome = cols[4];
+                    const valorStr = cols[6];
+                    const bancoDest = cols[7] || "";
+
+                    // Acha a identificação (ID) da categoria pelo nome
+                    let catRow = plano.find(p => p.nome === catNome);
+                    if (!catRow) continue;
+                    let catId = catRow.id;
+
+                    // Se a data do arquivo não existe ainda, cria ela no estado e no Banco
+                    if (!diasCadastrados.includes(dataStr)) {
+                        diasCadastrados.push(dataStr);
+                        dadosPorDia[dataStr] = {};
+                        Object.keys(empresasConfig).forEach(e => dadosPorDia[dataStr][e] = {});
+                        await sb.from('caixa_dias').insert([{ nome_dia: dataStr }]);
+                    }
+                    diasParaSalvar.add(dataStr);
+
+                    // Acha em qual coluna (índice) a conta se encaixa
+                    if (!empresasConfig[empresa]) continue;
+                    let cidx = empresasConfig[empresa].findIndex(c => c.b === banco && c.c === conta);
+                    if (cidx === -1) continue; // Conta não encontrada
+
+                    // Garante que o objeto do dia/empresa existe na memória
+                    if (!dadosPorDia[dataStr][empresa]) dadosPorDia[dataStr][empresa] = {};
+                    if (!dadosPorDia[dataStr][empresa][cidx]) dadosPorDia[dataStr][empresa][cidx] = {};
+
+                    // Grava o valor
+                    dadosPorDia[dataStr][empresa][cidx][catId] = valorStr;
+                    
+                    // Se tiver banco de destino/origem, grava também
+                    if(bancoDest) {
+                        dadosPorDia[dataStr][empresa][cidx][`banco-${catId}`] = bancoDest;
+                    }
+                    mudouAlgo = true;
+                }
+
+                if (mudouAlgo) {
+                    // Pega o último dia lido e coloca na tela ativamente
+                    let ultimoDia = Array.from(diasParaSalvar).pop();
+                    if(ultimoDia) diaAtivo = ultimoDia;
+                    
+                    carregarEstado(); // Atualiza os números visuais
+                    renderTabsDias(); // Atualiza a aba lá no topo
+                    
+                    // Dispara a função nativa para jogar tudo isso pro Supabase na mesma hora
+                    await syncSupabase();
+                    
+                    alert("✅ Arquivo CSV importado e salvo no sistema com sucesso!");
+                } else {
+                    alert("⚠️ Nenhum dado válido encontrado no arquivo para importar.");
+                }
+                
+                document.getElementById('loading-overlay').style.display = 'none';
+                event.target.value = ''; // Limpa o input do arquivo
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
 
         // ==============================================
         // LÓGICA DO ASSISTENTE IA (VERCEL)
