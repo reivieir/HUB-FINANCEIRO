@@ -149,22 +149,32 @@
         .print-hide { /* Ocultar colunas e botões na hora do print */ }
 
         /* ==========================================
-           ASSISTENTE IA (WIDGET FLUTUANTE AJUSTADO PARA A ESQUERDA)
+           ASSISTENTE IA (WIDGET FLUTUANTE REPOSICIONADO)
         ========================================== */
+        
+        /* Uma leve sombra branca/translucida atrás dos botões para não confundir com os números */
+        .ai-widget-container {
+            position: fixed;
+            bottom: 40px;
+            left: 20%; 
+            z-index: 100000;
+        }
+
         .ai-widget-btn {
-            position: fixed; bottom: 30px; left: 30px; width: 60px; height: 60px; 
+            width: 60px; height: 60px; 
             background: linear-gradient(135deg, #10b981, #059669); color: white;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 24px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-            cursor: pointer; z-index: 100000; transition: transform 0.2s, box-shadow 0.2s; border: none;
+            font-size: 24px; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5), 0 0 0 10px rgba(255,255,255,0.7);
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: none;
         }
-        .ai-widget-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6); }
+        .ai-widget-btn:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.7), 0 0 0 10px rgba(255,255,255,0.8); }
         
         .ai-chat-panel {
-            position: fixed; bottom: 100px; left: 30px; width: 350px; height: 450px;
-            background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            display: flex; flex-direction: column; z-index: 100000; overflow: hidden;
+            position: absolute; bottom: 80px; left: 0; width: 380px; height: 480px;
+            background: white; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.25), 0 0 0 5px rgba(255,255,255,0.7);
+            display: flex; flex-direction: column; overflow: hidden;
             transform: translateY(20px); opacity: 0; pointer-events: none; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid var(--border);
         }
         .ai-chat-panel.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
         
@@ -176,8 +186,8 @@
         
         .ai-chat-messages { flex: 1; padding: 15px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; font-size: 13px; }
         
-        .msg-ia { background: white; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 10px 10px 10px 0; align-self: flex-start; max-width: 85%; color: #334155; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word;}
-        .msg-user { background: #d1fae5; color: #065f46; padding: 10px 15px; border-radius: 10px 10px 0 10px; align-self: flex-end; max-width: 85%; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word;}
+        .msg-ia { background: white; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 10px 10px 10px 0; align-self: flex-start; max-width: 85%; color: #334155; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word;}
+        .msg-user { background: #d1fae5; color: #065f46; padding: 10px 15px; border-radius: 10px 10px 0 10px; align-self: flex-end; max-width: 85%; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.02); word-wrap: break-word;}
         
         .ai-chat-input-area { padding: 12px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; }
         .ai-chat-input-area input { flex: 1; padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 20px; outline: none; font-size: 13px; }
@@ -246,20 +256,22 @@
         </div>
     </div>
 
-    <button class="ai-widget-btn" onclick="toggleAIChat()">✨</button>
-    <div class="ai-chat-panel" id="aiChatPanel">
-        <div class="ai-chat-header">
-            <h3>✨ Dexco Assistente IA</h3>
-            <button class="ai-chat-close" onclick="toggleAIChat()">&times;</button>
-        </div>
-        <div class="ai-chat-messages" id="aiChatMessages">
-            <div class="msg-ia">Olá! Eu analiso os dados do seu caixa em tempo real.<br><br>Você pode me pedir cálculos ou perguntar: <br><b>"Quais contas estão negativas hoje?"</b> ou <b>"Qual o saldo total do caixa?"</b></div>
-        </div>
-        <div class="ai-chat-input-area">
-            <input type="text" id="aiChatInput" placeholder="Pergunte ou peça um cálculo..." onkeypress="seEnterIA(event)">
-            <button onclick="enviarMensagemIA()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-            </button>
+    <div class="ai-widget-container">
+        <button class="ai-widget-btn" onclick="toggleAIChat()">✨</button>
+        <div class="ai-chat-panel" id="aiChatPanel">
+            <div class="ai-chat-header">
+                <h3>✨ Dexco Assistente IA</h3>
+                <button class="ai-chat-close" onclick="toggleAIChat()">&times;</button>
+            </div>
+            <div class="ai-chat-messages" id="aiChatMessages">
+                <div class="msg-ia">Olá! Eu analiso os dados do seu caixa em tempo real.<br><br>Você pode me pedir cálculos ou perguntar: <br><b>"Quais contas estão negativas hoje?"</b> ou <b>"Qual o saldo total do caixa?"</b></div>
+            </div>
+            <div class="ai-chat-input-area">
+                <input type="text" id="aiChatInput" placeholder="Pergunte ou peça um cálculo..." onkeypress="seEnterIA(event)">
+                <button onclick="enviarMensagemIA()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -562,6 +574,7 @@
                     let p = parseFloat(el.getAttribute('data-pendente')) || 0;
                     el.setAttribute('data-pendente', p + v);
 
+                    // SALVANDO NO HISTÓRICO PARA NÃO MISTURAR BANCOS
                     let bancoSelect = document.getElementById(`banco-${lid}-${cidx}`);
                     let bancoNome = bancoSelect && bancoSelect.value ? bancoSelect.value.toUpperCase() : "";
                     
@@ -1324,17 +1337,12 @@
             const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); link.download = `Caixa_Dexco_${diaAtivo.replace(/\//g, '-')}.csv`; link.click();
         }
 
-        window.onload = function() {
-            const passInput = document.getElementById('input-senha-login');
-            if (passInput) passInput.focus();
-        };
-
         // ==============================================
         // LÓGICA DO ASSISTENTE IA (GOOGLE GEMINI API)
         // ==============================================
         
         // ⚠️ COLOQUE SUA CHAVE DE API DO GEMINI AQUI (Começa com AIza)
-        const GEMINI_API_KEY = "AIzaSyDocC-5KZ1IFbjEf1qwRR4L1_7J0KL9rhM"; // <-- Cole sua chave inteira AQUI DENTRO DAS ASPAS
+        const GEMINI_API_KEY = "AIzaSyAfgDQf5KdxpBoOkW18qkP5JZOWk4Wz-JQ"; // <-- Cole sua chave inteira AQUI DENTRO DAS ASPAS
 
         function toggleAIChat() {
             const panel = document.getElementById('aiChatPanel');
@@ -1453,6 +1461,11 @@
                 return "Erro grave ao conectar com o Google Gemini. Verifique sua conexão ou se a chave informada é válida.";
             }
         }
+
+        window.onload = function() {
+            const passInput = document.getElementById('input-senha-login');
+            if (passInput) passInput.focus();
+        };
 
     </script>
 </body>
