@@ -1361,9 +1361,12 @@
             }
         }
 
-        function exportarCSV() {
+       function exportarCSV() {
             salvarEstadoLocal(); let diaDados = dadosPorDia[diaAtivo]; if(!diaDados) { alert("Nenhum dado."); return; }
-            let csv = "\uFEFFData;Empresa;Banco;Conta;Categoria da Linha;Tipo da Linha;Valor (R$);Banco Destino/Origem;Possui Pendencia?\n";
+            
+            // 1. Adicionamos a coluna "Código da Linha" para ser a nossa "impressão digital" blindada
+            let csv = "\uFEFFData;Empresa;Banco;Conta;Código da Linha;Categoria da Linha;Tipo da Linha;Valor (R$);Banco Destino/Origem;Possui Pendencia?\n";
+            
             Object.keys(empresasConfig).forEach(emp => {
                 if(!diaDados[emp]) return;
                 empresasConfig[emp].forEach((c, idx) => {
@@ -1374,57 +1377,65 @@
                         let tipoLegivel = l.tipo.includes('grupo-soma') ? 'Soma' : (l.tipo.includes('bg-') ? 'Totalizador' : 'Lançamento');
                         let pendente = contaDados[`pendente-${l.id}`] ? parseFloat(contaDados[`pendente-${l.id}`]) : 0;
                         let bancoDestino = contaDados[`banco-${l.id}`] || "";
-                        csv += `${diaAtivo};${emp};${c.b};${c.c};${l.nome};${tipoLegivel};${valFormatado};${bancoDestino};${pendente > 0 ? 'Sim' : 'Não'}\n`;
+                        
+                        // 2. Colocamos o l.id logo depois da Conta
+                        csv += `${diaAtivo};${emp};${c.b};${c.c};${l.id};${l.nome};${tipoLegivel};${valFormatado};${bancoDestino};${pendente > 0 ? 'Sim' : 'Não'}\n`;
                     });
                 });
             });
             const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); link.download = `Caixa_Dexco_${diaAtivo.replace(/\//g, '-')}.csv`; link.click();
         }
 
-        window.onload = function() {
-            const passInput = document.getElementById('input-senha-login');
-            if (passInput) passInput.focus();
-        };
         async function importarCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Mostra a tela de carregamento para o usuário não mexer enquanto lê
             document.getElementById('loading-overlay').style.display = 'flex';
             document.querySelector('#loading-overlay p').innerText = "Lendo arquivo e atualizando banco de dados...";
 
             const reader = new FileReader();
             reader.onload = async function(e) {
-                // Remove o caractere especial (BOM) se existir e divide as linhas
                 let text = e.target.result.replace(/^\uFEFF/, '');
-                const lines = text.split('\n');
+                const lines = text.split(/\r?\n/);
                 
                 let diasParaSalvar = new Set();
                 let mudouAlgo = false;
 
-                // Começa na linha 1 para ignorar o cabeçalho da tabela
+                // 3. O código descobre sozinho se você está importando o CSV novo (seguro) ou um velho
+                const isNovoFormato = lines[0].includes("Código");
+
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
 
-                    // Pega as colunas separadas por ponto e vírgula
                     const cols = line.split(';');
                     if (cols.length < 7) continue;
 
-                    const dataStr = cols[0];
-                    const empresa = cols[1];
-                    const banco = cols[2];
-                    const conta = cols[3];
-                    const catNome = cols[4];
-                    const valorStr = cols[6];
-                    const bancoDest = cols[7] || "";
+                    const dataStr = cols[0].trim();
+                    const empresa = cols[1].trim();
+                    const banco = cols[2].trim();
+                    const conta = cols[3].trim();
+                    
+                    let catId = "";
+                    let valorStr = "0,00";
+                    let bancoDest = "";
 
-                    // Acha a identificação (ID) da categoria pelo nome
-                    let catRow = plano.find(p => p.nome === catNome);
-                    if (!catRow) continue;
-                    let catId = catRow.id;
+                    if (isNovoFormato) {
+                        // Se for o CSV novo, ele confia cegamente na coluna 4 (O ID único)
+                        catId = cols[4].trim();
+                        valorStr = cols[7].trim();
+                        bancoDest = (cols[8] || "").trim();
+                    } else {
+                        // Se for um CSV velho que você já tinha salvo, ele tenta achar pelo nome (pode errar salários)
+                        const catNome = cols[4].trim();
+                        valorStr = cols[6].trim();
+                        bancoDest = (cols[7] || "").trim();
+                        let catRow = plano.find(p => p.nome === catNome);
+                        if (catRow) catId = catRow.id;
+                    }
 
-                    // Se a data do arquivo não existe ainda, cria ela no estado e no Banco
+                    if (!catId) continue;
+
                     if (!diasCadastrados.includes(dataStr)) {
                         diasCadastrados.push(dataStr);
                         dadosPorDia[dataStr] = {};
@@ -1433,19 +1444,16 @@
                     }
                     diasParaSalvar.add(dataStr);
 
-                    // Acha em qual coluna (índice) a conta se encaixa
                     if (!empresasConfig[empresa]) continue;
                     let cidx = empresasConfig[empresa].findIndex(c => c.b === banco && c.c === conta);
-                    if (cidx === -1) continue; // Conta não encontrada
+                    if (cidx === -1) continue; 
 
-                    // Garante que o objeto do dia/empresa existe na memória
                     if (!dadosPorDia[dataStr][empresa]) dadosPorDia[dataStr][empresa] = {};
                     if (!dadosPorDia[dataStr][empresa][cidx]) dadosPorDia[dataStr][empresa][cidx] = {};
 
-                    // Grava o valor
+                    // Grava pelo ID, então SALÁRIOS entrada e SALÁRIOS saída nunca mais vão brigar
                     dadosPorDia[dataStr][empresa][cidx][catId] = valorStr;
                     
-                    // Se tiver banco de destino/origem, grava também
                     if(bancoDest) {
                         dadosPorDia[dataStr][empresa][cidx][`banco-${catId}`] = bancoDest;
                     }
@@ -1453,23 +1461,20 @@
                 }
 
                 if (mudouAlgo) {
-                    // Pega o último dia lido e coloca na tela ativamente
                     let ultimoDia = Array.from(diasParaSalvar).pop();
-                    if(ultimoDia) diaAtivo = ultimoDia;
-                    
-                    carregarEstado(); // Atualiza os números visuais
-                    renderTabsDias(); // Atualiza a aba lá no topo
-                    
-                    // Dispara a função nativa para jogar tudo isso pro Supabase na mesma hora
+                    if(ultimoDia) {
+                        diaAtivo = ultimoDia;
+                        renderTabsDias();
+                        carregarEstado();
+                    }
                     await syncSupabase();
-                    
-                    alert("✅ Arquivo CSV importado e salvo no sistema com sucesso!");
+                    alert("✅ Arquivo CSV importado com sucesso! Os dados foram atualizados.");
                 } else {
                     alert("⚠️ Nenhum dado válido encontrado no arquivo para importar.");
                 }
                 
                 document.getElementById('loading-overlay').style.display = 'none';
-                event.target.value = ''; // Limpa o input do arquivo
+                event.target.value = ''; 
             };
             reader.readAsText(file, 'UTF-8');
         }
