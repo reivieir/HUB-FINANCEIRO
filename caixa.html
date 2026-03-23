@@ -565,7 +565,7 @@
         function getV(id, cidx) { let el = document.getElementById(`val-${id}-${cidx}`); return el ? parseMoeda(el.innerText) : 0; }
         function setV(id, cidx, val) { let el = document.getElementById(`val-${id}-${cidx}`); if(el) el.innerText = formatarMoeda(val); }
 
-      function recalcularColuna(idx) {
+        function recalcularColuna(idx) {
             // Mapeamos os "Cabeçalhos/Gavetas" de Entradas e Saídas
             const gavetasEntradas = ['sc', 'sco', 'so', 'sf', 'sint'];
             const gavetasSaidas = ['sfor', 'ssal', 'ssout', 'ssfin', 'ssint'];
@@ -629,26 +629,6 @@
             setV('calc', idx, calc);
 
             // Pinta o fundo de vermelho se a conta ficar negativa
-            let tdCalc = document.getElementById(`val-calc-${idx}`);
-            if (tdCalc) {
-                let cellTr = tdCalc.closest('td');
-                if (calc < 0) cellTr.classList.add('saldo-negativo'); 
-                else cellTr.classList.remove('saldo-negativo');
-            }
-
-            let marg = getV('marg', idx); 
-            setV('seg', idx, calc - marg);
-        }
-
-            // FECHAMENTO FINAL (Calcula os saldos da base da tabela)
-            setV('te', idx, total_entradas);
-            setV('tsai', idx, total_saidas);
-
-            let si = getV('si', idx);
-            let calc = si + total_entradas - total_saidas;
-            setV('calc', idx, calc);
-
-            // Pinta o fundo de vermelho se ficar negativo
             let tdCalc = document.getElementById(`val-calc-${idx}`);
             if (tdCalc) {
                 let cellTr = tdCalc.closest('td');
