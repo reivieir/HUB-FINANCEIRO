@@ -311,6 +311,16 @@
             </div>
         </div>
     </div>
+    <div id="modal-senha-exclusao" class="modal">
+        <div class="modal-content" style="max-width: 350px; text-align: center;">
+            <span class="close" onclick="fecharModalSenha()">&times;</span>
+            <h3 style="color: #c40000; margin-top:0; font-size: 16px;">Ação Restrita</h3>
+            <p style="font-size: 13px; color: #64748b; margin: 15px 0;">Digite a senha de administrador para excluir definitivamente o caixa do dia <b id="dia-excluir-label"></b>.</p>
+            <input type="password" id="input-senha-excluir" class="input-lancar" style="width: 100%; padding: 12px; font-size: 16px; text-align: center; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 4px;" placeholder="*** Senha ***" onkeypress="seEnterSenhaExcluir(event)">
+            <p id="msg-erro-exclusao" style="color: #c40000; font-size: 12px; height: 15px; margin-bottom: 10px;"></p>
+            <button class="btn-modal-acao" style="background: #ef4444; width: 100%; padding: 12px; font-size: 13px;" onclick="confirmarExclusaoComSenha()">CONFIRMAR EXCLUSÃO</button>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL = "https://spcpujmqnjtalupxzqpp.supabase.co";
@@ -1131,11 +1141,64 @@
             }
         }
 
-        async function excluirDiaDoBanco() {
-            if(confirm(`ATENÇÃO! Excluir a data [${diaAtivo}] DE FORMA DEFINITIVA DO BANCO DE DADOS?`)) {
+       //* async function excluirDiaDoBanco() {
+          //*  if(confirm(`ATENÇÃO! Excluir a data [${diaAtivo}] DE FORMA DEFINITIVA DO BANCO DE DADOS?`)) {
+             //*   await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
+                //*delete dadosPorDia[diaAtivo]; diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
+                //*diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); renderTabsDias();
+            //*}
+        //*}
+       function excluirDiaDoBanco() {
+            // Apenas abre a nossa janelinha segura e foca no campo de senha
+            if(confirm(`Tem certeza absoluta que deseja excluir o dia [${diaAtivo}]? Esta ação não tem volta.`)) {
+                document.getElementById('dia-excluir-label').innerText = diaAtivo;
+                document.getElementById('input-senha-excluir').value = '';
+                document.getElementById('msg-erro-exclusao').innerText = '';
+                document.getElementById('modal-senha-exclusao').style.display = 'flex';
+                setTimeout(() => document.getElementById('input-senha-excluir').focus(), 100);
+            }
+        }
+
+        function fecharModalSenha() {
+            document.getElementById('modal-senha-exclusao').style.display = 'none';
+        }
+
+        function seEnterSenhaExcluir(e) {
+            if(e.key === 'Enter') confirmarExclusaoComSenha();
+        }
+
+        async function confirmarExclusaoComSenha() {
+            const senhaDigitada = document.getElementById('input-senha-excluir').value.trim();
+            const msgErro = document.getElementById('msg-erro-exclusao');
+            
+            if(!senhaDigitada) { msgErro.innerText = "Digite a senha!"; return; }
+            msgErro.innerText = "Verificando...";
+            msgErro.style.color = "#64748b";
+
+            // Busca a senha no Supabase
+            const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_acesso').single();
+            
+            if (error || !data) { 
+                msgErro.innerText = "Erro ao validar a senha no servidor."; 
+                msgErro.style.color = "#c40000";
+                return; 
+            }
+
+            // Compara as senhas
+            if (senhaDigitada === data.valor) {
+                fecharModalSenha(); // Fecha a caixinha
                 await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
-                delete dadosPorDia[diaAtivo]; diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
-                diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); renderTabsDias();
+                delete dadosPorDia[diaAtivo]; 
+                diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
+                diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; 
+                carregarEstado(); 
+                renderTabsDias();
+                alert("Caixa do dia excluído com sucesso!");
+            } else {
+                msgErro.innerText = "Senha incorreta!"; 
+                msgErro.style.color = "#c40000";
+                document.getElementById('input-senha-excluir').value = '';
+                document.getElementById('input-senha-excluir').focus();
             }
         }
 
