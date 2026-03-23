@@ -12,9 +12,11 @@
         :root { 
             --primary: #002b45; 
             --danger: #c40000; 
-            --success: #10b981; 
+            --link: #0056b3; 
+            --bg: #f8fafc; 
             --border: #e2e8f0;
             --text: #334155;
+            --accent: #d97706; 
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -23,151 +25,138 @@
            MOLDE PADRÃO (FUNDO E MARGENS)
         ========================================== */
         html, body {
-            margin: 0; padding: 0; height: 100vh;
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
             background-color: #f0f2f5; 
             color: var(--text);
             overflow: hidden; 
         }
 
         body {
-            padding-top: 65px; /* ESPAÇO PARA O MENU FIXO */
+            padding-top: 65px; /* ESPAÇO PARA O MENU SUPERIOR FIXO */
             display: flex;
             flex-direction: column;
         }
 
         /* ==========================================
-           MENU SUPERIOR GLOBAL
+           TELA DE LOGIN E LOADING PADRÃO DO SISTEMA
+        ========================================== */
+        #login-screen { position: fixed; inset: 0; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 200000; }
+        .login-card { background: white; padding: 40px; border-radius: 8px; width: 320px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .login-card h2 { color: var(--primary); margin-bottom: 5px; font-weight: 700; }
+        .login-card p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+        .login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 4px; outline: none; text-align: center; font-size: 14px; }
+        .login-card input:focus { border-color: var(--accent); }
+        .login-card button { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; font-size: 14px; }
+        .login-card button:hover { background: #c2410c; }
+
+        #loading-overlay {
+            position: fixed; inset: 0; background: var(--primary); z-index: 100000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; color: white;
+        }
+        #loading-overlay h2 { margin-bottom: 10px; font-weight: 700; letter-spacing: 1px;}
+        #loading-overlay p { color: #94a3b8; font-size: 14px;}
+
+        /* ==========================================
+           MENU SUPERIOR GLOBAL (PADRÃO CAIXA)
         ========================================== */
         .hub-top-nav {
-            position: fixed;
-            top: 0; left: 0; width: 100%;
-            background-color: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-            height: 65px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100%; background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0; height: 65px; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 9999;
         }
         
-        .hub-logo-box {
-            display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 18px;
-        }
+        .hub-logo-box { display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 18px; }
         .hub-title { font-weight: 800; color: #0f172a; }
-        .hub-subtitle { font-weight: 700; color: #10b981; }
+        .hub-subtitle { font-weight: 700; color: var(--accent); }
 
         .hub-menu-links { display: flex; align-items: center; gap: 20px; }
-        
-        .hub-nav-item {
-            text-decoration: none; color: #475569; font-weight: 600; font-size: 13px; transition: 0.2s; padding: 5px 10px; border-radius: 6px;
-        }
-        .hub-nav-item:hover { color: #10b981; background-color: #f8fafc; }
-        .hub-nav-item.active { color: #10b981; } /* ABA ATIVA */
+        .hub-nav-item { text-decoration: none; color: #475569; font-weight: 600; font-size: 13px; transition: 0.2s; padding: 5px 10px; border-radius: 6px; }
+        .hub-nav-item:hover { color: var(--accent); background-color: #f8fafc; }
+        .hub-nav-item.active { color: var(--accent); } 
         
         .hub-nav-divider { width: 1px; height: 24px; background-color: #cbd5e1; margin: 0 5px; }
 
-        .hub-nav-ia {
-            text-decoration: none; color: #059669; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #ecfdf5; display: flex; align-items: center; gap: 6px; transition: 0.2s;
-        }
-        .hub-nav-ia:hover { background-color: #d1fae5; }
+        .hub-nav-ia { text-decoration: none; color: #c2410c; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 6px; background-color: #fff7ed; display: flex; align-items: center; gap: 6px; transition: 0.2s; border: none; cursor: pointer; outline: none; }
+        .hub-nav-ia:hover { background-color: #ffedd5; }
         
         .hub-user-box { display: flex; align-items: center; gap: 12px; }
         .hub-greeting { color: #475569; font-size: 13px; font-weight: 500; }
-        .hub-avatar {
-            width: 36px; height: 36px; background-color: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px;
-        }
+        .hub-avatar { width: 36px; height: 36px; background-color: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; }
 
         /* ==========================================
-           CONTEÚDO PRINCIPAL
+           O CARTÃO BRANCO PRINCIPAL DO SISTEMA E ZOOM
         ========================================== */
-        .container { 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            flex: 1; 
-            min-height: 0; 
-            overflow: hidden;
-        }
-
-        /* CABEÇALHO DA PÁGINA (AZUL) */
-        .header-blue {
-            background-color: var(--primary);
-            color: white;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 8px 8px 0 0;
-            flex-shrink: 0;
-        }
-        .header-title { font-size: 14px; font-weight: 400; letter-spacing: 0.5px;}
-        .header-btns { display: flex; gap: 10px; }
+        .zoom-wrapper { zoom: 0.8; display: flex; flex-direction: column; flex: 1; padding: 25px; overflow: hidden; }
         
-        .btn-export {
-            background: white; color: #333; border: 1px solid #ccc; padding: 6px 15px; cursor: pointer; font-size: 11px; font-weight: 600; border-radius: 3px; transition: 0.2s;
-        }
-        .btn-export:hover { background: #f0f0f0; }
-        .btn-logout {
-            background: var(--danger); color: white; border: none; padding: 6px 15px; cursor: pointer; font-size: 11px; font-weight: 600; border-radius: 3px; transition: 0.2s;
-        }
-        .btn-logout:hover { background: #a00000; }
-
-        /* CORPO BRANCO DA PÁGINA */
-        .app-body {
+        .app-wrapper {
+            flex: 1; 
             background: white;
-            border-radius: 0 0 8px 8px;
+            border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex;
+            display: none; /* Só mostra depois do login */
             flex-direction: column;
-            flex: 1;
-            padding: 20px;
-            min-height: 0;
+            overflow: hidden; 
+            min-height: 0; 
         }
 
-        .nav-bancos { 
-            display: flex; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; overflow-x: auto; flex-shrink: 0;
+        .app-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* ==========================================
+           CABEÇALHOS INTERNOS E BOTÕES ESCUROS
+        ========================================== */
+        .header-dexco { background-color: #002b45; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .header-dexco h1 { font-size: 14px; font-weight: 400; margin: 0; letter-spacing: 0.5px;}
+        
+        .header-actions { display: flex; gap: 10px; }
+        .btn-top-dark {
+            background: linear-gradient(145deg, #434343, #111111);
+            color: #ffffff;
+            border: 1px solid #222222;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            padding: 6px 15px; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            font-size: 11px; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
         }
-        .banco-link { 
-            padding: 8px 15px; cursor: pointer; font-weight: 600; border-radius: 4px; color: #64748b; text-transform: uppercase; font-size: 11px; white-space: nowrap; transition: 0.2s;
+        .btn-top-dark:hover {
+            background: linear-gradient(145deg, #555555, #222222);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            transform: translateY(-1px);
         }
+
+        .nav-bancos { background: white; display: flex; align-items: center; gap: 10px; overflow-x: auto; padding: 10px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .banco-link { padding: 6px 12px; cursor: pointer; color: #64748b; font-weight: 600; border-radius: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
         .banco-link:hover { color: var(--primary); }
         .banco-link.ativo { background: var(--primary); color: white; }
 
-        .kpis { display: flex; gap: 20px; margin-bottom: 20px; flex-shrink: 0;}
-        .kpi-card { background: #f8fafc; padding: 20px; border-radius: 6px; flex: 1; border: 1px solid var(--border); font-size: 12px; color: #64748b; font-weight: 600;}
-        .kpi { font-size: 28px; color: var(--primary); font-weight: 700; display: block; margin-top: 5px; line-height: 1; }
+        /* ==========================================
+           CONTEÚDO INTERNO E TABELA CONGELADA
+        ========================================== */
+        .main-container { padding: 20px; display: flex; flex-direction: column; flex: 1; min-height: 0; }
 
+        .kpis { display: flex; gap: 20px; margin-bottom: 20px; flex-shrink: 0;}
+        .kpi-card { background: white; padding: 20px; border-radius: 6px; flex: 1; border: 1px solid var(--border); font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .kpi { font-size: 28px; color: var(--primary); font-weight: 700; display: block; margin-top: 5px; line-height: 1; }
+        
         .controls { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; flex-shrink: 0;}
         .search-input { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 4px; outline: none; font-size: 13px;}
-        .search-input:focus { border-color: #0056b3; }
-        .btn-add { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;}
-        .btn-add:hover { background: #059669; }
+        .search-input:focus { border-color: var(--link); }
+        .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;}
+        .btn-add:hover { background: #218838; }
 
-        /* ==========================================
-           TABELA COM CABEÇALHO CONGELADO
-        ========================================== */
-        .table-container {
-            border: 1px solid var(--border); border-radius: 6px; 
-            overflow-y: auto; /* ROLAGEM AQUI */
-            flex: 1; 
-            position: relative; 
-        }
-
+        .table-container { background: white; border: 1px solid var(--border); border-radius: 6px; overflow-y: auto; flex: 1; position: relative; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
-        th { 
-            background: #f1f5f9; padding: 12px 15px; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 11px;
-            position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
-        tr:hover { background-color: #f8fafc; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
+        th { background: #f1f5f9; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 11px; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         tr:last-child td { border-bottom: none; }
-
-        .action-link { color: #0056b3; cursor: pointer; text-decoration: none; font-weight: 600; font-size: 12px; }
-        .action-link:hover { text-decoration: underline; }
-        .delete-link { color: var(--danger); margin-left: 10px; }
+        tr:hover { background-color: #f8fafc; }
         
+        .action-link { color: var(--link); text-decoration: none; cursor: pointer; font-weight: 600; margin: 0 5px; font-size: 12px; }
+        .action-link:hover { text-decoration: underline; }
+        .delete-link { color: var(--danger); margin-left: 10px;}
+
         .btn-unlock-top {
             background: none; border: 1px solid #cbd5e1; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; color: #64748b; margin-left: 10px; transition: 0.2s;
         }
@@ -177,18 +166,19 @@
         /* ==========================================
            MODAIS
         ========================================== */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 10000; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 10000; }
         .modal-content { background: white; padding: 25px; border-radius: 8px; width: 450px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .modal-content h3 { margin-top: 0; margin-bottom: 15px; color: var(--primary); font-size: 16px;}
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
         .modal-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
         .modal-field label { font-size: 12px; font-weight: 600; color: #475569; }
-        .modal-field input { padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; outline: none;}
-        .modal-field input:focus { border-color: #0056b3; }
+        .modal-field input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px; outline: none; font-size: 13px;}
+        .modal-field input:focus { border-color: var(--link); }
         
-        .modal-footer { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-save { flex: 1; padding: 10px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;}
-        .btn-save:hover { background: #059669; }
-        .btn-cancel { flex: 1; padding: 10px; background: #e2e8f0; color: var(--text); border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;}
+        .modal-btns { display:flex; gap:10px; margin-top: 20px; }
+        .btn-save { flex:1; padding:10px; background: #28a745; color: white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size: 12px;}
+        .btn-save:hover { background: #218838; }
+        .btn-cancel { flex:1; padding:10px; background: #e2e8f0; color: var(--text); border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size: 12px;}
         .btn-cancel:hover { background: #cbd5e1; }
         
         .btn-confirm { flex: 1; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;}
@@ -197,75 +187,85 @@
 </head>
 <body>
 
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>DEXCO ASSIST</h2>
+            <p>Conciliação Bancária</p>
+            <input type="password" id="input-senha-login" placeholder="Senha de Conciliação" onkeypress="handleEnterLogin(event)">
+            <button onclick="entrar()">ENTRAR NO PAINEL</button>
+            <p id="login-msg" style="color: #c40000; font-size: 12px; margin-top: 15px; height: 15px;"></p>
+        </div>
+    </div>
+
+    <div id="loading-overlay">
+        <h2>DEXCO ASSIST</h2>
+        <p>Sincronizando banco de dados...</p>
+    </div>
+
     <header class="hub-top-nav">
         <a href="index.html" class="hub-logo-box">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                <line x1="8" y1="21" x2="16" y2="21"></line>
-                <line x1="12" y1="17" x2="12" y2="21"></line>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>
             </svg>
-            <span class="hub-title">DEXCO</span> <span class="hub-subtitle">Plataforma Financeira</span>
+            <span class="hub-title">DEXCO</span> <span class="hub-subtitle">Hub Financeiro</span>
         </a>
-        
         <nav class="hub-menu-links">
             <a href="conciliacao.html" class="hub-nav-item active">CONCILIAÇÃO BANCÁRIA</a>
             <a href="bancos.html" class="hub-nav-item">GESTÃO DE BANCOS</a>
             <a href="caixa.html" class="hub-nav-item">GESTÃO DE CAIXA</a>
             <a href="protestos.html" class="hub-nav-item">PROTESTOS</a>
-            
-            
             <div class="hub-nav-divider"></div>
-            <a href="index.html" class="hub-nav-ia">✨ Assistente IA</a>
+            <a href="caixa.html" class="hub-nav-ia">✨ Assistente IA</a>
         </nav>
-
-        <div class="hub-user-box">
-            <span class="hub-greeting">Olá, Operador</span>
-            <div class="hub-avatar">O</div>
-        </div>
+        <div class="hub-user-box"><span class="hub-greeting">Olá, Analista</span><div class="hub-avatar">A</div></div>
     </header>
 
-    <div class="container">
-        <div class="header-blue">
-            <div class="header-title">Dexco S.A - Conciliação Bancária</div>
-            <div class="header-btns">
-                <button class="btn-export" onclick="exportarCSV()">Exportar CSV</button>
-                <button class="btn-logout" onclick="window.parent.location.reload()">Sair / Bloquear</button>
-            </div>
-        </div>
+    <div class="zoom-wrapper">
+        <div id="app" class="app-wrapper">
+            <header class="header-dexco">
+                <h1>Dexco S.A - Conciliação Bancária</h1>
+                <div class="header-actions">
+                    <button class="btn-top-dark" onclick="exportarCSV()">📥 Exportar CSV</button>
+                    <button class="btn-top-dark" onclick="sair()">🔒 Sair / Bloquear</button>
+                </div>
+            </header>
 
-        <div class="app-body">
-            <div class="nav-bancos" id="nav-bancos"></div>
+            <div class="app-content">
+                <div class="nav-bancos" id="nav-bancos"></div>
 
-            <div class="kpis">
-                <div class="kpi-card">TOTAL GERAL<br><span class="kpi" id="total">0</span></div>
-                <div class="kpi-card"><span id="kpi-label">TODOS</span><br><span class="kpi" id="total-f">0</span></div>
-            </div>
+                <div class="main-container">
+                    <div class="kpis">
+                        <div class="kpi-card">TOTAL GERAL<br><span class="kpi" id="total">0</span></div>
+                        <div class="kpi-card"><span id="kpi-label">TODOS</span><br><span class="kpi" id="total-f" style="color: var(--accent);">0</span></div>
+                    </div>
 
-            <div class="controls">
-                <input type="text" id="busca" class="search-input" placeholder="Buscar Empresa ou CNPJ..." oninput="render()">
-                <button class="btn-add" onclick="abrirModal()">+ INCLUIR NOVO</button>
-            </div>
+                    <div class="controls">
+                        <input type="text" id="busca" class="search-input" placeholder="Buscar Empresa ou CNPJ..." oninput="render()">
+                        <button class="btn-add" onclick="abrirModal()">+ INCLUIR NOVO</button>
+                    </div>
 
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Empresa</th><th>Contas</th><th>CNPJ</th><th>Banco</th><th>Razão Débito</th><th>Razão Crédito</th><th>Razão Mov.</th>
-                            <th style="text-align:center; min-width: 180px;">
-                                Ações 
-                                <button id="btnUnlock" class="btn-unlock-top" onclick="abrirModalSeguranca()">🔓 DESBLOQUEAR</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaCorpo"></tbody>
-                </table>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Empresa</th><th>Contas</th><th>CNPJ</th><th>Banco</th><th>Razão Débito</th><th>Razão Crédito</th><th>Razão Mov.</th>
+                                    <th style="text-align:center; min-width: 180px;">
+                                        Ações 
+                                        <button id="btnUnlock" class="btn-unlock-top" onclick="abrirModalSeguranca()">🔓 DESBLOQUEAR</button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaCorpo"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="modal" class="modal">
         <div class="modal-content">
-            <h3 id="modal-titulo" style="margin-top:0; margin-bottom:15px; color:var(--primary); font-size: 16px;">Nova Configuração</h3>
+            <h3 id="modal-titulo">Nova Configuração</h3>
             <input type="hidden" id="m-id">
             <div class="modal-field"><label>Empresa</label><input type="text" id="m-empresa"></div>
             <div class="modal-grid">
@@ -278,7 +278,7 @@
                 <div class="modal-field"><label>Razão Crédito</label><input type="text" id="m-raz-cre"></div>
             </div>
             <div class="modal-field"><label>Razão Movimento</label><input type="text" id="m-raz-mov"></div>
-            <div class="modal-footer">
+            <div class="modal-btns">
                 <button class="btn-save" onclick="salvar()">SALVAR</button>
                 <button class="btn-cancel" onclick="fecharModal()">CANCELAR</button>
             </div>
@@ -292,7 +292,7 @@
             <div class="modal-field" style="text-align: left;">
                 <input type="password" id="input-senha-segura" placeholder="Senha do Sistema" onkeypress="if(event.key==='Enter') validarSenhaSegura()">
             </div>
-            <div class="modal-footer">
+            <div class="modal-btns">
                 <button class="btn-confirm" onclick="validarSenhaSegura()">CONFIRMAR</button>
                 <button class="btn-cancel" onclick="fecharModalSeguranca()">VOLTAR</button>
             </div>
@@ -308,10 +308,52 @@
         let bancoSel = "";
         let sistemaDesbloqueado = false;
 
+        // LÓGICA DE LOGIN COM A TABELA CONFIGURACOES_SISTEMA (CHAVE: senha_conciliacao)
+        function handleEnterLogin(e) { if(e.key === "Enter") entrar(); }
+
+        async function entrar() {
+            const senhaDigitada = document.getElementById("input-senha-login").value.trim();
+            const msg = document.getElementById("login-msg");
+
+            if(!senhaDigitada) {
+                msg.innerText = "Por favor, digite a senha!";
+                return;
+            }
+
+            msg.innerText = "Autenticando...";
+            msg.style.color = "#64748b";
+
+            // Busca a senha da Conciliação na tabela configuracoes_sistema
+            const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_conciliacao').single();
+
+            if (error || !data) {
+                msg.innerText = "Erro: Crie a chave 'senha_conciliacao' no Supabase!";
+                msg.style.color = "#c40000";
+                return;
+            }
+
+            if (senhaDigitada === data.valor) {
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("loading-overlay").style.display = "flex";
+                carregar();
+            } else {
+                msg.innerText = "Senha incorreta!";
+                msg.style.color = "#c40000";
+                document.getElementById("input-senha-login").value = "";
+                document.getElementById("input-senha-login").focus();
+            }
+        }
+
+        function sair() { location.reload(); }
+
         async function carregar() {
             const { data, error } = await sb.from("conciliacao_bancaria").select("*");
+            
+            document.getElementById("loading-overlay").style.display = "none";
+            
             if (error) { console.error("Erro:", error.message); return; }
             dados = data || [];
+            document.getElementById("app").style.display = "flex"; 
             render();
         }
 
@@ -328,7 +370,7 @@
 
             document.getElementById("tabelaCorpo").innerHTML = lista.map(i => `
                 <tr>
-                    <td style="font-weight: 500;">${i.empresa_nome || ""}</td>
+                    <td style="font-weight: 600;">${i.empresa_nome || ""}</td>
                     <td>${i.conta_numero || ""}</td>
                     <td>${i.cnpj || ""}</td>
                     <td>${i.banco_nome || ""}</td>
@@ -345,7 +387,7 @@
             atualizarNav();
         }
 
-        /* FUNÇÕES DO MODAL DE SEGURANÇA */
+        /* FUNÇÕES DO MODAL DE SEGURANÇA PARA EDIÇÃO */
         function abrirModalSeguranca() {
             if (sistemaDesbloqueado) {
                 sistemaDesbloqueado = false;
@@ -361,6 +403,8 @@
             document.getElementById("modal-seguranca").style.display = "none";
         }
 
+        // A senha de edição interna aqui ainda está hardcoded como "Dexco2026",
+        // caso queira buscar do banco também, basta adaptar como fizemos no login.
         function validarSenhaSegura() {
             const senha = document.getElementById("input-senha-segura").value;
             if (senha === "Dexco2026") {
@@ -443,7 +487,10 @@
             link.click();
         }
 
-        carregar();
+        window.onload = function() {
+            const passInput = document.getElementById('input-senha-login');
+            if (passInput) passInput.focus();
+        };
     </script>
 </body>
 </html>
