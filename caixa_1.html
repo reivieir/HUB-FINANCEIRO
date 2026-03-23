@@ -1131,11 +1131,44 @@
             }
         }
 
+       //* async function excluirDiaDoBanco() {
+          //*  if(confirm(`ATENÇÃO! Excluir a data [${diaAtivo}] DE FORMA DEFINITIVA DO BANCO DE DADOS?`)) {
+             //*   await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
+                //*delete dadosPorDia[diaAtivo]; diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
+                //*diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); renderTabsDias();
+            //*}
+        //*}
         async function excluirDiaDoBanco() {
             if(confirm(`ATENÇÃO! Excluir a data [${diaAtivo}] DE FORMA DEFINITIVA DO BANCO DE DADOS?`)) {
-                await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
-                delete dadosPorDia[diaAtivo]; diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
-                diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; carregarEstado(); renderTabsDias();
+                
+                // 1. Pede a senha para o usuário
+                let senhaConfirmacao = prompt("Ação Restrita: Digite a senha do sistema para autorizar a exclusão:");
+                
+                // Se o usuário clicar em "Cancelar" no aviso, interrompe tudo
+                if (senhaConfirmacao === null) return; 
+                
+                // 2. Vai no Supabase e busca a senha oficial para comparar
+                const { data, error } = await sb.from('configuracoes_sistema').select('valor').eq('chave', 'senha_acesso').single();
+                
+                if (error || !data) { 
+                    alert("Erro ao validar a senha com o servidor."); 
+                    return; 
+                }
+
+                // 3. Compara as senhas
+                if (senhaConfirmacao === data.valor) {
+                    // Senha correta! Executa a exclusão
+                    await sb.from('caixa_dias').delete().eq('nome_dia', diaAtivo); 
+                    delete dadosPorDia[diaAtivo]; 
+                    diasCadastrados = diasCadastrados.filter(d => d !== diaAtivo);
+                    diaAtivo = diasCadastrados.length > 0 ? diasCadastrados[diasCadastrados.length - 1] : null; 
+                    carregarEstado(); 
+                    renderTabsDias();
+                    alert("Caixa do dia excluído com sucesso!");
+                } else {
+                    // Senha errada
+                    alert("Senha incorreta! Exclusão bloqueada por segurança.");
+                }
             }
         }
 
