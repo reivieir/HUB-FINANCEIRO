@@ -346,7 +346,9 @@
             }
         });
 
-        // Executar extração enviando para a API e exibindo erro real
+        // ================================================================
+        // AQUI CONTINUA APONTANDO PARA A API ESPECÍFICA DE COMANDOS (AEVEE)
+        // ================================================================
         async function executarExtracaoIA() {
             if (!modalImagemBase64) {
                 alert("Por favor, cole a imagem do documento primeiro usando Ctrl+V.");
@@ -478,7 +480,10 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             try {
-                const response = await fetch('/api/chat-aevee', {
+                // ================================================================
+                // AQUI FOI ALTERADO: VOLTOU A APONTAR PARA O /api/chat ORIGINAL!
+                // ================================================================
+                const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ history: historicoChat })
