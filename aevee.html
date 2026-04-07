@@ -109,7 +109,7 @@
 <body>
 
     <header class="top-navbar">
-        <a href="index.html" class="logo">
+        <a href="../index.html" class="logo">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
             DEXCO <span>Hub Financeiro</span>
         </a>
@@ -121,7 +121,7 @@
             <a href="protestos.html">PROTESTOS</a>
             <a href="aevee.html" class="active">PORTAL AEVEE</a>
             <div style="width: 1px; height: 20px; background-color: #cbd5e1; margin: 0 5px;"></div>
-            <a href="index.html">✨ Assistente IA</a>
+            <a href="../index.html">✨ Assistente IA</a>
         </nav>
 
         <div class="user-profile">
@@ -204,7 +204,6 @@
                 texto: `Caro Fornecedor,\n\nPara dar início ao processo de adesão ao Risco Sacado, solicitamos que, primeiramente, entre em contato com o comprador responsável pela sua negociação. Ele será o seu ponto de apoio inicial e disponibilizará todas as informações necessárias para a adesão ao programa.\n\nNo primeiro contato entre você e o comprador parceiro, serão tratadas as condições comerciais obrigatórias para participação no Risco Sacado. Após a definição e aprovação dessas condições pelo comprador, solicitamos que siga o fluxo descrito abaixo:\n\n1ª Etapa – Solicitação de acesso\nAcessar o endereço: https://www.cervelloesm.com.br/Dexco/Portal/Home\nNavegar por: Home > Catálogo de serviços > CSC > CoE CSC > Atendimento ao Cervello > Solicitação de acesso ao Cervello CSC\nApós essa solicitação, o chamado seguirá para aprovação dos administradores internos.\n\n2ª Etapa – Liberação do Perfil de Antecipação de Recebíveis\nApós a aprovação da 1ª etapa, acessar novamente o portal: https://www.cervelloesm.com.br/Dexco/Portal/Home\nNavegar por: Home > Catálogo de Serviços > CSC > Tesouraria > Liberação Perfil de Antecipação de Recebíveis.\nPreencha todas as informações solicitadas para abertura do chamado. Após isso, o chamado será encaminhado ao comprador responsável, para aprovação do chamado.\nEle aprovando, o chamado seguirá para a área de Tesouraria, que realizará a análise da documentação enviada. Estando tudo conforme, o acesso ao portal de antecipações será liberado. Enviaremos usuário e senha.\n\nDocumentação obrigatória:\n- Contrato Social / Estatuto Social / Ata de Eleição da Diretoria\n- Procuração, quando o solicitante não for administrador legal\n- RG e CPF (ou CNH) do representante legal ou procurador\n- Ficha cadastral completa da Junta Comercial, atualizada e contendo o último arquivamento\n- Termo de Responsabilidade, quando houver assinatura conjunta e necessidade de autorização de assinatura isolada\nSomente serão analisados chamados que contenham todos os documentos obrigatórios anexados.\n\nPrazo de atendimento: Até 5 dias úteis.\n\nAtenciosamente,\nGrupo Dexco`
             },
             {
-                // COMANDO NOVO PARA EXTRAÇÃO DE IMAGEM
                 id: 'extrair', titulo: 'Extrair (Imagem IA)', tipo: 'imagem_ia',
                 promptIA: `Por favor, analise a imagem fornecida (documento de identificação). Extraia e me responda APENAS com estes dados estruturados da seguinte forma:\nNOME: [nome em MAIÚSCULO]\nRG: [apenas números]\nCPF: [apenas números]`
             },
@@ -340,7 +339,7 @@
             }
         });
 
-        // Executar extração enviando para a NOVA API AEVEE (/api/chat-aevee)
+        // Executar extração enviando para a API e exibindo erro real
         async function executarExtracaoIA() {
             if (!modalImagemBase64) {
                 alert("Por favor, cole a imagem do documento primeiro usando Ctrl+V.");
@@ -365,7 +364,6 @@
                     ]
                 };
 
-                // AQUI ESTÁ A MUDANÇA: Apontando para o arquivo chat-aevee.js que criamos!
                 const response = await fetch('/api/chat-aevee', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -374,6 +372,11 @@
 
                 const data = await response.json();
                 
+                // SE DEU ERRO NO BACKEND, JOGA O ERRO PARA A TELA
+                if (data.error) {
+                    throw new Error(data.error); 
+                }
+
                 if (data.reply) {
                     document.getElementById('modalImageArea').style.display = 'none';
                     document.getElementById('modalTextAreaContainer').style.display = 'block';
@@ -382,13 +385,12 @@
                     btnAcao.textContent = "📋 Copiar Texto";
                     btnAcao.disabled = false;
                     btnAcao.onclick = () => copiarTextoDoModal();
-                } else {
-                    throw new Error("Sem resposta");
                 }
 
             } catch (error) {
                 console.error(error);
-                alert("Erro ao extrair dados. O servidor da IA pode estar indisponível.");
+                // AQUI MOSTRA A MENSAGEM REAL DE ERRO DO SERVIDOR PARA NÓS
+                alert("Erro ao extrair dados: " + error.message);
                 btnAcao.textContent = "Tentar Novamente";
                 btnAcao.disabled = false;
             }
@@ -471,7 +473,6 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             try {
-                // AQUI TAMBÉM: Atualizado para o novo motor
                 const response = await fetch('/api/chat-aevee', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
