@@ -758,7 +758,29 @@ Caso não haja confirmação de que todas as baixas foram devidamente efetuadas,
 19.2.	Variação cambial negativa – Chave 40 – Conta: 7001310
 19.3.	Comissão de agente – Chave 40 – Conta: 7001313
 19.4.	Tarifa Bancária – Chave 40 – Conta 7001300
-
+[PORTAL DE FORNECEDORES E ANTECIPAÇÃO (AEVEE)]
+- O portal de fornecedores é o mesmo que o de antecipação? O portal é o mesmo, porém, com formas de disponibilização de acessos diferentes.
+- Solicitar acesso (Contas a Pagar): No primeiro cadastro com a DEXCO, o sistema envia e-mail com dados de acesso. Se não receber, abrir chamado: https://www.cervelloesm.com.br/Dexco/ - Catálogo de serviços/ CSC / Tesouraria - Fila Solicitação de Usuário e Senha - Portal de Fornecedores.
+- Solicitar acesso (Antecipação de Recebíveis): Contatar o comprador responsável e pedir inclusão na fila Cervello – CSC – Tesouraria – Liberação Perfil de Antecipação de Recebíveis. Encaminhar documentação e aguardar análise.
+- Primeiro acesso: Acessar https://portaldexco.aevee.com.br/login informar usuário e senha recebido no email.
+- Recuperar senha bloqueada ou esquecida: Acessar https://portaldexco.aevee.com.br/login e clicar em "Esqueceu a Senha". Se o erro persistir, abrir chamado na Fila Solicitação de Usuário e Senha - Portal de Fornecedores.
+- Quem pode solicitar antecipação: Apenas o representante legal da empresa (sócio/administrador) ou procurador com procuração válida.
+- Usuários por filial: O acesso é liberado por raiz de CNPJ. Mais de uma raiz de CNPJ ativa com a DEXCO exige mais de um acesso.
+- Documentos para antecipação: Contrato Social, Procuração (se necessário), RG/CPF do representante delegado e Ficha cadastral completa da junta atualizada com o último arquivamento. Falta ou validade vencida barra a liberação.
+- Visualizar notas no portal: Sim, na aba Contas a Pagar (pagas, a pagar, comprovantes). É possível extrair planilha.
+- Nota fiscal não aparece: Toda nota escriturada (lançada) está disponível. Caso não esteja, verificar o status no portal V360 ou contatar o comprador parceiro.
+- Prazo para título ficar disponível: 3 dias completos após a escrituração e 7 dias antes da data de vencimento.
+- Consultar títulos: É possível consultar notas pagas, vencidas e a vencer a partir de 01/07/2023. Comprovantes a partir de 18/06/2025.
+- Nota com valor errado: Abrir chamado na fila de contas a pagar e contatar comprador.
+- Como solicitar antecipação: A Dexco enviou um manual. Se não recebeu, contatar suporte.
+- Limite mínimo/máximo por operação: Não existe.
+- Antecipação aprovada mas não recebi (status APROVADO): A aprovação no portal indica validação interna da Dexco. O banco ainda fará análise e pode rejeitar. Acionar o comprador para avaliar a inconsistência junto ao banco.
+- Prazo para o crédito cair na conta: Até as 17h do dia.
+- Horário de funcionamento do portal: Das 10h às 14h.
+- Cadastrar mais de uma conta bancária ou de terceiros: Não. Apenas uma conta. O titular deve ser exatamente o mesmo CNPJ do cadastro junto à Dexco. Não pode ser de terceiros.
+- Alterar dados bancários e cadastrais: Solicitar ao comprador parceiro.
+- Erro no portal: Sempre falar com o comprador parceiro para direcionamento.
+- Prazo (SLA) para chamado de liberação de recebíveis: 5 dias úteis.
 
 
  
