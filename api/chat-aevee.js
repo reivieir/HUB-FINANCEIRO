@@ -1,6 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 
+// 1. Aumenta o limite de upload para aceitar imagens maiores (Padrão do Vercel é 1MB)
+export const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '4mb',
+        },
+    },
+};
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Método não permitido' });
@@ -10,20 +19,23 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY; 
 
     if (!apiKey) {
-        return res.status(500).json({ error: 'A chave da API não foi encontrada.' });
+        return res.status(500).json({ error: 'Chave da API não encontrada no Vercel.' });
     }
 
     try {
-        const filePath = path.join(process.cwd(), 'conhecimento.txt');
-        const baseDeConhecimento = fs.readFileSync(filePath, 'utf8');
+        // 2. Lê o conhecimento (com proteção caso o arquivo falhe)
+        let baseDeConhecimento = '';
+        try {
+            const filePath = path.join(process.cwd(), 'conhecimento.txt');
+            baseDeConhecimento = fs.readFileSync(filePath, 'utf8');
+        } catch (fileErr) {
+            console.warn("Aviso: conhecimento.txt não lido no chat-aevee.", fileErr);
+        }
 
-        // Mapeia o histórico aceitando textos e imagens
+        // 3. Monta o pacote de texto + imagem para o Google
         const formattedContents = history.map(msg => {
             const parts = [];
-            
-            if (msg.text && msg.text.trim() !== '') {
-                parts.push({ text: msg.text });
-            }
+            if (msg.text) parts.push({ text: msg.text });
             
             if (msg.image && msg.image.data) {
                 parts.push({
@@ -33,14 +45,10 @@ export default async function handler(req, res) {
                     }
                 });
             }
-
-            return {
-                role: msg.role, 
-                parts: parts
-            };
+            return { role: msg.role, parts: parts };
         });
 
-        // CORREÇÃO: Usando a versão oficial e estável (1.5-flash)
+        // 4. Envia para o modelo oficial 1.5-flash
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -49,16 +57,14 @@ export default async function handler(req, res) {
                     parts: [{ text: baseDeConhecimento }]
                 },
                 contents: formattedContents
-                // Removi a busca na web (tools) para evitar que a IA bloqueie a leitura de CPFs por segurança
             })
         });
 
         const data = await response.json();
         
-        // Se o Google reclamar (ex: imagem borrada ou bloqueio de segurança)
-        if (data.error) {
-            console.error("Erro retornado pelo Google Gemini:", data.error.message);
-            throw new Error(data.error.message);
+        if (!response.ok || data.error) {
+            console.error("Erro retornado pelo Google Gemini:", data.error);
+            return res.status(400).json({ error: data.error?.message || 'Bloqueio na API do Google Gemini.' });
         }
 
         const aiReply = data.candidates[0].content.parts[0].text;
@@ -66,6 +72,6 @@ export default async function handler(req, res) {
         
     } catch (error) {
         console.error("Erro fatal no chat-aevee.js:", error);
-        res.status(500).json({ error: 'Erro ao processar a mensagem.' });
+        res.status(500).json({ error: error.message || 'Erro interno no servidor Vercel (Payload muito grande ou falha de rede).' });
     }
 }
