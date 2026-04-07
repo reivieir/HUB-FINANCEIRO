@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-// 1. Aumenta o limite de upload para aceitar imagens maiores (Padrão do Vercel é 1MB)
+// 1. Libera o limite do Vercel para aceitar imagens de até 4MB (A mágica que funcionou!)
 export const config = {
     api: {
         bodyParser: {
@@ -23,7 +23,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 2. Lê o conhecimento (com proteção caso o arquivo falhe)
         let baseDeConhecimento = '';
         try {
             const filePath = path.join(process.cwd(), 'conhecimento.txt');
@@ -32,10 +31,13 @@ export default async function handler(req, res) {
             console.warn("Aviso: conhecimento.txt não lido no chat-aevee.", fileErr);
         }
 
-        // 3. Monta o pacote de texto + imagem para o Google
+        // Mapeia o histórico aceitando textos e imagens
         const formattedContents = history.map(msg => {
             const parts = [];
-            if (msg.text) parts.push({ text: msg.text });
+            
+            if (msg.text && msg.text.trim() !== '') {
+                parts.push({ text: msg.text });
+            }
             
             if (msg.image && msg.image.data) {
                 parts.push({
@@ -45,11 +47,15 @@ export default async function handler(req, res) {
                     }
                 });
             }
-            return { role: msg.role, parts: parts };
+
+            return {
+                role: msg.role, 
+                parts: parts
+            };
         });
 
-        // 4. Envia para o modelo oficial 1.5-flash
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        // CORREÇÃO FINAL: Usando a versão 2.5-flash (A versão 1.5 foi aposentada pelo Google)
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -72,6 +78,6 @@ export default async function handler(req, res) {
         
     } catch (error) {
         console.error("Erro fatal no chat-aevee.js:", error);
-        res.status(500).json({ error: error.message || 'Erro interno no servidor Vercel (Payload muito grande ou falha de rede).' });
+        res.status(500).json({ error: error.message || 'Erro interno no servidor Vercel.' });
     }
 }
