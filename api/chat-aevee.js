@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-// 1. Libera o limite do Vercel para aceitar imagens de até 4MB (A mágica que funcionou!)
+// Libera o limite do Vercel para aceitar imagens de até 4MB
 export const config = {
     api: {
         bodyParser: {
@@ -40,9 +40,15 @@ export default async function handler(req, res) {
             }
             
             if (msg.image && msg.image.data) {
+                // TRAVA DE SEGURANÇA: Se o formato vier vazio, força ser um PNG
+                let finalMimeType = msg.image.mimeType;
+                if (!finalMimeType || finalMimeType.trim() === '') {
+                    finalMimeType = 'image/png';
+                }
+
                 parts.push({
                     inlineData: {
-                        mimeType: msg.image.mimeType,
+                        mimeType: finalMimeType,
                         data: msg.image.data
                     }
                 });
@@ -54,7 +60,7 @@ export default async function handler(req, res) {
             };
         });
 
-        // CORREÇÃO FINAL: Usando a versão 2.5-flash (A versão 1.5 foi aposentada pelo Google)
+        // Usando a versão 2.5-flash
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
