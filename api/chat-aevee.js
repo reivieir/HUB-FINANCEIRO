@@ -76,7 +76,14 @@ export default async function handler(req, res) {
         
         if (!response.ok || data.error) {
             console.error("Erro retornado pelo Google Gemini:", data.error);
-            return res.status(400).json({ error: data.error?.message || 'Bloqueio na API do Google Gemini.' });
+            
+            // TRADUTOR DE ERROS DO GOOGLE PARA OS OPERADORES
+            let mensagemErro = data.error?.message || 'Bloqueio na API do Google Gemini.';
+            if (mensagemErro.toLowerCase().includes('quota') || mensagemErro.toLowerCase().includes('limit')) {
+                mensagemErro = 'Limite de velocidade atingido (Sistema Anti-Spam). Por favor, aguarde 10 segundos e clique em Extrair novamente.';
+            }
+            
+            return res.status(400).json({ error: mensagemErro });
         }
 
         const aiReply = data.candidates[0].content.parts[0].text;
