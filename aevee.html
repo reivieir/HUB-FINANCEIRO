@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Financeiro - Portal AEVEE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ==================================================================
+           1. VARIÁVEIS E BASE (Igual ao seu Index)
+        ================================================================== */
+        :root {
+            --bg-color: #f0f2f5;       
+            --topbar-bg: #ffffff;      
+            --text-main: #1e293b;      
+            --text-light: #64748b;     
+            --accent-color: #d97706; 
+            --border-color: #e2e8f0;   
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); 
+        }
+
+        html, body {
+            margin: 0; padding: 0; height: 100vh; overflow: hidden; 
+            background-color: var(--bg-color); font-family: 'Inter', sans-serif;
+            color: var(--text-main); display: flex; flex-direction: column;
+        }
+
+        /* ==================================================================
+           2. MENU HORIZONTAL GLOBAL
+        ================================================================== */
+        .top-navbar {
+            background-color: var(--topbar-bg); display: flex; align-items: center;
+            justify-content: space-between; padding: 0 30px; height: 65px; flex-shrink: 0;
+            box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--border-color); z-index: 100;
+        }
+        .logo { font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 10px; color: #0f172a; text-decoration: none; }
+        .logo span { color: var(--accent-color); font-weight: 700; }
+        .nav-links { display: flex; gap: 5px; height: 100%; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-light); font-size: 0.9rem; font-weight: 600; padding: 8px 14px; border-radius: 6px; transition: all 0.2s ease; }
+        .nav-links a:hover { color: var(--accent-color); background-color: #f8fafc; }
+        .nav-links a.active { color: var(--accent-color); background-color: #fff7ed; font-weight: 600; }
+        .nav-links a.active-ia { color: #c2410c; background-color: #fff7ed; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .user-profile { font-size: 0.85rem; color: var(--text-light); display: flex; align-items: center; gap: 10px; font-weight: 500; }
+        .user-profile div { width: 36px; height: 36px; background-color: var(--accent-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; }
+
+        /* ==================================================================
+           3. LAYOUT DA PÁGINA AEVEE (CHAT + COMANDOS)
+        ================================================================== */
+        .content { flex: 1; padding: 20px 30px; overflow: hidden; display: flex; gap: 20px; }
+
+        /* CHAT IA (Centro/Esquerda) */
+        .chat-section { flex: 1; display: flex; flex-direction: column; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); overflow: hidden; }
+        .chat-header-full { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-color); background: #fff;}
+        .chat-header-full h2 { margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--text-main);}
+        .new-chat-btn { background-color: #f1f5f9; color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 0.85rem;}
+        .new-chat-btn:hover { background-color: #e2e8f0; }
+        
+        .chat-messages-full { flex: 1; overflow-y: auto; padding: 20px; background: #fafafa; display: flex; flex-direction: column; gap: 15px;}
+        .ai-message, .user-message { padding: 12px 18px; border-radius: 8px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+        .ai-message { background: white; align-self: flex-start; color: var(--text-main); border: 1px solid var(--border-color);}
+        .user-message { background: #fff7ed; color: #c2410c; align-self: flex-end; }
+        
+        .chat-input-full { display: flex; gap: 10px; background: white; padding: 15px 20px; border-top: 1px solid var(--border-color); }
+        .chat-input-full input { flex: 1; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem; background: var(--bg-color);}
+        .chat-input-full input:focus { border-color: var(--accent-color); background: white;}
+        .chat-input-full button { padding: 12px 25px; background: var(--accent-color); border: none; cursor: pointer; font-weight: 600; color: white; border-radius: 6px; transition: 0.2s; font-size: 0.95rem;}
+        .chat-input-full button:hover { background: #c2410c; }
+
+        /* COMANDOS (Direita) */
+        .commands-section { width: 350px; background: white; border-radius: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; }
+        .commands-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); background: #fff;}
+        .commands-header h2 { margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--text-main);}
+        .commands-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #fafafa; }
+        .cmd-btn { background: white; border: 1px solid var(--border-color); padding: 12px 15px; border-radius: 6px; text-align: left; font-size: 0.9rem; font-weight: 600; color: var(--text-main); cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .cmd-btn:hover { border-color: var(--accent-color); color: var(--accent-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        /* ==================================================================
+           4. MODAL (POP-UP)
+        ================================================================== */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 999; }
+        .modal-content { background: white; width: 550px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-color); }
+        .modal-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-main); }
+        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
+        .close-modal:hover { color: #ef4444; }
+        .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
+        .input-group input { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; outline: none; }
+        .input-group input:focus { border-color: var(--accent-color); }
+        
+        #modal-textarea { width: 100%; height: 180px; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; resize: none; font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text-main); background: #f8fafc; outline: none; }
+        
+        .modal-footer { padding: 15px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; background: var(--bg-color); }
+        .btn-secondary { background: white; border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--text-main); }
+        .btn-primary { background: var(--accent-color); border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; color: white; display: flex; align-items: center; gap: 8px; }
+        .btn-primary:hover { background: #c2410c; }
+        .btn-primary.copied { background: #10b981; } /* Verde quando copiado */
+    </style>
+</head>
+<body>
+
+    <header class="top-navbar">
+        <a href="index.html" class="logo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            DEXCO <span>Hub Financeiro</span>
+        </a>
+        
+        <nav class="nav-links">
+            <a href="conciliacao.html">CONCILIAÇÃO BANCÁRIA</a>
+            <a href="bancos.html">GESTÃO DE BANCOS</a>
+            <a href="caixa.html">GESTÃO DE CAIXA</a>
+            <a href="protestos.html">PROTESTOS</a>
+            <a href="aevee.html" class="active">PORTAL AEVEE</a>
+            <div style="width: 1px; height: 20px; background-color: #cbd5e1; margin: 0 5px;"></div>
+            <a href="index.html">✨ Assistente IA</a>
+        </nav>
+
+        <div class="user-profile">
+            Olá, Operador
+            <div>O</div>
+        </div>
+    </header>
+
+    <main class="content">
+        
+        <section class="chat-section">
+            <div class="chat-header-full">
+                <h2>IA - Suporte AEVEE</h2>
+                <button class="new-chat-btn" onclick="novoChat()">Limpar Chat</button>
+            </div>
+            <div id="chatMessages" class="chat-messages-full">
+                <p class="ai-message">Olá! Sou o assistente do Portal AEVEE. Cole a imagem para extração de dados ou faça uma pergunta sobre as regras de antecipação e chamados.</p>
+            </div>
+            <div class="chat-input-full">
+                <input type="text" id="userInput" placeholder="Faça uma pergunta ou cole informações..." onkeypress="enviarComEnter(event)">
+                <button onclick="sendMessage()">Enviar</button>
+            </div>
+        </section>
+
+        <aside class="commands-section">
+            <div class="commands-header">
+                <h2>Respostas Rápidas</h2>
+            </div>
+            <div class="commands-list" id="commandsList">
+                </div>
+        </aside>
+
+    </main>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Título do Comando</h3>
+                <button class="close-modal" onclick="fecharModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="modalInputs" style="display: none; flex-direction: column; gap: 10px;"></div>
+                
+                <div id="modalTextAreaContainer">
+                    <textarea id="modal-textarea" readonly></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-primary" id="btnAcaoModal">Copiar Texto</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. BANCO DE DADOS DOS COMANDOS
+        // ==========================================
+        const comandos = [
+            {
+                id: 'cadastro',
+                titulo: 'Cadastro Aprovado',
+                tipo: 'estatico',
+                texto: `Prezado(a) Fornecedor(a),\n\nInformamos que sua documentação foi avaliada e aprovada.\nEm breve, você receberá os dados de usuário e senha para acesso ao Portal de Antecipação.\n\nLembramos que:\nO horário de funcionamento do Portal é das 10h às 14h.\nAs NFS estarão disponíveis para antecipação 03 dias após a escrituração.\nA data mínima para solicitação de antecipação é de 07 dias úteis antes do vencimento.\n\nAgradecemos o envio e pedimos que fique atento(a) à data de validade de seus documentos, enviando-os para atualização sempre que necessário.\n\nAtt.\nGrupo Dexco`
+            },
+            {
+                id: 'recuperar',
+                titulo: 'Recuperar Acesso',
+                tipo: 'dinamico',
+                campos: [{ id: 'inputUsuario', label: 'Qual é o usuário?' }],
+                gerarTexto: (dados) => `Caro Fornecedor;\n\nFavor acessar o portal no endereço https://portaldexco.aevee.com.br/login, clicar em "Esqueceu a Senha", inserir o usuário informado ${dados.inputUsuario} e clicar em "Enviar".\n\nVocê receberá um e-mail com as informações para acesso no "E-mail para Cadastro" informado nesse chamado.\n\nAtt.\nGrupo Dexco`
+            },
+            {
+                id: 'fluxo',
+                titulo: 'Fluxo de Habilitação',
+                tipo: 'estatico',
+                texto: `Caro Fornecedor,\n\nPara dar início ao processo de adesão ao Risco Sacado, solicitamos que, primeiramente, entre em contato com o comprador responsável pela sua negociação. Ele será o seu ponto de apoio inicial e disponibilizará todas as informações necessárias para a adesão ao programa.\n\nNo primeiro contato entre você e o comprador parceiro, serão tratadas as condições comerciais obrigatórias para participação no Risco Sacado. Após a definição e aprovação dessas condições pelo comprador, solicitamos que siga o fluxo descrito abaixo:\n\n1ª Etapa – Solicitação de acesso\nAcessar o endereço: https://www.cervelloesm.com.br/Dexco/Portal/Home\nNavegar por: Home > Catálogo de serviços > CSC > CoE CSC > Atendimento ao Cervello > Solicitação de acesso ao Cervello CSC\nApós essa solicitação, o chamado seguirá para aprovação dos administradores internos.\n\n2ª Etapa – Liberação do Perfil de Antecipação de Recebíveis\nApós a aprovação da 1ª etapa, acessar novamente o portal: https://www.cervelloesm.com.br/Dexco/Portal/Home\nNavegar por: Home > Catálogo de Serviços > CSC > Tesouraria > Liberação Perfil de Antecipação de Recebíveis.\nPreencha todas as informações solicitadas para abertura do chamado. Após isso, o chamado será encaminhado ao comprador responsável, para aprovação do chamado.\nEle aprovando, o chamado seguirá para a área de Tesouraria, que realizará a análise da documentação enviada. Estando tudo conforme, o acesso ao portal de antecipações será liberado. Enviaremos usuário e senha.\n\nDocumentação obrigatória:\n- Contrato Social / Estatuto Social / Ata de Eleição da Diretoria\n- Procuração, quando o solicitante não for administrador legal\n- RG e CPF (ou CNH) do representante legal ou procurador\n- Ficha cadastral completa da Junta Comercial, atualizada e contendo o último arquivamento\n- Termo de Responsabilidade, quando houver assinatura conjunta e necessidade de autorização de assinatura isolada\nSomente serão analisados chamados que contenham todos os documentos obrigatórios anexados.\n\nPrazo de atendimento: Até 5 dias úteis.\n\nAtenciosamente,\nGrupo Dexco`
+            },
+            {
+                id: 'extrair',
+                titulo: 'Extrair (Prompt IA)',
+                tipo: 'estatico',
+                texto: `Extrair: Colei uma imagem. Por favor, extraia o Nome, RG e CPF. O nome deve estar em MAIÚSCULO e o RG e o CPF sem formatação (apenas números).`
+            },
+            {
+                id: 'cancelado',
+                titulo: 'Cancelado',
+                tipo: 'estatico',
+                texto: `Prezado(a) Fornecedor(a),\n\nInformamos que o chamado foi encerrado devido à ausência de interação.\nCaso ainda tenha interesse em obter acesso ao Portal de Antecipações, solicitamos a gentileza de reabrir o chamado, assegurando o atendimento integral às solicitações previamente encaminhadas para análise da documentação.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco`
+            },
+            {
+                id: 'alterar_email',
+                titulo: 'Alterar Email Cadastrado',
+                tipo: 'dinamico',
+                campos: [
+                    { id: 'inputEmailAntigo', label: 'E-mail antigo (Primeiro e-mail)' },
+                    { id: 'inputEmailNovo', label: 'E-mail novo (Segundo e-mail)' },
+                    { id: 'inputUsuario', label: 'Usuário' }
+                ],
+                gerarTexto: (dados) => `Prezado(a) Fornecedor(a),\n\nInformamos que o e-mail vinculado ao seu cadastro foi alterado de ${dados.inputEmailAntigo} para ${dados.inputEmailNovo}, conforme este chamado.\n\nPara gerar nova senha de acesso ao Portal de Antecipações, siga os passos abaixo:\nAcesse: https://portaldexco.aevee.com.br/login\nClique em "Esqueceu a Senha"\nNo campo de usuário, insira: ${dados.inputUsuario}\nClique em "Enviar"\n\nVocê receberá um e-mail no novo endereço cadastrado com as instruções para criação de nova senha e acesso ao portal.\nCaso seja necessário criar novos usuários, acesse o portal com este usuário atual. Em seguida, navegue até a aba “Usuário” → “Criar Usuário” e realize o cadastro.\nApós a criação, o novo usuário receberá automaticamente um e-mail com usuário e senha de acesso.\n\nPermanecemos à disposição para eventuais dúvidas.\n\nAtenciosamente,\nGrupo Dexco`
+            },
+            {
+                id: 'usuario_criado',
+                titulo: 'Usuário Criado',
+                tipo: 'estatico',
+                texto: `Prezado(a) Fornecedor(a),\n\nInformamos que o seu primeiro acesso ao Portal de Fornecedores foi criado com sucesso.\nAcesse o endereço eletrônico: https://portaldexco.aevee.com.br/login\nNo campo de login, insira o usuário e a senha provisória recebidos por e-mail.\n\nVocê foi cadastrado como usuário master, o que lhe permite gerenciar os acessos da sua empresa no sistema.\nCaso seja necessário, poderá criar novos usuários acessando o portal com seu login atual. Em seguida, navegue até a aba “Usuário” → “Criar Usuário” e realize o cadastro dos demais responsáveis.\nCada novo usuário receberá automaticamente, por e-mail, as credenciais de acesso ao sistema.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco`
+            },
+            {
+                id: 'usuario_secundario',
+                titulo: 'Criar Usuário Secundário',
+                tipo: 'dinamico',
+                campos: [
+                    { id: 'inputUsuario', label: 'Usuário:' },
+                    { id: 'inputEmail', label: 'E-mail vinculado:' }
+                ],
+                gerarTexto: (dados) => `Prezado(a) Fornecedor(a),\n\nPara obter acesso ao Portal de Antecipações, é necessário que o usuário já cadastrado no sistema, conforme dados abaixo, realize a criação de um novo usuário para você:\n\nUsuário: ${dados.inputUsuario}\nE-mail vinculado: ${dados.inputEmail}\n\nSolicite a essa pessoa que siga as instruções abaixo:\nAcesse: portaldexco.aevee.com.br/login\nFaça o login com o usuário informado acima.\nEm seguida, navegue até a aba:\n"Usuário" → "Criar Usuário"\nApós o cadastro, o novo usuário receberá automaticamente, por e-mail, o login e a senha de acesso ao portal.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco`
+            },
+            {
+                id: 'termo_responsabilidade',
+                titulo: 'Termo de Responsabilidade',
+                tipo: 'estatico',
+                texto: `Prezado(a) Fornecedor(a),\n\nDurante a análise da documentação enviada, verificamos que o modo de representação da empresa estabelece assinatura conjunta para operações de risco sacado. Como o Portal de Antecipações não permite a utilização de dupla alçada, será necessário que os(as) administradores(as) / sócios(as) autorizem formalmente o(a) operador(a) indicado(a) a assinar isoladamente no âmbito do Portal.\n\nPara isso, solicitamos a assinatura do Termo de Responsabilidade (anexo nesse chamado), o qual formaliza essa autorização.\n\nOrientações para assinatura (escolher uma das opções abaixo):\n1. Assinatura digital (recomendada):\nUtilizar certificado digital ICP-Brasil (e-CPF ou e-CNPJ) diretamente no arquivo em PDF.\n2. Assinatura em cartório:\nRealizar o reconhecimento de firma por autenticidade de todos os signatários. Nesse caso, anexar também cópia de RG ou CNH dos assinantes.\n\nApós a assinatura, solicitamos que o Termo seja anexado a este chamado para validação.\nConcluída a conferência documental, procederemos com a habilitação do acesso para operação no Portal de Fornecedores.\n\nAtenciosamente,\nDexco S.A.`
+            },
+            {
+                id: 'regras_antecipacao',
+                titulo: 'Regras de Antecipação',
+                tipo: 'estatico',
+                texto: `Prezado(a) Fornecedor(a),\n\nConforme as regras operacionais do Portal de Antecipações, informamos que os títulos somente serão exibidos para solicitação de antecipação quando atenderem aos critérios abaixo:\n\n1. Disponibilidade após a escrituração\nOs títulos ficam disponíveis 3 dias após a data de escrituração.\nExemplo: Escrituração em 01/02 → Contam-se os dias 02, 03 e 04 → Disponível a partir de 05/02.\n\n2. Janela mínima antes do vencimento\nA antecipação pode ser realizada até 7 dias úteis antes do vencimento.\nExemplo: Vencimento em 10/02 → Consideram-se os dias 09, 08, 07, 06, 05, 04, 03 → Disponível até 02/02.\n\n3. Valor mínimo para antecipação\nNotas fiscais inferiores a R$ 30,00 não ficam disponíveis para antecipação.\n\n4. Notas elegíveis no Portal\nSomente serão apresentadas para antecipação as notas exibidas na aba Contas a Pagar do Portal e que atendam todos os critérios mencionados acima.\n\nCaso tenha dúvidas ou não esteja visualizando algum título que entende ser elegível, permanecemos à disposição para verificar pontualmente.\n\nAtenciosamente,\nGrupo Dexco`
+            },
+            {
+                id: 'extracao_comprovante',
+                titulo: 'Extração de Comprovante',
+                tipo: 'estatico',
+                texto: `Prezado(a) Fornecedor(a),\n\nInformamos que os comprovantes de pagamento estarão disponíveis no Portal apenas a partir de 17/06/2025.\n\nPara comprovantes referentes a pagamentos anteriores a essa data, solicitamos que entre em contato com o atendimento pelo número:\n- (11) 97365-5033\n\nRessaltamos também que notas antecipadas não possuem comprovante disponível no Portal, uma vez que o pagamento é realizado diretamente pelo banco que efetuou a operação.\nNesses casos, o comprovante deverá ser solicitado diretamente à instituição financeira responsável pela antecipação.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco`
+            }
+        ];
+
+        let comandoAtual = null;
+
+        // ==========================================
+        // 2. RENDERIZAR BOTÕES DE COMANDO
+        // ==========================================
+        function renderizarComandos() {
+            const list = document.getElementById('commandsList');
+            comandos.forEach(cmd => {
+                const btn = document.createElement('button');
+                btn.className = 'cmd-btn';
+                btn.innerHTML = `${cmd.titulo} <span>📋</span>`;
+                btn.onclick = () => abrirModal(cmd);
+                list.appendChild(btn);
+            });
+        }
+
+        // ==========================================
+        // 3. LÓGICA DO MODAL
+        // ==========================================
+        function abrirModal(cmd) {
+            comandoAtual = cmd;
+            document.getElementById('modalTitle').textContent = cmd.titulo;
+            document.getElementById('modalOverlay').style.display = 'flex';
+            
+            const divInputs = document.getElementById('modalInputs');
+            const divTextarea = document.getElementById('modalTextAreaContainer');
+            const textarea = document.getElementById('modal-textarea');
+            const btnAcao = document.getElementById('btnAcaoModal');
+            
+            // Reseta botão
+            btnAcao.textContent = "Copiar Texto";
+            btnAcao.classList.remove('copied');
+
+            if (cmd.tipo === 'estatico') {
+                divInputs.style.display = 'none';
+                divTextarea.style.display = 'block';
+                textarea.value = cmd.texto;
+                btnAcao.textContent = "📋 Copiar Texto";
+                btnAcao.onclick = () => copiarTextoDoModal();
+            } else {
+                // É dinâmico, precisa pedir inputs
+                divInputs.style.display = 'flex';
+                divTextarea.style.display = 'none'; // Esconde texto até gerar
+                divInputs.innerHTML = ''; // Limpa inputs antigos
+                
+                cmd.campos.forEach(campo => {
+                    divInputs.innerHTML += `
+                        <div class="input-group">
+                            <label>${campo.label}</label>
+                            <input type="text" id="${campo.id}" autocomplete="off">
+                        </div>
+                    `;
+                });
+
+                btnAcao.textContent = "⚡ Gerar Texto";
+                btnAcao.onclick = () => gerarTextoDinamico();
+            }
+        }
+
+        function fecharModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            comandoAtual = null;
+        }
+
+        function gerarTextoDinamico() {
+            // Coleta dados dos inputs
+            let dados = {};
+            let todosPreenchidos = true;
+            
+            comandoAtual.campos.forEach(campo => {
+                const val = document.getElementById(campo.id).value.trim();
+                if(val === '') todosPreenchidos = false;
+                dados[campo.id] = val;
+            });
+
+            if(!todosPreenchidos) {
+                alert("Por favor, preencha todos os campos para gerar o texto.");
+                return;
+            }
+
+            // Gera e mostra o texto
+            const textoGerado = comandoAtual.gerarTexto(dados);
+            document.getElementById('modalInputs').style.display = 'none';
+            document.getElementById('modalTextAreaContainer').style.display = 'block';
+            document.getElementById('modal-textarea').value = textoGerado;
+
+            // Muda o botão para "Copiar"
+            const btnAcao = document.getElementById('btnAcaoModal');
+            btnAcao.textContent = "📋 Copiar Texto";
+            btnAcao.onclick = () => copiarTextoDoModal();
+        }
+
+        function copiarTextoDoModal() {
+            const texto = document.getElementById('modal-textarea').value;
+            navigator.clipboard.writeText(texto).then(() => {
+                const btnAcao = document.getElementById('btnAcaoModal');
+                btnAcao.textContent = "✔️ Copiado!";
+                btnAcao.classList.add("copied");
+                setTimeout(() => {
+                    fecharModal();
+                }, 1000); // Fecha o modal 1 segundo após copiar
+            });
+        }
+
+        // ==========================================
+        // 4. LÓGICA DO CHAT IA
+        // ==========================================
+        let historicoChat = [];
+
+        function novoChat() {
+            historicoChat = []; 
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <p class="ai-message">Olá! Sou o assistente do Portal AEVEE. O histórico foi limpo. Como posso ajudar agora?</p>
+            `;
+        }
+
+        function enviarComEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            const chatMessages = document.getElementById('chatMessages');
+
+            if (message === '') return;
+
+            historicoChat.push({ role: 'user', text: message });
+
+            const userDiv = document.createElement('p');
+            userDiv.className = 'user-message';
+            userDiv.textContent = message;
+            chatMessages.appendChild(userDiv);
+            input.value = ''; 
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const typingDiv = document.createElement('p');
+            typingDiv.className = 'ai-message';
+            typingDiv.textContent = 'Pensando...';
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                // Continua usando a mesma API que você já tem configurada
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ history: historicoChat })
+                });
+
+                const data = await response.json();
+                chatMessages.removeChild(typingDiv);
+
+                if (data.reply) {
+                    historicoChat.push({ role: 'model', text: data.reply });
+                    const aiDiv = document.createElement('p');
+                    aiDiv.className = 'ai-message';
+                    aiDiv.innerHTML = data.reply.replace(/\n/g, '<br>');
+                    chatMessages.appendChild(aiDiv);
+                } else {
+                    throw new Error('Sem resposta');
+                }
+
+            } catch (error) {
+                chatMessages.removeChild(typingDiv);
+                const errorDiv = document.createElement('p');
+                errorDiv.className = 'ai-message';
+                errorDiv.textContent = 'Erro ao conectar. Tente novamente.';
+                chatMessages.appendChild(errorDiv);
+                historicoChat.pop(); 
+            }
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Inicia a página renderizando os botões
+        window.onload = renderizarComandos;
+    </script>
+</body>
+</html>
