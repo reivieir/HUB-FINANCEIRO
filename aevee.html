@@ -316,7 +316,7 @@
             comandoAtual = null;
         }
 
-        // Lidar com o Ctrl+V dentro do Modal
+        // Lidar com o Ctrl+V dentro do Modal para pegar a imagem
         document.addEventListener('paste', function(e) {
             if (comandoAtual && comandoAtual.tipo === 'imagem_ia') {
                 const items = (e.clipboardData || e.originalEvent.clipboardData).items;
@@ -340,7 +340,7 @@
             }
         });
 
-        // Executar extração enviando para a API do Chat
+        // Executar extração enviando para a NOVA API AEVEE (/api/chat-aevee)
         async function executarExtracaoIA() {
             if (!modalImagemBase64) {
                 alert("Por favor, cole a imagem do documento primeiro usando Ctrl+V.");
@@ -352,7 +352,6 @@
             btnAcao.disabled = true;
 
             try {
-                // Monta a requisição usando o mesmo formato do chat
                 const payload = {
                     history: [
                         {
@@ -366,7 +365,8 @@
                     ]
                 };
 
-                const response = await fetch('/api/chat', {
+                // AQUI ESTÁ A MUDANÇA: Apontando para o arquivo chat-aevee.js que criamos!
+                const response = await fetch('/api/chat-aevee', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -471,7 +471,8 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             try {
-                const response = await fetch('/api/chat', {
+                // AQUI TAMBÉM: Atualizado para o novo motor
+                const response = await fetch('/api/chat-aevee', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ history: historicoChat })
