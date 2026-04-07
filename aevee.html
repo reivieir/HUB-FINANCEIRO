@@ -109,7 +109,7 @@
 <body>
 
     <header class="top-navbar">
-        <a href="../index.html" class="logo">
+        <a href="index.html" class="logo">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
             DEXCO <span>Hub Financeiro</span>
         </a>
@@ -121,7 +121,7 @@
             <a href="protestos.html">PROTESTOS</a>
             <a href="aevee.html" class="active">PORTAL AEVEE</a>
             <div style="width: 1px; height: 20px; background-color: #cbd5e1; margin: 0 5px;"></div>
-            <a href="../index.html">✨ Assistente IA</a>
+            <a href="index.html">✨ Assistente IA</a>
         </nav>
 
         <div class="user-profile">
@@ -325,11 +325,18 @@
                         const blob = item.getAsFile();
                         const reader = new FileReader();
                         reader.onload = function(event) {
-                            modalImagemBase64 = event.target.result.split(',')[1];
-                            modalImagemMimeType = item.type;
+                            const dataUrl = event.target.result;
+                            modalImagemBase64 = dataUrl.split(',')[1];
+                            
+                            // TRAVA DE SEGURANÇA NA TELA: Pega o formato exato ou força ser PNG
+                            let mimeExtracted = dataUrl.split(';')[0].split(':')[1];
+                            if (!mimeExtracted || mimeExtracted.trim() === '') {
+                                mimeExtracted = 'image/png';
+                            }
+                            modalImagemMimeType = mimeExtracted;
                             
                             const imgEl = document.getElementById('modalImagePreview');
-                            imgEl.src = event.target.result;
+                            imgEl.src = dataUrl;
                             imgEl.style.display = 'block';
                             document.getElementById('modalPasteInstruction').style.display = 'none';
                         };
@@ -372,7 +379,6 @@
 
                 const data = await response.json();
                 
-                // SE DEU ERRO NO BACKEND, JOGA O ERRO PARA A TELA
                 if (data.error) {
                     throw new Error(data.error); 
                 }
@@ -389,7 +395,6 @@
 
             } catch (error) {
                 console.error(error);
-                // AQUI MOSTRA A MENSAGEM REAL DE ERRO DO SERVIDOR PARA NÓS
                 alert("Erro ao extrair dados: " + error.message);
                 btnAcao.textContent = "Tentar Novamente";
                 btnAcao.disabled = false;
