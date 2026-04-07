@@ -91,19 +91,12 @@
         .input-group input:focus { border-color: var(--accent-color); }
         
         #modal-textarea { width: 100%; height: 180px; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; resize: none; font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text-main); background: #f8fafc; outline: none; }
-        
-        /* Área de Colar Imagem */
-        #modalImageArea { display: none; flex-direction: column; gap: 10px; align-items: center; border: 2px dashed #cbd5e1; padding: 25px; border-radius: 8px; text-align: center; background: #f8fafc; transition: 0.3s;}
-        #modalImageArea.dragover { border-color: var(--accent-color); background: #fff7ed; }
-        #modalPasteInstruction { margin: 0; color: var(--text-light); font-size: 0.95rem; font-weight: 500; }
-        #modalImagePreview { max-height: 150px; display: none; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
 
         .modal-footer { padding: 15px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; background: var(--bg-color); }
         .btn-secondary { background: white; border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--text-main); }
         .btn-primary { background: var(--accent-color); border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; color: white; display: flex; align-items: center; gap: 8px; transition: 0.2s;}
         .btn-primary:hover { background: #c2410c; }
         .btn-primary.copied { background: #10b981; }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -167,11 +160,6 @@
             
             <div class="modal-body">
                 <div id="modalInputs" style="display: none; flex-direction: column; gap: 10px;"></div>
-                
-                <div id="modalImageArea">
-                    <p id="modalPasteInstruction">Cole a imagem do documento aqui (Ctrl+V)</p>
-                    <img id="modalImagePreview" src="">
-                </div>
 
                 <div id="modalTextAreaContainer">
                     <textarea id="modal-textarea" readonly></textarea>
@@ -187,24 +175,47 @@
 
     <script>
         // ==========================================
-        // 1. BANCO DE DADOS DOS COMANDOS
+        // 1. BANCO DE DADOS DOS COMANDOS (REORGANIZADO)
         // ==========================================
         const comandos = [
-            { id: 'cadastro', titulo: 'Cadastro Aprovado', tipo: 'estatico', texto: `Prezado(a) Fornecedor(a),\n\nInformamos que sua documentação foi avaliada e aprovada.\nEm breve, você receberá os dados de usuário e senha para acesso ao Portal de Antecipação.\n\nLembramos que:\nO horário de funcionamento do Portal é das 10h às 14h.\nAs NFS estarão disponíveis para antecipação 03 dias após a escrituração.\nA data mínima para solicitação de antecipação é de 07 dias úteis antes do vencimento.\n\nAgradecemos o envio e pedimos que fique atento(a) à data de validade de seus documentos, enviando-os para atualização sempre que necessário.\n\nAtt.\nGrupo Dexco` },
-            { id: 'recuperar', titulo: 'Recuperar Acesso', tipo: 'dinamico', campos: [{ id: 'inputUsuario', label: 'Qual é o usuário?' }], gerarTexto: (dados) => `Caro Fornecedor;\n\nFavor acessar o portal no endereço https://portaldexco.aevee.com.br/login, clicar em "Esqueceu a Senha", inserir o usuário informado ${dados.inputUsuario} e clicar em "Enviar".\n\nVocê receberá um e-mail com as informações para acesso no "E-mail para Cadastro" informado nesse chamado.\n\nAtt.\nGrupo Dexco` },
-            { id: 'fluxo', titulo: 'Fluxo de Habilitação', tipo: 'estatico', texto: `Caro Fornecedor,\n\nPara dar início ao processo de adesão ao Risco Sacado, solicitamos que, primeiramente, entre em contato com o comprador responsável pela sua negociação. Ele será o seu ponto de apoio inicial e disponibilizará todas as informações necessárias para a adesão ao programa.\n\nNo primeiro contato entre você e o comprador parceiro, serão tratadas as condições comerciais obrigatórias para participação no Risco Sacado. Após a definição e aprovação dessas condições pelo comprador, solicitamos que siga o fluxo descrito abaixo:\n\n1ª Etapa – Solicitação de acesso\nAcessar o endereço: https://www.cervelloesm.com.br/Dexco/Portal/Home\nNavegar por: Home > Catálogo de serviços > CSC > CoE CSC > Atendimento ao Cervello > Solicitação de acesso ao Cervello CSC\nApós essa solicitação, o chamado seguirá para aprovação dos administradores internos.\n\n2ª Etapa – Liberação do Perfil de Antecipação de Recebíveis\nApós a aprovação da 1ª etapa, acessar novamente o portal: https://www.cervelloesm.com.br/Dexco/Portal/Home\nNavegar por: Home > Catálogo de Serviços > CSC > Tesouraria > Liberação Perfil de Antecipação de Recebíveis.\nPreencha todas as informações solicitadas para abertura do chamado. Após isso, o chamado será encaminhado ao comprador responsável, para aprovação do chamado.\nEle aprovando, o chamado seguirá para a área de Tesouraria, que realizará a análise da documentação enviada. Estando tudo conforme, o acesso ao portal de antecipações será liberado. Enviaremos usuário e senha.\n\nDocumentação obrigatória:\n- Contrato Social / Estatuto Social / Ata de Eleição da Diretoria\n- Procuração, quando o solicitante não for administrador legal\n- RG e CPF (ou CNH) do representante legal ou procurador\n- Ficha cadastral completa da Junta Comercial, atualizada e contendo o último arquivamento\n- Termo de Responsabilidade, quando houver assinatura conjunta e necessidade de autorização de assinatura isolada\nSomente serão analisados chamados que contenham todos os documentos obrigatórios anexados.\n\nPrazo de atendimento: Até 5 dias úteis.\n\nAtenciosamente,\nGrupo Dexco` },
-            { id: 'extrair', titulo: 'Extrair (Imagem IA)', tipo: 'imagem_ia', promptIA: `Por favor, analise a imagem fornecida (documento de identificação). Extraia e me responda APENAS com estes dados estruturados da seguinte forma:\nNOME: [nome em MAIÚSCULO]\nRG: [apenas números]\nCPF: [apenas números]` },
-            { id: 'cancelado', titulo: 'Cancelado', tipo: 'estatico', texto: `Prezado(a) Fornecedor(a),\n\nInformamos que o chamado foi encerrado devido à ausência de interação.\nCaso ainda tenha interesse em obter acesso ao Portal de Antecipações, solicitamos a gentileza de reabrir o chamado, assegurando o atendimento integral às solicitações previamente encaminhadas para análise da documentação.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco` },
-            { id: 'alterar_email', titulo: 'Alterar Email Cadastrado', tipo: 'dinamico', campos: [ { id: 'inputEmailAntigo', label: 'E-mail antigo (Primeiro e-mail)' }, { id: 'inputEmailNovo', label: 'E-mail novo (Segundo e-mail)' }, { id: 'inputUsuario', label: 'Usuário' } ], gerarTexto: (dados) => `Prezado(a) Fornecedor(a),\n\nInformamos que o e-mail vinculado ao seu cadastro foi alterado de ${dados.inputEmailAntigo} para ${dados.inputEmailNovo}, conforme este chamado.\n\nPara gerar nova senha de acesso ao Portal de Antecipações, siga os passos abaixo:\nAcesse: https://portaldexco.aevee.com.br/login\nClique em "Esqueceu a Senha"\nNo campo de usuário, insira: ${dados.inputUsuario}\nClique em "Enviar"\n\nVocê receberá um e-mail no novo endereço cadastrado com as instruções para criação de nova senha e acesso ao portal.\nCaso seja necessário criar novos usuários, acesse o portal com este usuário atual. Em seguida, navegue até a aba “Usuário” → “Criar Usuário” e realize o cadastro.\nApós a criação, o novo usuário receberá automaticamente um e-mail com usuário e senha de acesso.\n\nPermanecemos à disposição para eventuais dúvidas.\n\nAtenciosamente,\nGrupo Dexco` },
-            { id: 'usuario_criado', titulo: 'Usuário Criado', tipo: 'estatico', texto: `Prezado(a) Fornecedor(a),\n\nInformamos que o seu primeiro acesso ao Portal de Fornecedores foi criado com sucesso.\nAcesse o endereço eletrônico: https://portaldexco.aevee.com.br/login\nNo campo de login, insira o usuário e a senha provisória recebidos por e-mail.\n\nVocê foi cadastrado como usuário master, o que lhe permite gerenciar os acessos da sua empresa no sistema.\nCaso seja necessário, poderá criar novos usuários acessando o portal com seu login atual. Em seguida, navegue até a aba “Usuário” → “Criar Usuário” e realize o cadastro dos demais responsáveis.\nCada novo usuário receberá automaticamente, por e-mail, as credenciais de acesso ao sistema.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco` },
-            { id: 'usuario_secundario', titulo: 'Criar Usuário Secundário', tipo: 'dinamico', campos: [ { id: 'inputUsuario', label: 'Usuário:' }, { id: 'inputEmail', label: 'E-mail vinculado:' } ], gerarTexto: (dados) => `Prezado(a) Fornecedor(a),\n\nPara obter acesso ao Portal de Antecipações, é necessário que o usuário já cadastrado no sistema, conforme dados abaixo, realize a criação de um novo usuário para você:\n\nUsuário: ${dados.inputUsuario}\nE-mail vinculado: ${dados.inputEmail}\n\nSolicite a essa pessoa que siga as instruções abaixo:\nAcesse: portaldexco.aevee.com.br/login\nFaça o login com o usuário informado acima.\nEm seguida, navegue até a aba:\n"Usuário" → "Criar Usuário"\nApós o cadastro, o novo usuário receberá automaticamente, por e-mail, o login e a senha de acesso ao portal.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco` },
-            { id: 'termo_responsabilidade', titulo: 'Termo de Responsabilidade', tipo: 'estatico', texto: `Prezado(a) Fornecedor(a),\n\nDurante a análise da documentação enviada, verificamos que o modo de representação da empresa estabelece assinatura conjunta para operações de risco sacado. Como o Portal de Antecipações não permite a utilização de dupla alçada, será necessário que os(as) administradores(as) / sócios(as) autorizem formalmente o(a) operador(a) indicado(a) a assinar isoladamente no âmbito do Portal.\n\nPara isso, solicitamos a assinatura do Termo de Responsabilidade (anexo nesse chamado), o qual formaliza essa autorização.\n\nOrientações para assinatura (escolher uma das opções abaixo):\n1. Assinatura digital (recomendada):\nUtilizar certificado digital ICP-Brasil (e-CPF ou e-CNPJ) diretamente no arquivo em PDF.\n2. Assinatura em cartório:\nRealizar o reconhecimento de firma por autenticidade de todos os signatários. Nesse caso, anexar também cópia de RG ou CNH dos assinantes.\n\nApós a assinatura, solicitamos que o Termo seja anexado a este chamado para validação.\nConcluída a conferência documental, procederemos com a habilitação do acesso para operação no Portal de Fornecedores.\n\nAtenciosamente,\nDexco S.A.` },
-            { id: 'regras_antecipacao', titulo: 'Regras de Antecipação', tipo: 'estatico', texto: `Prezado(a) Fornecedor(a),\n\nConforme as regras operacionais do Portal de Antecipações, informamos que os títulos somente serão exibidos para solicitação de antecipação quando atenderem aos critérios abaixo:\n\n1. Disponibilidade após a escrituração\nOs títulos ficam disponíveis 3 dias após a data de escrituração.\nExemplo: Escrituração em 01/02 → Contam-se os dias 02, 03 e 04 → Disponível a partir de 05/02.\n\n2. Janela mínima antes do vencimento\nA antecipação pode ser realizada até 7 dias úteis antes do vencimento.\nExemplo: Vencimento em 10/02 → Consideram-se os dias 09, 08, 07, 06, 05, 04, 03 → Disponível até 02/02.\n\n3. Valor mínimo para antecipação\nNotas fiscais inferiores a R$ 30,00 não ficam disponíveis para antecipação.\n\n4. Notas elegíveis no Portal\nSomente serão apresentadas para antecipação as notas exibidas na aba Contas a Pagar do Portal e que atendam todos os critérios mencionados acima.\n\nCaso tenha dúvidas ou não esteja visualizando algum título que entende ser elegível, permanecemos à disposição para verificar pontualmente.\n\nAtenciosamente,\nGrupo Dexco` },
-            { id: 'extracao_comprovante', titulo: 'Extração de Comprovante', tipo: 'estatico', texto: `Prezado(a) Fornecedor(a),\n\nInformamos que os comprovantes de pagamento estarão disponíveis no Portal apenas a partir de 17/06/2025.\n\nPara comprovantes referentes a pagamentos anteriores a essa data, solicitamos que entre em contato com o atendimento pelo número:\n- (11) 97365-5033\n\nRessaltamos também que notas antecipadas não possuem comprovante disponível no Portal, uma vez que o pagamento é realizado diretamente pelo banco que efetuou a operação.\nNesses casos, o comprovante deverá ser solicitado diretamente à instituição financeira responsável pela antecipação.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco` }
+            {
+                id: 'cadastro', titulo: 'Cadastro Aprovado', tipo: 'estatico',
+                texto: `Prezado(a) Fornecedor(a),\n\nInformamos que sua documentação foi avaliada e aprovada.\nEm breve, você receberá os dados de usuário e senha para acesso ao Portal de Antecipação.\n\nLembramos que:\nO horário de funcionamento do Portal é das 10h às 14h.\nAs NFS estarão disponíveis para antecipação 03 dias após a escrituração.\nA data mínima para solicitação de antecipação é de 07 dias úteis antes do vencimento.\n\nAgradecemos o envio e pedimos que fique atento(a) à data de validade de seus documentos, enviando-os para atualização sempre que necessário.\n\nAtt.\nGrupo Dexco`
+            },
+            {
+                id: 'recuperar', titulo: 'Recuperar Acesso', tipo: 'dinamico',
+                campos: [{ id: 'inputUsuario', label: 'Qual é o usuário?' }],
+                gerarTexto: (dados) => `Caro Fornecedor;\n\nFavor acessar o portal no endereço https://portaldexco.aevee.com.br/login, clicar em "Esqueceu a Senha", inserir o usuário informado ${dados.inputUsuario} e clicar em "Enviar".\n\nVocê receberá um e-mail com as informações para acesso no "E-mail para Cadastro" informado nesse chamado.\n\nAtt.\nGrupo Dexco`
+            },
+            {
+                id: 'cancelado', titulo: 'Cancelado', tipo: 'estatico',
+                texto: `Prezado(a) Fornecedor(a),\n\nInformamos que o chamado foi encerrado devido à ausência de interação.\nCaso ainda tenha interesse em obter acesso ao Portal de Antecipações, solicitamos a gentileza de reabrir o chamado, assegurando o atendimento integral às solicitações previamente encaminhadas para análise da documentação.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco`
+            },
+            {
+                id: 'alterar_email', titulo: 'Alterar Email Cadastrado', tipo: 'dinamico',
+                campos: [ { id: 'inputEmailAntigo', label: 'E-mail antigo (Primeiro e-mail)' }, { id: 'inputEmailNovo', label: 'E-mail novo (Segundo e-mail)' }, { id: 'inputUsuario', label: 'Usuário' } ],
+                gerarTexto: (dados) => `Prezado(a) Fornecedor(a),\n\nInformamos que o e-mail vinculado ao seu cadastro foi alterado de ${dados.inputEmailAntigo} para ${dados.inputEmailNovo}, conforme este chamado.\n\nPara gerar nova senha de acesso ao Portal de Antecipações, siga os passos abaixo:\nAcesse: https://portaldexco.aevee.com.br/login\nClique em "Esqueceu a Senha"\nNo campo de usuário, insira: ${dados.inputUsuario}\nClique em "Enviar"\n\nVocê receberá um e-mail no novo endereço cadastrado com as instruções para criação de nova senha e acesso ao portal.\nCaso seja necessário criar novos usuários, acesse o portal com este usuário atual. Em seguida, navegue até a aba “Usuário” → “Criar Usuário” e realize o cadastro.\nApós a criação, o novo usuário receberá automaticamente um e-mail com usuário e senha de acesso.\n\nPermanecemos à disposição para eventuais dúvidas.\n\nAtenciosamente,\nGrupo Dexco`
+            },
+            {
+                id: 'usuario_criado', titulo: 'Usuário Criado', tipo: 'estatico',
+                texto: `Prezado(a) Fornecedor(a),\n\nInformamos que o seu primeiro acesso ao Portal de Fornecedores foi criado com sucesso.\nAcesse o endereço eletrônico: https://portaldexco.aevee.com.br/login\nNo campo de login, insira o usuário e a senha provisória recebidos por e-mail.\n\nVocê foi cadastrado como usuário master, o que lhe permite gerenciar os acessos da sua empresa no sistema.\nCaso seja necessário, poderá criar novos usuários acessando o portal com seu login atual. Em seguida, navegue até a aba “Usuário” → “Criar Usuário” e realize o cadastro dos demais responsáveis.\nCada novo usuário receberá automaticamente, por e-mail, as credenciais de acesso ao sistema.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco`
+            },
+            {
+                id: 'usuario_secundario', titulo: 'Criar Usuário Secundário', tipo: 'dinamico',
+                campos: [ { id: 'inputUsuario', label: 'Usuário:' }, { id: 'inputEmail', label: 'E-mail vinculado:' } ],
+                gerarTexto: (dados) => `Prezado(a) Fornecedor(a),\n\nPara obter acesso ao Portal de Antecipações, é necessário que o usuário já cadastrado no sistema, conforme dados abaixo, realize a criação de um novo usuário para você:\n\nUsuário: ${dados.inputUsuario}\nE-mail vinculado: ${dados.inputEmail}\n\nSolicite a essa pessoa que siga as instruções abaixo:\nAcesse: portaldexco.aevee.com.br/login\nFaça o login com o usuário informado acima.\nEm seguida, navegue até a aba:\n"Usuário" → "Criar Usuário"\nApós o cadastro, o novo usuário receberá automaticamente, por e-mail, o login e a senha de acesso ao portal.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco`
+            },
+            {
+                id: 'extracao_comprovante', titulo: 'Extração de Comprovante', tipo: 'estatico',
+                texto: `Prezado(a) Fornecedor(a),\n\nInformamos que os comprovantes de pagamento estarão disponíveis no Portal apenas a partir de 17/06/2025.\n\nPara comprovantes referentes a pagamentos anteriores a essa data, solicitamos que entre em contato com o atendimento pelo número:\n- (11) 97365-5033\n\nRessaltamos também que notas antecipadas não possuem comprovante disponível no Portal, uma vez que o pagamento é realizado diretamente pelo banco que efetuou a operação.\nNesses casos, o comprovante deverá ser solicitado diretamente à instituição financeira responsável pela antecipação.\n\nPermanecemos à disposição para eventuais esclarecimentos.\n\nAtenciosamente,\nGrupo Dexco`
+            },
+            {
+                id: 'fluxo', titulo: 'Fluxo de Habilitação', tipo: 'estatico',
+                texto: `Caro Fornecedor,\n\nPara dar início ao processo de adesão ao Risco Sacado, solicitamos que, primeiramente, entre em contato com o comprador responsável pela sua negociação. Ele será o seu ponto de apoio inicial e disponibilizará todas as informações necessárias para a adesão ao programa.\n\nNo primeiro contato entre você e o comprador parceiro, serão tratadas as condições comerciais obrigatórias para participação no Risco Sacado. Após a definição e aprovação dessas condições pelo comprador, solicitamos que siga o fluxo descrito abaixo:\n\n1ª Etapa – Solicitação de acesso\nAcessar o endereço: https://www.cervelloesm.com.br/Dexco/Portal/Home\nNavegar por: Home > Catálogo de serviços > CSC > CoE CSC > Atendimento ao Cervello > Solicitação de acesso ao Cervello CSC\nApós essa solicitação, o chamado seguirá para aprovação dos administradores internos.\n\n2ª Etapa – Liberação do Perfil de Antecipação de Recebíveis\nApós a aprovação da 1ª etapa, acessar novamente o portal: https://www.cervelloesm.com.br/Dexco/Portal/Home\nNavegar por: Home > Catálogo de Serviços > CSC > Tesouraria > Liberação Perfil de Antecipação de Recebíveis.\nPreencha todas as informações solicitadas para abertura do chamado. Após isso, o chamado será encaminhado ao comprador responsável, para aprovação do chamado.\nEle aprovando, o chamado seguirá para a área de Tesouraria, que realizará a análise da documentação enviada. Estando tudo conforme, o acesso ao portal de antecipações será liberado. Enviaremos usuário e senha.\n\nDocumentação obrigatória:\n- Contrato Social / Estatuto Social / Ata de Eleição da Diretoria\n- Procuração, quando o solicitante não for administrador legal\n- RG e CPF (ou CNH) do representante legal ou procurador\n- Ficha cadastral completa da Junta Comercial, atualizada e contendo o último arquivamento\n- Termo de Responsabilidade, quando houver assinatura conjunta e necessidade de autorização de assinatura isolada\nSomente serão analisados chamados que contenham todos os documentos obrigatórios anexados.\n\nPrazo de atendimento: Até 5 dias úteis.\n\nAtenciosamente,\nGrupo Dexco`
+            }
         ];
 
         let comandoAtual = null;
-        let modalImagemBase64 = null;
 
         function renderizarComandos() {
             const list = document.getElementById('commandsList');
@@ -224,147 +235,42 @@
             
             const divInputs = document.getElementById('modalInputs');
             const divTextarea = document.getElementById('modalTextAreaContainer');
-            const divImageArea = document.getElementById('modalImageArea');
             const textarea = document.getElementById('modal-textarea');
             const btnAcao = document.getElementById('btnAcaoModal');
             
+            // Reseta botões e campos
             btnAcao.classList.remove('copied');
             btnAcao.disabled = false;
-            modalImagemBase64 = null;
-            document.getElementById('modalImagePreview').style.display = 'none';
-            document.getElementById('modalPasteInstruction').style.display = 'block';
 
             if (cmd.tipo === 'estatico') {
-                divInputs.style.display = 'none'; divImageArea.style.display = 'none'; divTextarea.style.display = 'block';
+                divInputs.style.display = 'none';
+                divTextarea.style.display = 'block';
                 textarea.value = cmd.texto;
-                btnAcao.textContent = "📋 Copiar Texto"; btnAcao.onclick = () => copiarTextoDoModal();
+                btnAcao.textContent = "📋 Copiar Texto";
+                btnAcao.onclick = () => copiarTextoDoModal();
             } 
             else if (cmd.tipo === 'dinamico') {
-                divInputs.style.display = 'flex'; divImageArea.style.display = 'none'; divTextarea.style.display = 'none'; 
+                divInputs.style.display = 'flex';
+                divTextarea.style.display = 'none'; 
                 divInputs.innerHTML = ''; 
-                cmd.campos.forEach(campo => { divInputs.innerHTML += `<div class="input-group"><label>${campo.label}</label><input type="text" id="${campo.id}" autocomplete="off"></div>`; });
-                btnAcao.textContent = "⚡ Gerar Texto"; btnAcao.onclick = () => gerarTextoDinamico();
-            }
-            else if (cmd.tipo === 'imagem_ia') {
-                divInputs.style.display = 'none'; divImageArea.style.display = 'flex'; divTextarea.style.display = 'none'; 
-                textarea.value = "";
-                btnAcao.textContent = "🔍 Extrair Dados"; btnAcao.onclick = () => executarExtracaoIA();
+                
+                cmd.campos.forEach(campo => {
+                    divInputs.innerHTML += `
+                        <div class="input-group">
+                            <label>${campo.label}</label>
+                            <input type="text" id="${campo.id}" autocomplete="off">
+                        </div>
+                    `;
+                });
+
+                btnAcao.textContent = "⚡ Gerar Texto";
+                btnAcao.onclick = () => gerarTextoDinamico();
             }
         }
 
         function fecharModal() {
             document.getElementById('modalOverlay').style.display = 'none';
             comandoAtual = null;
-        }
-
-        // ==========================================
-        // NOVA FUNÇÃO: COMPRIMIR A IMAGEM NO NAVEGADOR
-        // ==========================================
-        function otimizarImagem(dataUrl, callback) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                const MAX_SIZE = 1000; // Reduz para no máximo 1000 pixels
-
-                if (width > height && width > MAX_SIZE) {
-                    height = Math.round((height * MAX_SIZE) / width);
-                    width = MAX_SIZE;
-                } else if (height > MAX_SIZE) {
-                    width = Math.round((width * MAX_SIZE) / height);
-                    height = MAX_SIZE;
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                // Força virar um JPEG super leve (80% qualidade)
-                const dataUrlLeve = canvas.toDataURL('image/jpeg', 0.8);
-                callback(dataUrlLeve);
-            };
-            img.src = dataUrl;
-        }
-
-        document.addEventListener('paste', function(e) {
-            if (comandoAtual && comandoAtual.tipo === 'imagem_ia') {
-                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-                for (let index in items) {
-                    const item = items[index];
-                    if (item.kind === 'file' && item.type.startsWith('image/')) {
-                        const blob = item.getAsFile();
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            
-                            // Em vez de salvar direto, passa pelo Compressor!
-                            otimizarImagem(event.target.result, function(imagemComprimida) {
-                                modalImagemBase64 = imagemComprimida.split(',')[1];
-                                
-                                const imgEl = document.getElementById('modalImagePreview');
-                                imgEl.src = imagemComprimida;
-                                imgEl.style.display = 'block';
-                                document.getElementById('modalPasteInstruction').style.display = 'none';
-                            });
-
-                        };
-                        reader.readAsDataURL(blob);
-                    }
-                }
-            }
-        });
-
-        async function executarExtracaoIA() {
-            if (!modalImagemBase64) {
-                alert("Por favor, cole a imagem do documento primeiro usando Ctrl+V.");
-                return;
-            }
-
-            const btnAcao = document.getElementById('btnAcaoModal');
-            btnAcao.textContent = "⏳ Analisando...";
-            btnAcao.disabled = true;
-
-            try {
-                const payload = {
-                    history: [
-                        {
-                            role: 'user',
-                            text: comandoAtual.promptIA,
-                            image: {
-                                mimeType: 'image/jpeg', // Sempre será JPEG levíssimo agora
-                                data: modalImagemBase64
-                            }
-                        }
-                    ]
-                };
-
-                const response = await fetch('/api/chat-aevee', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-                
-                if (data.error) throw new Error(data.error); 
-
-                if (data.reply) {
-                    document.getElementById('modalImageArea').style.display = 'none';
-                    document.getElementById('modalTextAreaContainer').style.display = 'block';
-                    document.getElementById('modal-textarea').value = data.reply;
-                    
-                    btnAcao.textContent = "📋 Copiar Texto";
-                    btnAcao.disabled = false;
-                    btnAcao.onclick = () => copiarTextoDoModal();
-                }
-
-            } catch (error) {
-                console.error(error);
-                alert("Erro ao extrair dados: " + error.message);
-                btnAcao.textContent = "Tentar Novamente";
-                btnAcao.disabled = false;
-            }
         }
 
         function gerarTextoDinamico() {
@@ -377,7 +283,10 @@
                 dados[campo.id] = val;
             });
 
-            if(!todosPreenchidos) { alert("Por favor, preencha todos os campos."); return; }
+            if(!todosPreenchidos) {
+                alert("Por favor, preencha todos os campos.");
+                return;
+            }
 
             const textoGerado = comandoAtual.gerarTexto(dados);
             document.getElementById('modalInputs').style.display = 'none';
@@ -400,17 +309,23 @@
         }
 
         // ==========================================
-        // 5. LÓGICA DO CHAT PRINCIPAL (Apenas Texto)
+        // 5. LÓGICA DO CHAT PRINCIPAL (IA DO AEVEE)
         // ==========================================
         let historicoChat = [];
 
         function novoChat() {
             historicoChat = []; 
             const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = `<p class="ai-message">Olá! Sou o assistente do Portal AEVEE. O histórico foi limpo. Como posso ajudar agora?</p>`;
+            chatMessages.innerHTML = `
+                <p class="ai-message">Olá! Sou o assistente do Portal AEVEE. O histórico foi limpo. Como posso ajudar agora?</p>
+            `;
         }
 
-        function enviarComEnter(event) { if (event.key === 'Enter') sendMessage(); }
+        function enviarComEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
 
         async function sendMessage() {
             const input = document.getElementById('userInput');
@@ -435,7 +350,8 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             try {
-                const response = await fetch('/api/chat', {
+                // APONTA PARA A API ESPECÍFICA DO PORTAL AEVEE
+                const response = await fetch('/api/chat-aevee', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ history: historicoChat })
